@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
 // ─── Global Style Injection ───────────────────────────────────────────────────
 function useGlobalStyles() {
@@ -125,6 +125,191 @@ function useReveal(threshold = 0.1) {
     return () => observer.disconnect()
   }, [threshold])
   return ref
+}
+
+// ─── useSEO ───────────────────────────────────────────────────────────────────
+function useSEO({ title, description, keywords, canonical, schema }) {
+  useEffect(() => {
+    document.title = title
+    const setMeta = (attr, val, content) => {
+      let el = document.querySelector(`meta[${attr}="${val}"]`)
+      if (!el) { el = document.createElement('meta'); el.setAttribute(attr, val); document.head.appendChild(el) }
+      el.setAttribute('content', content)
+    }
+    setMeta('name', 'description', description)
+    setMeta('name', 'keywords', keywords)
+    setMeta('name', 'robots', 'index, follow')
+    setMeta('name', 'author', 'HimalayanSip')
+    setMeta('name', 'theme-color', '#04101f')
+    setMeta('property', 'og:title', title)
+    setMeta('property', 'og:description', description)
+    setMeta('property', 'og:type', 'website')
+    setMeta('property', 'og:url', canonical)
+    setMeta('property', 'og:image', 'https://himalayan-sip.vercel.app/og-cover.jpg')
+    setMeta('property', 'og:site_name', 'HimalayanSip')
+    setMeta('property', 'og:locale', 'en_IN')
+    setMeta('name', 'twitter:card', 'summary_large_image')
+    setMeta('name', 'twitter:title', title)
+    setMeta('name', 'twitter:description', description)
+    setMeta('name', 'twitter:image', 'https://himalayan-sip.vercel.app/og-cover.jpg')
+    setMeta('name', 'twitter:site', '@HimalayanSip')
+    let link = document.querySelector("link[rel='canonical']")
+    if (!link) { link = document.createElement('link'); link.setAttribute('rel', 'canonical'); document.head.appendChild(link) }
+    link.setAttribute('href', canonical)
+    if (schema) {
+      let el = document.getElementById('hs-schema')
+      if (!el) { el = document.createElement('script'); el.id = 'hs-schema'; el.type = 'application/ld+json'; document.head.appendChild(el) }
+      el.textContent = JSON.stringify(schema)
+    }
+  }, [title, description, keywords, canonical])
+}
+
+// ─── useGeoTarget ─────────────────────────────────────────────────────────────
+function useGeoTarget() {
+  const [geoData, setGeoData] = useState({ city: null, region: null, country: null, detected: false, loading: true })
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(d => setGeoData({ city: d.city, region: d.region, country: d.country_name, countryCode: d.country_code, detected: true, loading: false }))
+      .catch(() => setGeoData({ city: null, region: null, country: 'India', detected: false, loading: false }))
+  }, [])
+  return geoData
+}
+
+// ─── GEO_CONTENT ─────────────────────────────────────────────────────────────
+const DELHI_NCR_CITIES = new Set(['delhi', 'new delhi', 'gurugram', 'gurgaon', 'noida', 'faridabad', 'ghaziabad', 'greater noida'])
+
+const GEO_CONTENT = {
+  'delhi-ncr': {
+    heroSubheading: "Supplying premium branded bottled water to Delhi NCR's corporates, 5-star hotels, government offices, and large-scale events.",
+    badge: '📍 Serving Delhi NCR',
+    deliveryNote: 'Same-week delivery: Delhi · Gurugram · Noida · Faridabad · Ghaziabad',
+    localTestimonial: {
+      name: 'Amit Verma', title: 'Procurement Manager, Connaught Corp Delhi', initials: 'AV',
+      text: "Our boardroom always has HimalayanSip branded bottles. The quality and precision of the labels is outstanding — delivered on time, every time.",
+      rating: 5,
+    },
+    phone: '+91 76671 23460',
+    whatsappMsg: "Hi! I'm in Delhi NCR and want to order custom branded water bottles.",
+    seoTitle: 'Custom Branded Water Bottles Delhi NCR | HimalayanSip',
+    seoDescription: 'Premium customized water bottles with your logo for Delhi NCR businesses. Serving Connaught Place, Gurugram, Noida, Greater Noida. Bulk orders available.',
+    seoKeywords: 'custom water bottles Delhi, branded water bottles Delhi NCR, corporate water bottle Gurugram, bulk water bottle Noida',
+  },
+  'default': {
+    heroSubheading: 'Currently serving Delhi and Delhi NCR. Pan-India expansion coming soon — register your interest today.',
+    badge: null,
+    deliveryNote: 'Currently serving Delhi NCR. Expanding pan-India soon.',
+    localTestimonial: null,
+    phone: '+91 76671 23460',
+    whatsappMsg: "Hi! I'm interested in customized water bottles for my business.",
+    seoTitle: 'HimalayanSip — Customized Branded Water Bottles | Delhi NCR',
+    seoDescription: 'HimalayanSip provides premium customized bottled water with your company logo. Serving Delhi NCR — corporate offices, hotels, events, hospitals.',
+    seoKeywords: 'custom branded water bottles Delhi, personalized water bottles business India, bulk water bottle orders Delhi NCR',
+  },
+}
+
+function useGeoContent(geo) {
+  return useMemo(() => {
+    if (!geo.detected || !geo.city) return GEO_CONTENT['default']
+    const key = geo.city.toLowerCase()
+    return DELHI_NCR_CITIES.has(key) ? GEO_CONTENT['delhi-ncr'] : GEO_CONTENT['default']
+  }, [geo.detected, geo.city])
+}
+
+// ─── useLazySection ───────────────────────────────────────────────────────────
+function useLazySection() {
+  const [visible, setVisible] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } }, { rootMargin: '200px' })
+    if (ref.current) obs.observe(ref.current)
+    return () => obs.disconnect()
+  }, [])
+  return { ref, visible }
+}
+
+// ─── JSON-LD Schemas ──────────────────────────────────────────────────────────
+const HS_SCHEMA = [
+  {
+    '@context': 'https://schema.org', '@type': 'LocalBusiness',
+    name: 'HimalayanSip',
+    description: 'Premium customized branded bottled water solutions for businesses in Delhi NCR',
+    url: 'https://himalayan-sip.vercel.app',
+    telephone: '+91-76671-23460', email: 'ravi.prakash4104@gmail.com',
+    priceRange: '₹₹', currenciesAccepted: 'INR', paymentAccepted: 'Cash, Credit Card, UPI, Bank Transfer',
+    areaServed: { '@type': 'City', name: 'Delhi NCR' },
+    address: { '@type': 'PostalAddress', addressLocality: 'New Delhi', addressRegion: 'Delhi', postalCode: '110001', addressCountry: 'IN' },
+    openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:00', closes: '18:00' }],
+    sameAs: ['https://www.instagram.com/himalayansip','https://www.linkedin.com/company/himalayansip'],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'Product',
+    name: 'Custom Branded Water Bottles',
+    description: 'Personalized bottled water with your company logo. Available in 250ml, 500ml, and 1L sizes.',
+    brand: { '@type': 'Brand', name: 'HimalayanSip' },
+    offers: [
+      { '@type': 'Offer', name: '250ml Custom Bottle', price: '12', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
+      { '@type': 'Offer', name: '500ml Custom Bottle', price: '18', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
+      { '@type': 'Offer', name: '1L Custom Bottle',   price: '28', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: [
+      { '@type': 'Question', name: 'What is the minimum order quantity for custom water bottles?', acceptedAnswer: { '@type': 'Answer', text: 'Minimum order is 150 units for 1L bottles, 250 units for 500ml, and 500 units for 250ml bottles.' } },
+      { '@type': 'Question', name: 'Which areas do you currently serve?', acceptedAnswer: { '@type': 'Answer', text: 'We currently serve Delhi and Delhi NCR including Gurugram, Noida, Faridabad and Ghaziabad.' } },
+      { '@type': 'Question', name: 'How long does production and delivery take?', acceptedAnswer: { '@type': 'Answer', text: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days.' } },
+      { '@type': 'Question', name: 'Can I get a sample bottle before placing a bulk order?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, we offer sample bottles so you can verify quality and design before committing to a bulk order.' } },
+    ],
+  },
+]
+
+// ─── FAQSection ───────────────────────────────────────────────────────────────
+const FAQS = [
+  { q: 'What is the minimum order quantity?', a: '150 units for 1L, 250 units for 500ml, and 500 units for 250ml bottles.' },
+  { q: 'Which areas do you currently serve?', a: 'We currently serve Delhi and Delhi NCR — including Gurugram, Noida, Faridabad, and Ghaziabad.' },
+  { q: 'How long does production and delivery take?', a: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days. Rush orders available.' },
+  { q: 'What file format should I send my logo in?', a: 'We accept PNG, SVG, PDF, and AI files. Vector formats (SVG, AI) yield the sharpest print results.' },
+  { q: 'Can I get a sample before placing a bulk order?', a: 'Absolutely — request a free sample bottle through our contact form.' },
+  { q: 'What label materials do you offer?', a: 'BOPP (waterproof), matte paper, glossy paper, and premium metallic foil labels.' },
+]
+
+function FAQSection() {
+  const [open, setOpen] = useState(null)
+  const ref = useReveal()
+  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  return (
+    <section id="faq" style={{ padding:'100px 5%', background:'var(--navy)' }}>
+      <div style={{ maxWidth:800, margin:'0 auto' }}>
+        <div ref={ref} className="reveal" style={{ textAlign:'center', marginBottom:60 }}>
+          <SectionTag>FAQ</SectionTag>
+          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+            Frequently Asked Questions
+          </h2>
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          {FAQS.map((item, i) => (
+            <div key={i} className="glass-card" style={{ overflow:'hidden', cursor:'pointer' }} onClick={() => setOpen(open===i ? null : i)}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'20px 24px' }}>
+                <span style={{ fontWeight:600, fontSize:16, color:'var(--white)', paddingRight:16 }}>{item.q}</span>
+                <span style={{ fontSize:22, color:'var(--aqua)', flexShrink:0, transition:'transform 0.3s', transform: open===i ? 'rotate(45deg)' : 'none' }}>+</span>
+              </div>
+              <div style={{ maxHeight: open===i ? 200 : 0, overflow:'hidden', transition:'max-height 0.4s ease' }}>
+                <p style={{ color:'var(--muted)', lineHeight:1.75, fontSize:15, padding:'0 24px 20px' }}>{item.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign:'center', marginTop:40 }}>
+          <button onClick={() => scrollTo('contact')} style={{
+            background:'transparent', border:'1px solid rgba(62,207,191,0.4)', borderRadius:50,
+            padding:'12px 28px', color:'var(--aqua)', fontFamily:'DM Sans, sans-serif',
+            fontSize:15, fontWeight:500, cursor:'pointer',
+          }}>Have more questions? Contact us →</button>
+        </div>
+      </div>
+    </section>
+  )
 }
 
 // ─── SVG Components ───────────────────────────────────────────────────────────
@@ -388,7 +573,7 @@ function Navbar() {
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
-function HeroSection() {
+function HeroSection({ geo, content }) {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   return (
     <section id="hero" style={{
@@ -409,8 +594,14 @@ function HeroSection() {
       }}>
         {/* Left */}
         <div style={{ animation:'fadeUp 0.9s ease forwards' }}>
+          {content?.badge && !geo?.loading && (
+            <div style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(62,207,191,0.1)', border:'1px solid rgba(62,207,191,0.3)', borderRadius:50, padding:'6px 16px', marginBottom:12, animation:'fadeUp 0.6s ease both' }}>
+              <span style={{ width:8, height:8, borderRadius:'50%', background:'#3ecfbf', display:'inline-block', boxShadow:'0 0 8px #3ecfbf' }} />
+              <span style={{ fontSize:13, color:'var(--aqua)', fontWeight:500 }}>{content.badge}</span>
+            </div>
+          )}
           <SectionTag>Premium B2B Water Branding</SectionTag>
-          <h1 className="hero-h1" style={{
+          <h1 className="hero-h1" id="main-heading" style={{
             fontFamily:'Cormorant Garamond, serif', fontWeight:700,
             fontSize:'clamp(44px, 5.5vw, 76px)', lineHeight:1.1, color:'var(--white)',
             marginBottom:24
@@ -423,7 +614,7 @@ function HeroSection() {
             }}>Your Brand.</span>
           </h1>
           <p style={{ color:'var(--muted)', fontSize:18, lineHeight:1.75, maxWidth:480, marginBottom:36 }}>
-            Premium Himalayan water, bottled with your logo. Trusted by 500+ brands across India for corporate events, hotels, offices, and more.
+            {content?.heroSubheading || 'Premium Himalayan water, bottled with your logo. Trusted by 500+ brands for corporate events, hotels, offices, and more.'}
           </p>
           <div style={{ display:'flex', gap:16, flexWrap:'wrap', marginBottom:48 }}>
             <button onClick={() => scrollTo('customizer')} style={{
@@ -846,16 +1037,21 @@ function CustomizerSection() {
 }
 
 // ─── Testimonials ─────────────────────────────────────────────────────────────
-function TestimonialsSection() {
+function TestimonialsSection({ content }) {
+  const allTestimonials = useMemo(() => {
+    if (!content?.localTestimonial) return TESTIMONIALS
+    return [{ ...content.localTestimonial, isLocal: true }, ...TESTIMONIALS]
+  }, [content?.localTestimonial])
+
   const [active, setActive] = useState(0)
   const titleRef = useReveal()
   useEffect(() => {
-    const timer = setInterval(() => setActive(a => (a + 1) % TESTIMONIALS.length), 5000)
+    const timer = setInterval(() => setActive(a => (a + 1) % allTestimonials.length), 5000)
     return () => clearInterval(timer)
-  }, [])
+  }, [allTestimonials.length])
 
   return (
-    <section id="testimonials" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
+    <section id="testimonials" style={{ padding:'100px 5%', background:'var(--navy-mid)' }} aria-live="polite" aria-atomic="true">
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
           <SectionTag>What Clients Say</SectionTag>
@@ -865,13 +1061,18 @@ function TestimonialsSection() {
         </div>
 
         <div className="testimonials-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:24, marginBottom:40 }}>
-          {TESTIMONIALS.map((t, i) => (
+          {allTestimonials.map((t, i) => (
             <div key={t.name} onClick={() => setActive(i)} style={{
               background:'var(--navy-card)', border:`1px solid ${active===i ? 'rgba(62,207,191,0.35)' : 'var(--glass-border)'}`,
-              borderRadius:20, padding:'28px 24px', cursor:'pointer', transition:'all 0.4s',
+              borderRadius:20, padding:'28px 24px', cursor:'pointer', transition:'all 0.4s', position:'relative',
               transform: active===i ? 'scale(1.02)' : 'scale(1)',
               boxShadow: active===i ? '0 16px 50px rgba(62,207,191,0.08)' : 'none'
             }}>
+              {t.isLocal && (
+                <div style={{ position:'absolute', top:14, right:14, fontSize:11, fontWeight:700, color:'var(--aqua)', background:'rgba(62,207,191,0.1)', border:'1px solid rgba(62,207,191,0.3)', borderRadius:50, padding:'2px 10px', letterSpacing:'0.08em' }}>
+                  📍 Delhi NCR
+                </div>
+              )}
               <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:16 }}>
                 <div style={{ width:46, height:46, borderRadius:'50%', background:'rgba(62,207,191,0.15)',
                   border:'1px solid rgba(62,207,191,0.3)', display:'flex', alignItems:'center', justifyContent:'center',
@@ -891,7 +1092,7 @@ function TestimonialsSection() {
 
         {/* Dots */}
         <div style={{ display:'flex', justifyContent:'center', gap:8 }}>
-          {TESTIMONIALS.map((_, i) => (
+          {allTestimonials.map((_, i) => (
             <div key={i} onClick={() => setActive(i)} style={{
               height:8, borderRadius:50, cursor:'pointer', transition:'all 0.35s',
               width: active===i ? 28 : 8,
@@ -905,11 +1106,13 @@ function TestimonialsSection() {
 }
 
 // ─── Contact ──────────────────────────────────────────────────────────────────
-function ContactSection() {
+function ContactSection({ content }) {
   const [form, setForm] = useState({ name:'', company:'', email:'', phone:'', quantity:'', message:'' })
   const [submitted, setSubmitted] = useState(false)
   const leftRef = useReveal()
   const rightRef = useReveal()
+  const phone = content?.phone || '+91 76671 23460'
+  const deliveryNote = content?.deliveryNote || 'Currently serving Delhi NCR.'
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
   const handleSubmit = () => {
@@ -938,9 +1141,10 @@ function ContactSection() {
               Ready to put your brand on every bottle? Tell us about your requirements and we'll craft a solution tailored to your needs and timeline.
             </p>
             {[
-              { icon:'📍', text:'Bengaluru, India' },
-              { icon:'📞', text:'+91 7667123460' },
+              { icon:'📍', text:'Delhi, India' },
+              { icon:'📞', text:phone },
               { icon:'📧', text:'ravi.prakash4104@gmail.com' },
+              { icon:'🚚', text:deliveryNote },
             ].map(item => (
               <div key={item.text} style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
                 <span style={{ fontSize:20 }}>{item.icon}</span>
@@ -1001,7 +1205,7 @@ function ContactSection() {
 }
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
+function Footer({ content }) {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   return (
     <footer style={{ background:'#03090f', padding:'60px 5% 30px' }}>
@@ -1046,8 +1250,8 @@ function Footer() {
         {/* Contact */}
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Contact</div>
-          {['📍 Bengaluru, India','📞 +91 7667123460','📧 ravi.prakash4104@gmail.com'].map(item => (
-            <div key={item} style={{ color:'var(--muted)', fontSize:14, marginBottom:10 }}>{item}</div>
+          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76671 23460'}`, '📧 ravi.prakash4104@gmail.com', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
+            <div key={item} style={{ color:'var(--muted)', fontSize:13, marginBottom:10, lineHeight:1.5 }}>{item}</div>
           ))}
         </div>
       </div>
@@ -1061,8 +1265,9 @@ function Footer() {
 }
 
 // ─── WhatsApp Button ──────────────────────────────────────────────────────────
-function WhatsAppButton() {
-  const handleClick = () => window.open("https://wa.me/917667123460?text=Hi! I'm interested in customized water bottles for my business.")
+function WhatsAppButton({ content }) {
+  const msg = encodeURIComponent(content?.whatsappMsg || "Hi! I'm interested in customized water bottles for my business.")
+  const handleClick = () => window.open(`https://wa.me/917667123460?text=${msg}`)
   return (
     <>
       {/* Ripple ring */}
@@ -1092,20 +1297,50 @@ function WhatsAppButton() {
 // ─── App Root ─────────────────────────────────────────────────────────────────
 export default function App() {
   useGlobalStyles()
+  const geo = useGeoTarget()
+  const content = useGeoContent(geo)
+
+  useSEO({
+    title: content.seoTitle,
+    description: content.seoDescription,
+    keywords: content.seoKeywords,
+    canonical: 'https://himalayan-sip.vercel.app/',
+    schema: HS_SCHEMA,
+  })
+
+  useEffect(() => {
+    document.documentElement.lang = 'en-IN'
+    const setLink = (rel, href, extra) => {
+      if (document.querySelector(`link[href="${href}"]`)) return
+      const l = document.createElement('link'); l.rel = rel; l.href = href
+      if (extra) Object.assign(l, extra)
+      document.head.appendChild(l)
+    }
+    setLink('preconnect', 'https://fonts.googleapis.com')
+    setLink('preconnect', 'https://fonts.gstatic.com', { crossOrigin: 'anonymous' })
+    setLink('dns-prefetch', 'https://ipapi.co')
+    setLink('alternate', 'https://himalayan-sip.vercel.app/', { hreflang: 'en-in' })
+    setLink('alternate', 'https://himalayan-sip.vercel.app/', { hreflang: 'x-default' })
+  }, [])
+
+  const { ref: customizerRef, visible: customizerVisible } = useLazySection()
+  const { ref: testimonialsRef, visible: testimonialsVisible } = useLazySection()
+
   return (
-    <div style={{ fontFamily:'DM Sans, sans-serif' }}>
+    <div role="main" style={{ fontFamily:'DM Sans, sans-serif' }}>
       <Navbar />
-      <HeroSection />
+      <HeroSection geo={geo} content={content} />
       <AboutSection />
       <ServicesSection />
       <HowItWorksSection />
       <ProductsSection />
       <IndustriesSection />
-      <CustomizerSection />
-      <TestimonialsSection />
-      <ContactSection />
-      <Footer />
-      <WhatsAppButton />
+      <div ref={customizerRef}>{customizerVisible && <CustomizerSection />}</div>
+      <div ref={testimonialsRef}>{testimonialsVisible && <TestimonialsSection content={content} />}</div>
+      <FAQSection />
+      <ContactSection content={content} />
+      <Footer content={content} />
+      <WhatsAppButton content={content} />
     </div>
   )
 }

@@ -939,8 +939,8 @@ function ContactSection() {
             </p>
             {[
               { icon:'📍', text:'Bengaluru, India' },
-              { icon:'📞', text:'+91 98765 43210' },
-              { icon:'📧', text:'hello@himalayansip.com' },
+              { icon:'📞', text:'+91 7667123460' },
+              { icon:'📧', text:'ravi.prakash4104@gmail.com' },
             ].map(item => (
               <div key={item.text} style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
                 <span style={{ fontSize:20 }}>{item.icon}</span>
@@ -1046,7 +1046,7 @@ function Footer() {
         {/* Contact */}
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Contact</div>
-          {['📍 Bengaluru, India','📞 +91 98765 43210','📧 hello@himalayansip.com'].map(item => (
+          {['📍 Bengaluru, India','📞 +91 7667123460','📧 ravi.prakash4104@gmail.com'].map(item => (
             <div key={item} style={{ color:'var(--muted)', fontSize:14, marginBottom:10 }}>{item}</div>
           ))}
         </div>
@@ -1062,7 +1062,7 @@ function Footer() {
 
 // ─── WhatsApp Button ──────────────────────────────────────────────────────────
 function WhatsAppButton() {
-  const handleClick = () => window.open("https://wa.me/919876543210?text=Hi! I'm interested in customized water bottles for my business.")
+  const handleClick = () => window.open("https://wa.me/917667123460?text=Hi! I'm interested in customized water bottles for my business.")
   return (
     <>
       {/* Ripple ring */}

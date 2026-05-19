@@ -392,7 +392,7 @@ function HeroSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   return (
     <section id="hero" style={{
-      minHeight: '100vh', paddingTop: 72, position: 'relative', overflow: 'hidden',
+      minHeight: '100vh', paddingTop: 72, paddingBottom: 80, position: 'relative', overflow: 'hidden',
       background: 'linear-gradient(135deg, #04101f 0%, #071428 40%, #061020 100%)',
       display: 'flex', alignItems: 'center'
     }}>

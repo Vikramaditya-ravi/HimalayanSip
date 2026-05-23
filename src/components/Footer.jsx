@@ -73,7 +73,7 @@ export default function Footer() {
             <div style={{ color: 'var(--white)', fontWeight: 600, marginBottom: 18, fontSize: 15 }}>Contact</div>
             {[
               ['📍', 'Bengaluru, India'],
-              ['📞', '+91 98765 43210'],
+              ['📞', '+91 76248 03460'],
               ['📧', 'hello@aquavia.com'],
             ].map(([icon, text]) => (
               <div key={text} style={{ display: 'flex', gap: 10, color: 'var(--muted)', fontSize: 14, marginBottom: 12 }}>

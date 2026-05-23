@@ -61,7 +61,7 @@ export default function ContactSection() {
 
             {[
               { icon: '📍', label: 'Bengaluru, India' },
-              { icon: '📞', label: '+91 98765 43210' },
+              { icon: '📞', label: '+91 76248 03460' },
               { icon: '📧', label: 'hello@aquavia.com' },
             ].map(({ icon, label }) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>

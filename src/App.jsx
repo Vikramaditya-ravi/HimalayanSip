@@ -189,7 +189,7 @@ const GEO_CONTENT = {
       text: "Our boardroom always has AquaVia branded bottles. The quality and precision of the labels is outstanding — delivered on time, every time.",
       rating: 5,
     },
-    phone: '+91 76671 23460',
+    phone: '+91 76248 03460',
     whatsappMsg: "Hi! I'm in Delhi NCR and want to order custom branded water bottles.",
     seoTitle: 'Custom Branded Water Bottles Delhi NCR | AquaVia',
     seoDescription: 'Premium customized water bottles with your logo for Delhi NCR businesses. Serving Connaught Place, Gurugram, Noida, Greater Noida. Bulk orders available.',
@@ -200,7 +200,7 @@ const GEO_CONTENT = {
     badge: null,
     deliveryNote: 'Currently serving Delhi NCR. Expanding pan-India soon.',
     localTestimonial: null,
-    phone: '+91 76671 23460',
+    phone: '+91 76248 03460',
     whatsappMsg: "Hi! I'm interested in customized water bottles for my business.",
     seoTitle: 'AquaVia — Customized Branded Water Bottles | Delhi NCR',
     seoDescription: 'AquaVia provides premium customized bottled water with your company logo. Serving Delhi NCR — corporate offices, hotels, events, hospitals.',
@@ -235,7 +235,7 @@ const HS_SCHEMA = [
     name: 'AquaVia',
     description: 'Premium customized branded bottled water solutions for businesses in Delhi NCR',
     url: 'https://himalayan-sip.vercel.app',
-    telephone: '+91-76671-23460', email: 'ravi.prakash4104@gmail.com',
+    telephone: '+91-76248-03460', email: 'ravi.prakash4104@gmail.com',
     priceRange: '₹₹', currenciesAccepted: 'INR', paymentAccepted: 'Cash, Credit Card, UPI, Bank Transfer',
     areaServed: { '@type': 'City', name: 'Delhi NCR' },
     address: { '@type': 'PostalAddress', addressLocality: 'New Delhi', addressRegion: 'Delhi', postalCode: '110001', addressCountry: 'IN' },
@@ -1111,7 +1111,7 @@ function ContactSection({ content }) {
   const [submitted, setSubmitted] = useState(false)
   const leftRef = useReveal()
   const rightRef = useReveal()
-  const phone = content?.phone || '+91 76671 23460'
+  const phone = content?.phone || '+91 76248 03460'
   const deliveryNote = content?.deliveryNote || 'Currently serving Delhi NCR.'
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
@@ -1250,7 +1250,7 @@ function Footer({ content }) {
         {/* Contact */}
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Contact</div>
-          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76671 23460'}`, '📧 ravi.prakash4104@gmail.com', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
+          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76248 03460'}`, '📧 ravi.prakash4104@gmail.com', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
             <div key={item} style={{ color:'var(--muted)', fontSize:13, marginBottom:10, lineHeight:1.5 }}>{item}</div>
           ))}
         </div>
@@ -1267,7 +1267,7 @@ function Footer({ content }) {
 // ─── WhatsApp Button ──────────────────────────────────────────────────────────
 function WhatsAppButton({ content }) {
   const msg = encodeURIComponent(content?.whatsappMsg || "Hi! I'm interested in customized water bottles for my business.")
-  const handleClick = () => window.open(`https://wa.me/917667123460?text=${msg}`)
+  const handleClick = () => window.open(`https://wa.me/917624803460?text=${msg}`)
   return (
     <>
       {/* Ripple ring */}

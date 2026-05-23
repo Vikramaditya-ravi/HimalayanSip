@@ -1,6 +1,6 @@
 export default function WhatsAppButton() {
   function handleClick() {
-    window.open('https://wa.me/919876543210?text=Hi! I\'m interested in customized water bottles for my business.');
+    window.open('https://wa.me/917624803460?text=Hi! I\'m interested in customized water bottles for my business.');
   }
 
   return (

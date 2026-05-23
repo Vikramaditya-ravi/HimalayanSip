@@ -42,6 +42,11 @@ function useGlobalStyles() {
       @keyframes shimmerSweep { 0%{left:-80%} 100%{left:130%} }
       @keyframes badgePulse { 0%,100%{transform:translateX(-50%) scale(1);box-shadow:0 4px 20px rgba(200,164,74,0.4)} 50%{transform:translateX(-50%) scale(1.06);box-shadow:0 6px 28px rgba(200,164,74,0.7)} }
       @keyframes borderGlow { 0%,100%{border-color:rgba(62,207,191,0.4)} 50%{border-color:rgba(62,207,191,0.9)} }
+      @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+      .marquee-wrapper { overflow:hidden; -webkit-mask-image:linear-gradient(to right,transparent 0%,black 8%,black 92%,transparent 100%); mask-image:linear-gradient(to right,transparent 0%,black 8%,black 92%,transparent 100%); }
+      .marquee-track { display:flex; width:max-content; }
+      .marquee-track:hover { animation-play-state:paused !important; }
 
       .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.75s ease,transform 0.75s ease; }
       .reveal.visible { opacity:1; transform:translateY(0); }
@@ -844,6 +849,7 @@ function StepCard({ step, delay, isLast }) {
 function ProductsSection() {
   const titleRef = useReveal()
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  const doubled = [...PRODUCTS, ...PRODUCTS]
   return (
     <section id="products" style={{ padding:'100px 5%', background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
@@ -853,24 +859,26 @@ function ProductsSection() {
             Choose Your Perfect Size
           </h2>
         </div>
-        <div className="products-grid" style={{ display:'flex', overflowX:'auto', gap:22, paddingTop:20, paddingBottom:16, scrollSnapType:'x mandatory', WebkitOverflowScrolling:'touch' }}>
-          {PRODUCTS.map((p, i) => (
-            <ProductCard key={p.size} product={p} delay={i * 0.12} scrollTo={scrollTo} />
-          ))}
+        <div className="marquee-wrapper" style={{ paddingTop:20, paddingBottom:16 }}>
+          <div className="marquee-track" style={{ animation:'marquee 22s linear infinite' }}>
+            {doubled.map((p, i) => (
+              <ProductCard key={`${p.size}-${i}`} product={p} delay={0} scrollTo={scrollTo} marquee />
+            ))}
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-function ProductCard({ product, delay, scrollTo }) {
+function ProductCard({ product, delay, scrollTo, marquee }) {
   const ref = useReveal()
   return (
-    <div ref={ref} className={`bottle-card reveal${product.featured ? ' featured-card' : ''}`} style={{
+    <div ref={marquee ? null : ref} className={`bottle-card${marquee ? '' : ' reveal'}${product.featured ? ' featured-card' : ''}`} style={{
       background:'var(--navy-card)', border:`1px solid ${product.featured ? 'rgba(62,207,191,0.4)' : 'var(--glass-border)'}`,
       borderRadius:24, padding:'32px 28px', textAlign:'center', position:'relative',
-      transitionDelay:`${delay}s`, display:'flex', flexDirection:'column', alignItems:'center', gap:0,
-      flex:'0 0 270px', minWidth:270, scrollSnapAlign:'start'
+      transitionDelay:marquee ? '0s' : `${delay}s`, display:'flex', flexDirection:'column', alignItems:'center', gap:0,
+      flex:'0 0 270px', minWidth:270, marginRight:22,
     }}>
       {product.featured && (
         <div className="featured-badge" style={{
@@ -1062,15 +1070,11 @@ function TestimonialsSection({ content }) {
     return [{ ...content.localTestimonial, isLocal: true }, ...TESTIMONIALS]
   }, [content?.localTestimonial])
 
-  const [active, setActive] = useState(0)
   const titleRef = useReveal()
-  useEffect(() => {
-    const timer = setInterval(() => setActive(a => (a + 1) % allTestimonials.length), 5000)
-    return () => clearInterval(timer)
-  }, [allTestimonials.length])
+  const doubled = [...allTestimonials, ...allTestimonials]
 
   return (
-    <section id="testimonials" style={{ padding:'100px 5%', background:'var(--navy-mid)' }} aria-live="polite" aria-atomic="true">
+    <section id="testimonials" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
           <SectionTag>What Clients Say</SectionTag>
@@ -1079,45 +1083,35 @@ function TestimonialsSection({ content }) {
           </h2>
         </div>
 
-        <div className="testimonials-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:24, marginBottom:40 }}>
-          {allTestimonials.map((t, i) => (
-            <div key={t.name} onClick={() => setActive(i)} style={{
-              background:'var(--navy-card)', border:`1px solid ${active===i ? 'rgba(62,207,191,0.35)' : 'var(--glass-border)'}`,
-              borderRadius:20, padding:'28px 24px', cursor:'pointer', transition:'all 0.4s', position:'relative',
-              transform: active===i ? 'scale(1.02)' : 'scale(1)',
-              boxShadow: active===i ? '0 16px 50px rgba(62,207,191,0.08)' : 'none'
-            }}>
-              {t.isLocal && (
-                <div style={{ position:'absolute', top:14, right:14, fontSize:11, fontWeight:700, color:'var(--aqua)', background:'rgba(62,207,191,0.1)', border:'1px solid rgba(62,207,191,0.3)', borderRadius:50, padding:'2px 10px', letterSpacing:'0.08em' }}>
-                  📍 Delhi NCR
+        <div className="marquee-wrapper">
+          <div className="marquee-track" style={{ animation:'marquee 20s linear infinite' }}>
+            {doubled.map((t, i) => (
+              <div key={`${t.name}-${i}`} style={{
+                background:'var(--navy-card)', border:'1px solid var(--glass-border)',
+                borderRadius:20, padding:'28px 24px', position:'relative',
+                flex:'0 0 380px', minWidth:380, marginRight:24,
+              }}>
+                {t.isLocal && (
+                  <div style={{ position:'absolute', top:14, right:14, fontSize:11, fontWeight:700, color:'var(--aqua)', background:'rgba(62,207,191,0.1)', border:'1px solid rgba(62,207,191,0.3)', borderRadius:50, padding:'2px 10px', letterSpacing:'0.08em' }}>
+                    📍 Delhi NCR
+                  </div>
+                )}
+                <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:16 }}>
+                  <div style={{ width:46, height:46, borderRadius:'50%', background:'rgba(62,207,191,0.15)',
+                    border:'1px solid rgba(62,207,191,0.3)', display:'flex', alignItems:'center', justifyContent:'center',
+                    fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:16, color:'var(--aqua)', flexShrink:0 }}>
+                    {t.initials}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight:600, fontSize:15, color:'var(--white)' }}>{t.name}</div>
+                    <div style={{ fontSize:12, color:'var(--muted)' }}>{t.title}</div>
+                  </div>
                 </div>
-              )}
-              <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:16 }}>
-                <div style={{ width:46, height:46, borderRadius:'50%', background:'rgba(62,207,191,0.15)',
-                  border:'1px solid rgba(62,207,191,0.3)', display:'flex', alignItems:'center', justifyContent:'center',
-                  fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:16, color:'var(--aqua)', flexShrink:0 }}>
-                  {t.initials}
-                </div>
-                <div>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--white)' }}>{t.name}</div>
-                  <div style={{ fontSize:12, color:'var(--muted)' }}>{t.title}</div>
-                </div>
+                <div style={{ color:'var(--gold)', fontSize:14, marginBottom:12, letterSpacing:2 }}>{'★'.repeat(t.rating)}</div>
+                <p style={{ color:'var(--muted)', fontSize:14, lineHeight:1.75, fontStyle:'italic' }}>&ldquo;{t.text}&rdquo;</p>
               </div>
-              <div style={{ color:'var(--gold)', fontSize:14, marginBottom:12, letterSpacing:2 }}>{'★'.repeat(t.rating)}</div>
-              <p style={{ color:'var(--muted)', fontSize:14, lineHeight:1.75, fontStyle:'italic' }}>&ldquo;{t.text}&rdquo;</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Dots */}
-        <div style={{ display:'flex', justifyContent:'center', gap:8 }}>
-          {allTestimonials.map((_, i) => (
-            <div key={i} onClick={() => setActive(i)} style={{
-              height:8, borderRadius:50, cursor:'pointer', transition:'all 0.35s',
-              width: active===i ? 28 : 8,
-              background: active===i ? 'var(--aqua)' : 'rgba(255,255,255,0.2)'
-            }} />
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

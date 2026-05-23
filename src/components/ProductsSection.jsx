@@ -22,7 +22,7 @@ function scrollTo(id) {
 
 export default function ProductsSection() {
   const headRef = useReveal();
-  const gridRef = useReveal();
+  const doubled = [...PRODUCTS, ...PRODUCTS];
 
   return (
     <section id="products" style={{ padding: '100px 5%', background: 'var(--navy)' }}>
@@ -37,22 +37,20 @@ export default function ProductsSection() {
           </h2>
         </div>
 
-        <div ref={gridRef} className="products-grid reveal" style={{
-          display: 'flex', overflowX: 'auto', gap: 28, paddingBottom: 16,
-          scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
-        }}>
-          {PRODUCTS.map(({ size, name, desc, price, minOrder, color, featured }) => (
-            <div
-              key={name}
-              className="glass-card product-card"
-              style={{
-                padding: '36px 28px',
-                textAlign: 'center',
-                position: 'relative',
-                border: featured ? '1px solid rgba(62,207,191,0.4)' : '1px solid var(--glass-border)',
-                flex: '0 0 270px', minWidth: 270, scrollSnapAlign: 'start',
-              }}
-            >
+        <div className="marquee-wrapper" style={{ paddingBottom: 16 }}>
+          <div className="marquee-track" style={{ animation: 'marquee 22s linear infinite' }}>
+            {doubled.map(({ size, name, desc, price, minOrder, color, featured }, i) => (
+              <div
+                key={`${name}-${i}`}
+                className="glass-card product-card"
+                style={{
+                  padding: '36px 28px',
+                  textAlign: 'center',
+                  position: 'relative',
+                  border: featured ? '1px solid rgba(62,207,191,0.4)' : '1px solid var(--glass-border)',
+                  flex: '0 0 270px', minWidth: 270, marginRight: 28,
+                }}
+              >
               {featured && (
                 <div style={{
                   position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',

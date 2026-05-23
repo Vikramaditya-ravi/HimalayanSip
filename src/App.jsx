@@ -36,7 +36,7 @@ function useGlobalStyles() {
       @keyframes fadeUp { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
       @keyframes shimText { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
       @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(2.4);opacity:0} }
-      @keyframes waBounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+      @keyframes waBounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
       @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
       @keyframes floatD { 0%,100%{transform:translateY(0px) rotate(5deg)} 50%{transform:translateY(-20px) rotate(5deg)} }
       @keyframes shimmerSweep { 0%{left:-80%} 100%{left:130%} }
@@ -92,7 +92,7 @@ function useGlobalStyles() {
       .step-card:hover .step-num { background: var(--aqua); color: var(--navy); }
       .industry-chip:hover { border-color:var(--aqua) !important; background:rgba(62,207,191,0.08) !important; transform:translateX(4px); }
       .bottle-card {
-        transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease, border-color 0.3s ease !important;
+        transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s ease, border-color 0.3s ease !important;
         position: relative !important;
       }
       .bottle-card::after {
@@ -105,7 +105,7 @@ function useGlobalStyles() {
         box-shadow: 0 32px 64px rgba(0,0,0,0.45), 0 0 50px rgba(62,207,191,0.12) !important;
       }
       .bottle-card:hover::after { animation: shimmerSweep 0.65s ease forwards; }
-      .bottle-card svg { transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), filter 0.3s ease; }
+      .bottle-card svg { transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.3s ease; }
       .bottle-card:hover svg { transform: scale(1.06) !important; filter: drop-shadow(0 24px 48px rgba(62,207,191,0.45)) !important; }
       .featured-badge { animation: badgePulse 2.4s ease-in-out infinite; }
       .featured-card { animation: borderGlow 2.5s ease-in-out infinite; }
@@ -318,8 +318,10 @@ function FAQSection() {
                 <span style={{ fontWeight:600, fontSize:16, color:'var(--white)', paddingRight:16 }}>{item.q}</span>
                 <span style={{ fontSize:22, color:'var(--aqua)', flexShrink:0, transition:'transform 0.3s', transform: open===i ? 'rotate(45deg)' : 'none' }}>+</span>
               </div>
-              <div style={{ maxHeight: open===i ? 200 : 0, overflow:'hidden', transition:'max-height 0.4s ease' }}>
-                <p style={{ color:'var(--muted)', lineHeight:1.75, fontSize:15, padding:'0 24px 20px' }}>{item.a}</p>
+              <div style={{ display:'grid', gridTemplateRows: open===i ? '1fr' : '0fr', transition:'grid-template-rows 0.4s ease', overflow:'hidden' }}>
+                <div style={{ overflow:'hidden' }}>
+                  <p style={{ color:'var(--muted)', lineHeight:1.75, fontSize:15, padding:'0 24px 20px', maxWidth:'68ch' }}>{item.a}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -408,7 +410,6 @@ function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200, anima
       {/* Label bottom strip */}
       <rect x="24" y="162" width="62" height="12" rx="0" fill={color} />
       <rect x="24" y="168" width="62" height="6" rx="6" fill={color} />
-      <text x="55" y="170" textAnchor="middle" fill="white" fontSize="6" fontFamily="DM Sans, sans-serif">{label} · purified water</text>
 
       {/* Shine overlay */}
       <rect x="18" y="50" width="20" height="194" rx="10" fill={`url(#shine-${id})`} />
@@ -576,10 +577,10 @@ function Navbar() {
         border: 'none', borderRadius: 50, padding: '10px 24px',
         color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
         fontSize: 14, cursor: 'pointer', transition: 'all 0.3s',
-        boxShadow: '0 4px 20px rgba(62,207,191,0.3)'
+        boxShadow: '0 4px 16px rgba(62,207,191,0.18)'
       }}
-        onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(62,207,191,0.4)' }}
-        onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(62,207,191,0.3)' }}
+        onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 24px rgba(62,207,191,0.28)' }}
+        onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 16px rgba(62,207,191,0.18)' }}
       >Get a Quote</button>
     </nav>
   )
@@ -609,7 +610,7 @@ function HeroSection({ geo, content }) {
         <div style={{ animation:'fadeUp 0.9s ease forwards' }}>
           {content?.badge && !geo?.loading && (
             <div style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(62,207,191,0.1)', border:'1px solid rgba(62,207,191,0.3)', borderRadius:50, padding:'6px 16px', marginBottom:12, animation:'fadeUp 0.6s ease both' }}>
-              <span style={{ width:8, height:8, borderRadius:'50%', background:'#3ecfbf', display:'inline-block', boxShadow:'0 0 8px #3ecfbf' }} />
+              <span style={{ width:8, height:8, borderRadius:'50%', background:'#3ecfbf', display:'inline-block', boxShadow:'0 0 6px rgba(62,207,191,0.45)' }} />
               <span style={{ fontSize:13, color:'var(--aqua)', fontWeight:500 }}>{content.badge}</span>
             </div>
           )}
@@ -778,8 +779,8 @@ function ServiceCard({ service, delay }) {
   const ref = useReveal()
   return (
     <div ref={ref} className="glass-card service-card reveal" style={{ padding:'32px 28px', transitionDelay:`${delay}s` }}>
-      <div style={{ width:52, height:52, borderRadius:14, background:'linear-gradient(135deg, rgba(62,207,191,0.2), rgba(62,207,191,0.05))',
-        border:'1px solid rgba(62,207,191,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, marginBottom:20 }}>
+      <div style={{ width:48, height:48, borderRadius:12, background:'rgba(255,255,255,0.05)',
+        border:'1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, marginBottom:20 }}>
         {service.icon}
       </div>
       <h3 style={{ fontFamily:'Cormorant Garamond, serif', fontSize:22, fontWeight:600, color:'var(--white)', marginBottom:12 }}>{service.title}</h3>
@@ -1290,7 +1291,7 @@ function WhatsAppButton({ content }) {
         position:'fixed', bottom:28, right:28, zIndex:9999,
         width:58, height:58, borderRadius:'50%',
         background:'linear-gradient(135deg, #25d366, #1aad52)',
-        boxShadow:'0 8px 30px rgba(37,211,102,0.4)',
+        boxShadow:'0 6px 24px rgba(37,211,102,0.25)',
         display:'flex', alignItems:'center', justifyContent:'center',
         cursor:'pointer', animation:'waBounce 2.5s ease-in-out infinite'
       }}>

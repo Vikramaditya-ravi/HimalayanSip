@@ -47,7 +47,7 @@ export default function Navbar() {
           </defs>
         </svg>
         <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: 'var(--white)', letterSpacing: '-0.02em' }}>
-          Himalayan<span style={{ color: 'var(--aqua)' }}>Sip</span>
+          Aqua<span style={{ color: 'var(--aqua)' }}>Via</span>
         </span>
       </div>
 

@@ -139,20 +139,20 @@ function useSEO({ title, description, keywords, canonical, schema }) {
     setMeta('name', 'description', description)
     setMeta('name', 'keywords', keywords)
     setMeta('name', 'robots', 'index, follow')
-    setMeta('name', 'author', 'HimalayanSip')
+    setMeta('name', 'author', 'AquaVia')
     setMeta('name', 'theme-color', '#04101f')
     setMeta('property', 'og:title', title)
     setMeta('property', 'og:description', description)
     setMeta('property', 'og:type', 'website')
     setMeta('property', 'og:url', canonical)
     setMeta('property', 'og:image', 'https://himalayan-sip.vercel.app/og-cover.jpg')
-    setMeta('property', 'og:site_name', 'HimalayanSip')
+    setMeta('property', 'og:site_name', 'AquaVia')
     setMeta('property', 'og:locale', 'en_IN')
     setMeta('name', 'twitter:card', 'summary_large_image')
     setMeta('name', 'twitter:title', title)
     setMeta('name', 'twitter:description', description)
     setMeta('name', 'twitter:image', 'https://himalayan-sip.vercel.app/og-cover.jpg')
-    setMeta('name', 'twitter:site', '@HimalayanSip')
+    setMeta('name', 'twitter:site', '@AquaVia')
     let link = document.querySelector("link[rel='canonical']")
     if (!link) { link = document.createElement('link'); link.setAttribute('rel', 'canonical'); document.head.appendChild(link) }
     link.setAttribute('href', canonical)
@@ -186,12 +186,12 @@ const GEO_CONTENT = {
     deliveryNote: 'Same-week delivery: Delhi · Gurugram · Noida · Faridabad · Ghaziabad',
     localTestimonial: {
       name: 'Amit Verma', title: 'Procurement Manager, Connaught Corp Delhi', initials: 'AV',
-      text: "Our boardroom always has HimalayanSip branded bottles. The quality and precision of the labels is outstanding — delivered on time, every time.",
+      text: "Our boardroom always has AquaVia branded bottles. The quality and precision of the labels is outstanding — delivered on time, every time.",
       rating: 5,
     },
     phone: '+91 76671 23460',
     whatsappMsg: "Hi! I'm in Delhi NCR and want to order custom branded water bottles.",
-    seoTitle: 'Custom Branded Water Bottles Delhi NCR | HimalayanSip',
+    seoTitle: 'Custom Branded Water Bottles Delhi NCR | AquaVia',
     seoDescription: 'Premium customized water bottles with your logo for Delhi NCR businesses. Serving Connaught Place, Gurugram, Noida, Greater Noida. Bulk orders available.',
     seoKeywords: 'custom water bottles Delhi, branded water bottles Delhi NCR, corporate water bottle Gurugram, bulk water bottle Noida',
   },
@@ -202,8 +202,8 @@ const GEO_CONTENT = {
     localTestimonial: null,
     phone: '+91 76671 23460',
     whatsappMsg: "Hi! I'm interested in customized water bottles for my business.",
-    seoTitle: 'HimalayanSip — Customized Branded Water Bottles | Delhi NCR',
-    seoDescription: 'HimalayanSip provides premium customized bottled water with your company logo. Serving Delhi NCR — corporate offices, hotels, events, hospitals.',
+    seoTitle: 'AquaVia — Customized Branded Water Bottles | Delhi NCR',
+    seoDescription: 'AquaVia provides premium customized bottled water with your company logo. Serving Delhi NCR — corporate offices, hotels, events, hospitals.',
     seoKeywords: 'custom branded water bottles Delhi, personalized water bottles business India, bulk water bottle orders Delhi NCR',
   },
 }
@@ -232,7 +232,7 @@ function useLazySection() {
 const HS_SCHEMA = [
   {
     '@context': 'https://schema.org', '@type': 'LocalBusiness',
-    name: 'HimalayanSip',
+    name: 'AquaVia',
     description: 'Premium customized branded bottled water solutions for businesses in Delhi NCR',
     url: 'https://himalayan-sip.vercel.app',
     telephone: '+91-76671-23460', email: 'ravi.prakash4104@gmail.com',
@@ -240,13 +240,13 @@ const HS_SCHEMA = [
     areaServed: { '@type': 'City', name: 'Delhi NCR' },
     address: { '@type': 'PostalAddress', addressLocality: 'New Delhi', addressRegion: 'Delhi', postalCode: '110001', addressCountry: 'IN' },
     openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:00', closes: '18:00' }],
-    sameAs: ['https://www.instagram.com/himalayansip','https://www.linkedin.com/company/himalayansip'],
+    sameAs: ['https://www.instagram.com/aquavia','https://www.linkedin.com/company/aquavia'],
   },
   {
     '@context': 'https://schema.org', '@type': 'Product',
     name: 'Custom Branded Water Bottles',
     description: 'Personalized bottled water with your company logo. Available in 250ml, 500ml, and 1L sizes.',
-    brand: { '@type': 'Brand', name: 'HimalayanSip' },
+    brand: { '@type': 'Brand', name: 'AquaVia' },
     offers: [
       { '@type': 'Offer', name: '250ml Custom Bottle', price: '12', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
       { '@type': 'Offer', name: '500ml Custom Bottle', price: '18', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
@@ -503,9 +503,9 @@ const INDUSTRIES = [
 ]
 
 const TESTIMONIALS = [
-  { name: 'Priya Sharma', title: 'Marketing Head, Nexus Realty', initials: 'PS', text: 'HimalayanSip transformed our site visits. Handing branded water to potential buyers elevated our brand perception instantly. Orders arrived ahead of schedule — flawless execution.', rating: 5 },
-  { name: 'Arjun Mehta', title: 'Director of Operations, Transcend Hotels', initials: 'AM', text: 'As a luxury hotel group, presentation is everything. HimalayanSip bottles sit on every dining table. Guests always comment on them. Exceptional quality, beautiful labels, reliable supply.', rating: 5 },
-  { name: 'Kiran Rao', title: 'COO, Summit Ventures', initials: 'KR', text: "We've branded our annual summit for 3 consecutive years with HimalayanSip. 800 attendees, branded bottles at every seat. The design team's attention to detail is genuinely unmatched.", rating: 5 },
+  { name: 'Priya Sharma', title: 'Marketing Head, Nexus Realty', initials: 'PS', text: 'AquaVia transformed our site visits. Handing branded water to potential buyers elevated our brand perception instantly. Orders arrived ahead of schedule — flawless execution.', rating: 5 },
+  { name: 'Arjun Mehta', title: 'Director of Operations, Transcend Hotels', initials: 'AM', text: 'As a luxury hotel group, presentation is everything. AquaVia bottles sit on every dining table. Guests always comment on them. Exceptional quality, beautiful labels, reliable supply.', rating: 5 },
+  { name: 'Kiran Rao', title: 'COO, Summit Ventures', initials: 'KR', text: "We've branded our annual summit for 3 consecutive years with AquaVia. 800 attendees, branded bottles at every seat. The design team's attention to detail is genuinely unmatched.", rating: 5 },
 ]
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
@@ -538,7 +538,7 @@ function Navbar() {
           <ellipse cx="13" cy="18" rx="2.5" ry="4" fill="white" fillOpacity="0.3" />
         </svg>
         <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 22, fontWeight: 700, color: 'var(--white)' }}>
-          Himalayan<span style={{ color: 'var(--aqua)' }}>Sip</span>
+          Aqua<span style={{ color: 'var(--aqua)' }}>Via</span>
         </span>
       </div>
 
@@ -712,7 +712,7 @@ function AboutSection() {
             Born in the Himalayas,<br />Built for Your Brand
           </h2>
           <p style={{ color:'var(--muted)', lineHeight:1.75, marginBottom:20 }}>
-            HimalayanSip was founded on one belief: that hydration is the most powerful touchpoint a brand can own. We source pure water from Himalayan springs and package it with your story — transforming every sip into a brand impression.
+            AquaVia was founded on one belief: that hydration is the most powerful touchpoint a brand can own. We source pure water from Himalayan springs and package it with your story — transforming every sip into a brand impression.
           </p>
           <p style={{ color:'var(--muted)', lineHeight:1.75, marginBottom:36 }}>
             From intimate boardrooms to large-scale conferences, our bottles carry your logo, your colors, and your message — delivered on time, every time, across every corner of India.
@@ -1257,7 +1257,7 @@ function Footer({ content }) {
       </div>
 
       <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:24, maxWidth:1200, margin:'0 auto', display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
-        <span style={{ color:'var(--muted)', fontSize:13 }}>© 2024 HimalayanSip. All rights reserved.</span>
+        <span style={{ color:'var(--muted)', fontSize:13 }}>© 2024 AquaVia. All rights reserved.</span>
         <span style={{ color:'var(--muted)', fontSize:13 }}>Made with 💧 in India</span>
       </div>
     </footer>

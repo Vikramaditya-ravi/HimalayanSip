@@ -41,7 +41,7 @@ export default function AboutSection() {
             <span style={{ color: 'var(--aqua)' }}>Premium Branding</span>
           </h2>
           <p style={{ color: 'var(--muted)', lineHeight: 1.8, marginBottom: 20, fontSize: 16 }}>
-            Born in the heart of India, HimalayanSip was founded with a singular vision:
+            Born in the heart of India, AquaVia was founded with a singular vision:
             to transform the everyday act of hydration into a brand statement. We source
             pristine water from Himalayan springs and bottle it with your identity.
           </p>

@@ -12,17 +12,17 @@ const SectionTag = ({ children }) => (
 const TESTIMONIALS = [
   {
     name: 'Priya Sharma', title: 'Marketing Head, Nexus Realty', initials: 'PS',
-    text: 'HimalayanSip transformed our site visits. Handing branded water to potential buyers elevated our brand perception instantly. Orders arrived ahead of schedule — flawless execution.',
+    text: 'AquaVia transformed our site visits. Handing branded water to potential buyers elevated our brand perception instantly. Orders arrived ahead of schedule — flawless execution.',
     rating: 5,
   },
   {
     name: 'Arjun Mehta', title: 'Director of Operations, Transcend Hotels', initials: 'AM',
-    text: 'As a luxury hotel group, presentation is everything. HimalayanSip bottles sit on every dining table. Guests always comment on them. Exceptional quality, beautiful labels, reliable supply.',
+    text: 'As a luxury hotel group, presentation is everything. AquaVia bottles sit on every dining table. Guests always comment on them. Exceptional quality, beautiful labels, reliable supply.',
     rating: 5,
   },
   {
     name: 'Kiran Rao', title: 'COO, Summit Ventures', initials: 'KR',
-    text: 'We\'ve branded our annual summit for 3 consecutive years with HimalayanSip. 800 attendees, branded bottles at every seat. The design team\'s attention to detail is genuinely unmatched.',
+    text: 'We\'ve branded our annual summit for 3 consecutive years with AquaVia. 800 attendees, branded bottles at every seat. The design team\'s attention to detail is genuinely unmatched.',
     rating: 5,
   },
 ];

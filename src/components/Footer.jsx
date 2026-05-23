@@ -23,7 +23,7 @@ export default function Footer() {
                 </defs>
               </svg>
               <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: 'var(--white)' }}>
-                Himalayan<span style={{ color: 'var(--aqua)' }}>Sip</span>
+                Aqua<span style={{ color: 'var(--aqua)' }}>Via</span>
               </span>
             </div>
             <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.75, marginBottom: 24, maxWidth: 240 }}>
@@ -66,7 +66,7 @@ export default function Footer() {
             {[
               ['📍', 'Bengaluru, India'],
               ['📞', '+91 98765 43210'],
-              ['📧', 'hello@himalayansip.com'],
+              ['📧', 'hello@aquavia.com'],
             ].map(([icon, text]) => (
               <div key={text} style={{ display: 'flex', gap: 10, color: 'var(--muted)', fontSize: 14, marginBottom: 12 }}>
                 <span>{icon}</span><span>{text}</span>
@@ -76,7 +76,7 @@ export default function Footer() {
         </div>
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <div style={{ color: 'var(--muted)', fontSize: 13 }}>© 2024 HimalayanSip. All rights reserved.</div>
+          <div style={{ color: 'var(--muted)', fontSize: 13 }}>© 2024 AquaVia. All rights reserved.</div>
           <div style={{ color: 'var(--muted)', fontSize: 13 }}>Made with 💧 in India</div>
         </div>
       </div>

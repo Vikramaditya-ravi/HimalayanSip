@@ -526,20 +526,8 @@ function Navbar() {
       padding: '0 5%', transition: 'all 0.4s ease', background: 'transparent'
     }}>
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => scrollTo('hero')}>
-        <svg width="32" height="32" viewBox="0 0 32 32">
-          <defs>
-            <linearGradient id="drop-g" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3ecfbf" />
-              <stop offset="100%" stopColor="#1a8a80" />
-            </linearGradient>
-          </defs>
-          <path d="M16 4 Q24 14 24 20 A8 8 0 0 1 8 20 Q8 14 16 4Z" fill="url(#drop-g)" />
-          <ellipse cx="13" cy="18" rx="2.5" ry="4" fill="white" fillOpacity="0.3" />
-        </svg>
-        <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 22, fontWeight: 700, color: 'var(--white)' }}>
-          Aqua<span style={{ color: 'var(--aqua)' }}>Via</span>
-        </span>
+      <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => scrollTo('hero')}>
+        <img src="/aquavia-logo.jpeg" alt="AquaVia" style={{ height: 48, borderRadius: 8, display: 'block' }} />
       </div>
 
       {/* Nav links */}
@@ -1212,18 +1200,8 @@ function Footer({ content }) {
       <div className="footer-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:40, maxWidth:1200, margin:'0 auto', marginBottom:40 }}>
         {/* Brand */}
         <div>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-            <svg width="28" height="28" viewBox="0 0 32 32">
-              <defs>
-                <linearGradient id="fdrop" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3ecfbf" /><stop offset="100%" stopColor="#1a8a80" />
-                </linearGradient>
-              </defs>
-              <path d="M16 4 Q24 14 24 20 A8 8 0 0 1 8 20 Q8 14 16 4Z" fill="url(#fdrop)" />
-            </svg>
-            <span style={{ fontFamily:'Cormorant Garamond, serif', fontSize:20, fontWeight:700, color:'var(--white)' }}>
-              Himalayan<span style={{ color:'var(--aqua)' }}>Sip</span>
-            </span>
+          <div style={{ marginBottom:14 }}>
+            <img src="/aquavia-logo.jpeg" alt="AquaVia" style={{ height: 64, borderRadius: 8, display: 'block' }} />
           </div>
           <p style={{ color:'var(--muted)', fontSize:14, lineHeight:1.7 }}>Pure Himalayan hydration for brands that care.</p>
         </div>

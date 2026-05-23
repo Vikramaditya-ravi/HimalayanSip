@@ -33,22 +33,10 @@ export default function Navbar() {
     >
       {/* Logo */}
       <div
-        style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+        style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       >
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <path d="M14 3 C14 3 5 13 5 18.5 C5 23.2 9.1 27 14 27 C18.9 27 23 23.2 23 18.5 C23 13 14 3 14 3Z"
-            fill="url(#dropGrad)" />
-          <defs>
-            <linearGradient id="dropGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3ecfbf" />
-              <stop offset="100%" stopColor="#1a8a80" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: 'var(--white)', letterSpacing: '-0.02em' }}>
-          Aqua<span style={{ color: 'var(--aqua)' }}>Via</span>
-        </span>
+        <img src="/aquavia-logo.jpeg" alt="AquaVia" style={{ height: 48, borderRadius: 8, display: 'block' }} />
       </div>
 
       {/* Nav links */}

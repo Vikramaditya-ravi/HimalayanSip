@@ -11,20 +11,8 @@ export default function Footer() {
         }} className="footer-grid">
           {/* Brand */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-                <path d="M14 3 C14 3 5 13 5 18.5 C5 23.2 9.1 27 14 27 C18.9 27 23 23.2 23 18.5 C23 13 14 3 14 3Z"
-                  fill="url(#footerDrop)" />
-                <defs>
-                  <linearGradient id="footerDrop" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3ecfbf" />
-                    <stop offset="100%" stopColor="#1a8a80" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: 'var(--white)' }}>
-                Aqua<span style={{ color: 'var(--aqua)' }}>Via</span>
-              </span>
+            <div style={{ marginBottom: 16 }}>
+              <img src="/aquavia-logo.jpeg" alt="AquaVia" style={{ height: 64, borderRadius: 8, display: 'block' }} />
             </div>
             <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.75, marginBottom: 24, maxWidth: 240 }}>
               Pure Himalayan hydration for brands that care.

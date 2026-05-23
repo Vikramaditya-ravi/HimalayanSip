@@ -93,7 +93,6 @@ function useGlobalStyles() {
       .industry-chip:hover { border-color:var(--aqua) !important; background:rgba(62,207,191,0.08) !important; transform:translateX(4px); }
       .bottle-card {
         transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease, border-color 0.3s ease !important;
-        overflow: hidden !important;
         position: relative !important;
       }
       .bottle-card::after {
@@ -393,7 +392,7 @@ function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200, anima
       {/* Label top strip */}
       <rect x="24" y="74" width="62" height="22" rx="6" fill={color} />
       <rect x="24" y="84" width="62" height="12" fill={color} />
-      <text x="55" y="89" textAnchor="middle" fill="white" fontSize="8" fontFamily="serif" fontWeight="bold" letterSpacing="1">HIMALAYAN</text>
+      <text x="55" y="89" textAnchor="middle" fill="white" fontSize="8" fontFamily="serif" fontWeight="bold" letterSpacing="1">AQUAVIA</text>
 
       {/* Label center — logo or placeholder */}
       {logo ? (

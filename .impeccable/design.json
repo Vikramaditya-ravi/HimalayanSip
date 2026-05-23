@@ -1,0 +1,366 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-23T00:00:00Z",
+  "title": "Design System: AquaVia",
+  "extensions": {
+    "colorMeta": {
+      "abyssal-navy": {
+        "role": "neutral",
+        "displayName": "Abyssal Navy",
+        "canonical": "oklch(9% 0.025 245)",
+        "tonalRamp": [
+          "oklch(5% 0.010 245)",
+          "oklch(9% 0.025 245)",
+          "oklch(13% 0.030 245)",
+          "oklch(16% 0.040 245)",
+          "oklch(28% 0.040 245)",
+          "oklch(45% 0.035 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(82% 0.015 245)"
+        ]
+      },
+      "navy-mid": {
+        "role": "neutral",
+        "displayName": "Navy Mid",
+        "canonical": "oklch(13% 0.030 245)",
+        "tonalRamp": [
+          "oklch(5% 0.010 245)",
+          "oklch(9% 0.025 245)",
+          "oklch(13% 0.030 245)",
+          "oklch(16% 0.040 245)",
+          "oklch(28% 0.040 245)",
+          "oklch(45% 0.035 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(82% 0.015 245)"
+        ]
+      },
+      "navy-card": {
+        "role": "neutral",
+        "displayName": "Navy Card",
+        "canonical": "oklch(16% 0.040 245)",
+        "tonalRamp": [
+          "oklch(5% 0.010 245)",
+          "oklch(9% 0.025 245)",
+          "oklch(13% 0.030 245)",
+          "oklch(16% 0.040 245)",
+          "oklch(28% 0.040 245)",
+          "oklch(45% 0.035 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(82% 0.015 245)"
+        ]
+      },
+      "glacial-melt": {
+        "role": "primary",
+        "displayName": "Glacial Melt",
+        "canonical": "oklch(74% 0.13 185)",
+        "tonalRamp": [
+          "oklch(15% 0.030 185)",
+          "oklch(25% 0.070 185)",
+          "oklch(35% 0.100 185)",
+          "oklch(45% 0.120 185)",
+          "oklch(52% 0.130 185)",
+          "oklch(62% 0.130 185)",
+          "oklch(74% 0.130 185)",
+          "oklch(88% 0.060 185)"
+        ]
+      },
+      "glacial-melt-deep": {
+        "role": "primary",
+        "displayName": "Glacial Melt Deep",
+        "canonical": "oklch(52% 0.130 185)",
+        "tonalRamp": [
+          "oklch(15% 0.030 185)",
+          "oklch(25% 0.070 185)",
+          "oklch(35% 0.100 185)",
+          "oklch(45% 0.120 185)",
+          "oklch(52% 0.130 185)",
+          "oklch(62% 0.130 185)",
+          "oklch(74% 0.130 185)",
+          "oklch(88% 0.060 185)"
+        ]
+      },
+      "durbar-gold": {
+        "role": "secondary",
+        "displayName": "Durbar Gold",
+        "canonical": "oklch(68% 0.10 75)",
+        "tonalRamp": [
+          "oklch(12% 0.020 75)",
+          "oklch(22% 0.050 75)",
+          "oklch(35% 0.080 75)",
+          "oklch(48% 0.100 75)",
+          "oklch(58% 0.100 75)",
+          "oklch(68% 0.100 75)",
+          "oklch(78% 0.070 75)",
+          "oklch(90% 0.040 75)"
+        ]
+      },
+      "summit-white": {
+        "role": "neutral",
+        "displayName": "Summit White",
+        "canonical": "oklch(98% 0.005 245)",
+        "tonalRamp": [
+          "oklch(9% 0.025 245)",
+          "oklch(22% 0.020 245)",
+          "oklch(40% 0.015 245)",
+          "oklch(55% 0.012 245)",
+          "oklch(70% 0.010 245)",
+          "oklch(82% 0.008 245)",
+          "oklch(92% 0.006 245)",
+          "oklch(98% 0.005 245)"
+        ]
+      },
+      "arctic-haze": {
+        "role": "neutral",
+        "displayName": "Arctic Haze",
+        "canonical": "oklch(63% 0.040 220)",
+        "tonalRamp": [
+          "oklch(12% 0.015 220)",
+          "oklch(25% 0.025 220)",
+          "oklch(38% 0.035 220)",
+          "oklch(50% 0.040 220)",
+          "oklch(63% 0.040 220)",
+          "oklch(74% 0.030 220)",
+          "oklch(84% 0.020 220)",
+          "oklch(93% 0.010 220)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero <h1> only. The brand's loudest statement. Single use per page."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section <h2> headings. One per section. Sets the section subject."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card headings, product names, component titles. Also used at 42px for product size labels as a deliberate typographic moment."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Section paragraphs and card descriptions. Max 65–75ch line length. line-height 1.75 required on dark backgrounds."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Section tags, nav links, metadata, status badges. Always DM Sans. Always uppercase with 0.12em tracking."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-hover-glow",
+        "value": "0 24px 60px rgba(62,207,191,0.10)",
+        "purpose": "Hover state for glass cards. Activates on cursor enter; not present at rest."
+      },
+      {
+        "name": "bottle-card-hover",
+        "value": "0 32px 64px rgba(0,0,0,0.45), 0 0 50px rgba(62,207,191,0.12)",
+        "purpose": "Hover state for product/bottle cards. Compound: hard depth shadow plus soft teal glow."
+      },
+      {
+        "name": "button-primary-rest",
+        "value": "0 4px 16px rgba(62,207,191,0.18)",
+        "purpose": "Ambient glow on primary buttons at rest. Signals interactivity without hover."
+      },
+      {
+        "name": "button-primary-hover",
+        "value": "0 8px 24px rgba(62,207,191,0.28)",
+        "purpose": "Intensified glow on primary button hover."
+      },
+      {
+        "name": "bottle-drop-shadow",
+        "value": "drop-shadow(0 20px 40px rgba(62,207,191,0.30))",
+        "purpose": "SVG filter on bottle illustrations. Teal glow beneath the product. Signature brand moment — do not replicate on other elements."
+      },
+      {
+        "name": "bottle-hover-drop-shadow",
+        "value": "drop-shadow(0 24px 48px rgba(62,207,191,0.45))",
+        "purpose": "Intensified bottle drop-shadow on product card hover."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Default easing for hover lift (translateY), scale, and button transitions. Exponential ease-out: responsive onset, graceful stop."
+      },
+      {
+        "name": "ease-bottle",
+        "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "purpose": "Bottle card hover and SVG scale transitions. Slightly softer than ease-standard; matches the physical weight of the bottle."
+      },
+      {
+        "name": "ease-reveal",
+        "value": "ease",
+        "purpose": "Scroll-reveal entrance transitions (opacity + translateY). Duration 0.75s."
+      },
+      {
+        "name": "float-a",
+        "value": "floatA 3.5s ease-in-out infinite",
+        "purpose": "Hero bottle float animation. Offset: -6deg rotation, 22px vertical range."
+      },
+      {
+        "name": "float-b",
+        "value": "floatB 4s ease-in-out infinite",
+        "purpose": "Hero bottle float animation. Offset: 4deg rotation, 22px vertical range. Different phase from floatA."
+      },
+      {
+        "name": "float-c",
+        "value": "floatC 3.8s ease-in-out infinite",
+        "purpose": "Hero bottle float animation. Offset: -2deg rotation, 22px vertical range."
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "520px", "purpose": "Products grid collapses to 1 column." },
+      { "name": "tablet", "value": "768px", "purpose": "Hero, about, contact, footer grids collapse to 1 column. Nav links hidden. Hero bottle trio hides; single bottle shows." },
+      { "name": "products-md", "value": "900px", "purpose": "Products grid collapses to 2 columns." },
+      { "name": "content-max", "value": "1200px", "purpose": "Maximum width for section inner content containers." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main CTA. Pill shape, Glacial Melt fill, Abyssal Navy text. Lifts and glows on hover.",
+      "html": "<button class=\"ds-btn-primary\">Get a Quote</button>",
+      "css": ".ds-btn-primary { background: linear-gradient(135deg, #3ecfbf, #1a8a80); border: none; border-radius: 50px; padding: 14px 32px; color: #04101f; font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 4px 16px rgba(62,207,191,0.18); } .ds-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(62,207,191,0.28); } .ds-btn-primary:focus-visible { outline: 2px solid #3ecfbf; outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action. Transparent with Glacial Melt border. Tint on hover.",
+      "html": "<button class=\"ds-btn-ghost\">View Products</button>",
+      "css": ".ds-btn-ghost { background: transparent; border: 1px solid rgba(62,207,191,0.4); border-radius: 50px; padding: 14px 32px; color: #3ecfbf; font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.25s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-ghost:hover { background: rgba(62,207,191,0.08); transform: translateY(-2px); } .ds-btn-ghost:focus-visible { outline: 2px solid #3ecfbf; outline-offset: 3px; }"
+    },
+    {
+      "name": "Section Tag",
+      "kind": "chip",
+      "refersTo": "section-tag",
+      "description": "Uppercase pill label placed above section headings. One per section.",
+      "html": "<div class=\"ds-section-tag\">Our Range</div>",
+      "css": ".ds-section-tag { display: inline-block; font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #3ecfbf; border: 1px solid rgba(62,207,191,0.3); border-radius: 50px; padding: 5px 16px; margin-bottom: 16px; }"
+    },
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "glass-card",
+      "description": "Translucent panel for service features and process steps. Lifts on hover with teal border glow.",
+      "html": "<div class=\"ds-glass-card\"><div style=\"font-size:22px;margin-bottom:12px\">🎨</div><h3 class=\"ds-glass-card-title\">Custom Label Design</h3><p class=\"ds-glass-card-body\">Professional designers craft labels matching your brand identity, colors, and messaging.</p></div>",
+      "css": ".ds-glass-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(16px); border-radius: 20px; padding: 32px 28px; transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), border-color 0.35s, box-shadow 0.35s; } .ds-glass-card:hover { transform: translateY(-6px); border-color: rgba(62,207,191,0.3); box-shadow: 0 24px 60px rgba(62,207,191,0.1); } .ds-glass-card-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; font-weight: 600; color: #f5faff; margin-bottom: 12px; } .ds-glass-card-body { font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.75; color: #7a9bb5; }"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "refersTo": "glass-card",
+      "description": "Opaque bottle card for the products grid. Featured variant has animated border and Most Popular badge.",
+      "html": "<div class=\"ds-product-card ds-product-card--featured\"><div class=\"ds-product-badge\">Most Popular</div><div class=\"ds-product-size\">500ml</div><div class=\"ds-product-name\">Classic</div><p class=\"ds-product-desc\">Our most popular — perfect for offices and events</p><hr class=\"ds-product-divider\"><div class=\"ds-product-price\">₹18/bottle</div><div class=\"ds-product-moq\">Min. 250 units</div><button class=\"ds-product-cta\">Order Now</button></div>",
+      "css": ".ds-product-card { background: #0b2244; border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 32px 28px; text-align: center; position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s, border-color 0.3s; } .ds-product-card:hover { transform: translateY(-12px) scale(1.02); box-shadow: 0 32px 64px rgba(0,0,0,0.45), 0 0 50px rgba(62,207,191,0.12); } .ds-product-card--featured { border-color: rgba(62,207,191,0.4); } .ds-product-badge { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #c8a44a, #a87c28); border-radius: 50px; padding: 4px 18px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #04101f; text-transform: uppercase; white-space: nowrap; } .ds-product-size { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 42px; font-weight: 700; color: #3ecfbf; line-height: 1; margin-top: 8px; } .ds-product-name { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; color: #f5faff; margin-bottom: 8px; } .ds-product-desc { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; color: #7a9bb5; line-height: 1.6; margin-bottom: 20px; } .ds-product-divider { width: 100%; border: none; border-top: 1px solid rgba(255,255,255,0.09); margin: 4px 0 20px; } .ds-product-price { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 700; color: #f5faff; margin-bottom: 4px; } .ds-product-moq { font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: #7a9bb5; margin-bottom: 24px; } .ds-product-cta { width: 100%; background: linear-gradient(135deg, #3ecfbf, rgba(62,207,191,0.67)); border: none; border-radius: 12px; padding: 12px; color: #04101f; font-family: 'DM Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform 0.25s cubic-bezier(0.22,1,0.36,1); } .ds-product-cta:hover { transform: translateY(-2px); }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Form text input. Semi-transparent navy background, Glacial Melt focus ring.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Your company name\" />",
+      "css": ".ds-input { width: 100%; background: rgba(11,34,68,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 14px 18px; color: #f5faff; font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; outline: none; transition: border-color 0.3s, box-shadow 0.3s; } .ds-input:focus { border-color: #3ecfbf; box-shadow: 0 0 0 3px rgba(62,207,191,0.15); } .ds-input::placeholder { color: #7a9bb5; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "button-primary",
+      "description": "Fixed top bar. Transparent until scrolled, then glass-frosted with Abyssal Navy tint.",
+      "html": "<nav class=\"ds-nav\"><div class=\"ds-nav-brand\">AquaVia</div><div class=\"ds-nav-links\"><button class=\"ds-nav-link\">About</button><button class=\"ds-nav-link\">Products</button><button class=\"ds-nav-link\">Contact</button></div><button class=\"ds-nav-cta\">Get a Quote</button></nav>",
+      "css": ".ds-nav { position: fixed; top: 0; width: 100%; height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; background: transparent; transition: background 0.4s, backdrop-filter 0.4s, border-bottom 0.4s; z-index: 1000; } .ds-nav.scrolled { background: rgba(4,16,31,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.09); } .ds-nav-brand { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; font-weight: 700; color: #f5faff; } .ds-nav-links { display: flex; gap: 32px; } .ds-nav-link { background: none; border: none; color: #7a9bb5; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; text-transform: capitalize; transition: color 0.2s; padding: 4px 0; } .ds-nav-link:hover { color: #f5faff; } .ds-nav-cta { background: linear-gradient(135deg, #3ecfbf, #1a8a80); border: none; border-radius: 50px; padding: 10px 24px; color: #04101f; font-family: 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s; box-shadow: 0 4px 16px rgba(62,207,191,0.18); } .ds-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(62,207,191,0.28); } .ds-nav-cta:focus-visible { outline: 2px solid #3ecfbf; outline-offset: 3px; }"
+    },
+    {
+      "name": "FAQ Accordion Item",
+      "kind": "custom",
+      "refersTo": "glass-card",
+      "description": "Collapsible FAQ item using grid-template-rows for smooth height animation. Glacial Melt plus icon rotates on open.",
+      "html": "<div class=\"ds-faq-item\"><div class=\"ds-faq-trigger\"><span class=\"ds-faq-question\">What is the minimum order quantity?</span><span class=\"ds-faq-icon\">+</span></div><div class=\"ds-faq-body\"><p class=\"ds-faq-answer\">1000 units for 100ml, 500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.</p></div></div>",
+      "css": ".ds-faq-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 20px; overflow: hidden; cursor: pointer; } .ds-faq-trigger { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; } .ds-faq-question { font-family: 'DM Sans', system-ui, sans-serif; font-size: 16px; font-weight: 600; color: #f5faff; padding-right: 16px; } .ds-faq-icon { font-size: 22px; color: #3ecfbf; flex-shrink: 0; transition: transform 0.3s; } .ds-faq-item.open .ds-faq-icon { transform: rotate(45deg); } .ds-faq-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; overflow: hidden; } .ds-faq-item.open .ds-faq-body { grid-template-rows: 1fr; } .ds-faq-body > * { overflow: hidden; } .ds-faq-answer { font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; color: #7a9bb5; line-height: 1.75; padding: 0 24px 20px; max-width: 68ch; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Himalayan Vantage",
+    "overview": "AquaVia occupies the altitude where mountain-sourced purity meets corporate precision. The design system is built on a field of near-black navy — not because dark is fashionable, but because a procurement manager evaluating this product at a hotel front desk or a conference room side table is surrounded by artificial light, white tablecloths, and ambient clutter. The dark field cuts through. The teal accent reads like water light on stone. The gold says: this bottle has been placed on a 5-star table before.\n\nThis is not a wellness brand. It is not a SaaS product. It is not a consumer FMCG. It is an Indian B2B premium goods brand that happens to sell water — and the design should behave accordingly: confident, legible from a distance, warm enough to close a deal, cold enough to be believed.\n\nThe system rejects the catalog aesthetics of Indiamart, the startup-blue minimalism of SaaS landing pages, and the loud discount-banner energy of consumer retail. Every surface should read: \"We have placed bottles in boardrooms. We will place them in yours.\"",
+    "keyCharacteristics": [
+      "Full-palette dark field with three tonal navy layers (abyssal, mid, card)",
+      "Teal accent reserved for interaction and active state only — its scarcity is structural",
+      "Durbar Gold as a premium signal: used twice per screen maximum",
+      "Editorial serif (Cormorant Garamond) for structural elements; precision sans (DM Sans) for operational text",
+      "Glass layer for floating UI; flat tonal steps for everything else",
+      "Hover state as primary depth cue: lift, glow, and border brightening",
+      "Scroll-reveal choreography on section entry; floating animation on hero bottles"
+    ],
+    "rules": [
+      {
+        "name": "The Cold Light Rule",
+        "body": "Glacial Melt is never a background fill for large surfaces. It exists on borders, button fills, focus rings, and glow sources. If a surface is predominantly teal, something has gone wrong.",
+        "section": "colors"
+      },
+      {
+        "name": "The Gold Ceiling Rule",
+        "body": "Durbar Gold appears in at most two distinct locations per screen. The badge, the bar, or the accent — never all three simultaneously.",
+        "section": "colors"
+      },
+      {
+        "name": "The Depth Stack Rule",
+        "body": "New surfaces can only step up the tonal stack (abyssal → mid → card → glass), never sideways to an unrelated color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Separation of Voices Rule",
+        "body": "Cormorant Garamond is structural: headings, size labels, product names, large numerics. DM Sans is operational: body text, buttons, nav, labels, form controls. They do not swap roles.",
+        "section": "typography"
+      },
+      {
+        "name": "The Floor Rule",
+        "body": "Cormorant Garamond is never used below 18px in any context. Below that size, the stroke contrast collapses on dark backgrounds.",
+        "section": "typography"
+      },
+      {
+        "name": "The Stat Rule",
+        "body": "Hero metric numbers (500+, 2Cr+, 48hr) are always Cormorant Garamond 700 at 32px or larger with Glacial Melt as the color. The supporting label is DM Sans 13px Arctic Haze. This is the one place where a number-plus-label structure is permitted.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-by-Default Rule",
+        "body": "Surfaces are flat at rest. The three navy tonal steps provide all the depth the system needs at rest. Shadows appear only as hover state feedback, never baked into a component's default appearance.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Glow Source Rule",
+        "body": "All glows use Glacial Melt (rgba(62,207,191,...)) as the light source. No purple glow, no white glow, no gold glow. The teal glow is the system's signature.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the three-step navy tonal stack (abyssal → mid → card) for all surface layering.",
+      "Do reserve Glacial Melt exclusively for interactive elements: CTA buttons, focus rings, active borders, hover glows, and the scroll indicator.",
+      "Do use Cormorant Garamond for headings, size labels, and large numerics at 18px or above.",
+      "Do apply hover lift (translateY) with cubic-bezier(0.22, 1, 0.36, 1) easing.",
+      "Do limit Durbar Gold to two placements per screen.",
+      "Do cap all body text at 65–75ch line length and set line-height: 1.75 on dark backgrounds.",
+      "Do respect prefers-reduced-motion: disable float animations, shimmer sweeps, and entrance choreography.",
+      "Do provide outline: 2px solid #3ecfbf; outline-offset: 3px as the focus ring on all interactive elements.",
+      "Do use glass cards only for content that floats above a section background."
+    ],
+    "donts": [
+      "Don't use the Indiamart catalog aesthetic: cluttered text-heavy layouts, table-bordered pricing grids, overcrowded feature lists.",
+      "Don't import generic SaaS blue into the palette (Intercom blue, Notion grey-blue, Linear purple-blue).",
+      "Don't use loud consumer retail signals: discount-banner yellow, bright red SALE tags, flashing urgency elements.",
+      "Don't introduce health-food or wellness-brand greens (sage, olive, earthy forest green).",
+      "Don't use gradient text (background-clip: text with a background-image gradient) on new elements.",
+      "Don't apply glass cards by default to every surface — reserve backdrop-filter blur for purposeful elevation moments.",
+      "Don't add side-stripe borders (border-left or border-right greater than 1px as a colored accent) to cards, list items, or callouts.",
+      "Don't use Cormorant Garamond below 18px.",
+      "Don't add a third typeface to the system.",
+      "Don't stack multiple Most Popular badges or gold premium signals in a single viewport.",
+      "Don't animate CSS layout properties (width, height, padding, margin) — animate transform and opacity only."
+    ]
+  }
+}

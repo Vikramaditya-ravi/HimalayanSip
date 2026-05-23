@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID'
+
 // ─── Global Style Injection ───────────────────────────────────────────────────
 function useGlobalStyles() {
   useEffect(() => {
@@ -34,7 +36,6 @@ function useGlobalStyles() {
       @keyframes floatB { 0%,100%{transform:translateY(-10px) rotate(4deg)} 50%{transform:translateY(12px) rotate(4deg)} }
       @keyframes floatC { 0%,100%{transform:translateY(4px) rotate(-2deg)} 50%{transform:translateY(-18px) rotate(-2deg)} }
       @keyframes fadeUp { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
-      @keyframes shimText { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
       @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(2.4);opacity:0} }
       @keyframes waBounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
       @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
@@ -43,6 +44,18 @@ function useGlobalStyles() {
       @keyframes badgePulse { 0%,100%{transform:translateX(-50%) scale(1);box-shadow:0 4px 20px rgba(200,164,74,0.4)} 50%{transform:translateX(-50%) scale(1.06);box-shadow:0 6px 28px rgba(200,164,74,0.7)} }
       @keyframes borderGlow { 0%,100%{border-color:rgba(62,207,191,0.4)} 50%{border-color:rgba(62,207,191,0.9)} }
       @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .contact-form-row { grid-template-columns: 1fr !important; }
+      }
 
       .marquee-wrapper { overflow:hidden; -webkit-mask-image:linear-gradient(to right,transparent 0%,black 8%,black 92%,transparent 100%); mask-image:linear-gradient(to right,transparent 0%,black 8%,black 92%,transparent 100%); }
       .marquee-track { display:flex; width:max-content; }
@@ -93,7 +106,6 @@ function useGlobalStyles() {
       .form-input::placeholder { color: var(--muted); }
       .form-input option { background: var(--navy-card); color: var(--white); }
 
-      .service-card:hover { transform:translateY(-6px); border-color:rgba(62,207,191,0.3); box-shadow:0 24px 60px rgba(62,207,191,0.1); }
       .step-card:hover .step-num { background: var(--aqua); color: var(--navy); }
       .industry-chip:hover { border-color:var(--aqua) !important; background:rgba(62,207,191,0.08) !important; transform:translateX(4px); }
       .bottle-card {
@@ -132,7 +144,7 @@ function useGlobalStyles() {
         .hero-bottles { display: none !important; }
         .hero-bottle-single { display: flex !important; }
         .hero-h1 { font-size: clamp(36px,8vw,52px) !important; }
-        .services-grid { grid-template-columns: 1fr !important; }
+        .services-numbered { grid-template-columns: 1fr !important; }
         .testimonials-grid { grid-template-columns: 1fr !important; }
       }
     `
@@ -265,7 +277,7 @@ const HS_SCHEMA = [
     name: 'AquaVia',
     description: 'Premium customized branded bottled water solutions for businesses in Delhi NCR',
     url: 'https://himalayan-sip.vercel.app',
-    telephone: '+91-76248-03460', email: 'ravi.prakash4104@gmail.com',
+    telephone: '+91-76248-03460', email: 'hello@aquavia.in',
     priceRange: '₹₹', currenciesAccepted: 'INR', paymentAccepted: 'Cash, Credit Card, UPI, Bank Transfer',
     areaServed: { '@type': 'City', name: 'Delhi NCR' },
     address: { '@type': 'PostalAddress', addressLocality: 'New Delhi', addressRegion: 'Delhi', postalCode: '110001', addressCountry: 'IN' },
@@ -314,18 +326,25 @@ function FAQSection() {
     <section id="faq" style={{ padding:'100px 5%', background:'var(--navy)' }}>
       <div style={{ maxWidth:800, margin:'0 auto' }}>
         <div ref={ref} className="reveal" style={{ textAlign:'center', marginBottom:60 }}>
-          <SectionTag>FAQ</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Frequently Asked Questions
           </h2>
         </div>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {FAQS.map((item, i) => (
-            <div key={i} className="glass-card" style={{ overflow:'hidden', cursor:'pointer' }} onClick={() => setOpen(open===i ? null : i)}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'20px 24px' }}>
+            <div key={i} className="glass-card" style={{ overflow:'hidden' }}>
+              <button
+                onClick={() => setOpen(open===i ? null : i)}
+                aria-expanded={open === i}
+                style={{
+                  width:'100%', background:'none', border:'none', cursor:'pointer',
+                  display:'flex', justifyContent:'space-between', alignItems:'center', padding:'20px 24px',
+                  textAlign:'left'
+                }}
+              >
                 <span style={{ fontWeight:600, fontSize:16, color:'var(--white)', paddingRight:16 }}>{item.q}</span>
                 <span style={{ fontSize:22, color:'var(--aqua)', flexShrink:0, transition:'transform 0.3s', transform: open===i ? 'rotate(45deg)' : 'none' }}>+</span>
-              </div>
+              </button>
               <div style={{ display:'grid', gridTemplateRows: open===i ? '1fr' : '0fr', transition:'grid-template-rows 0.4s ease', overflow:'hidden' }}>
                 <div style={{ overflow:'hidden' }}>
                   <p style={{ color:'var(--muted)', lineHeight:1.75, fontSize:15, padding:'0 24px 20px', maxWidth:'68ch' }}>{item.a}</p>
@@ -623,18 +642,13 @@ function HeroSection({ geo, content }) {
               <span style={{ fontSize:13, color:'var(--aqua)', fontWeight:500 }}>{content.badge}</span>
             </div>
           )}
-          <SectionTag>Premium B2B Water Branding</SectionTag>
           <h1 className="hero-h1" id="main-heading" style={{
             fontFamily:'Cormorant Garamond, serif', fontWeight:700,
             fontSize:'clamp(44px, 5.5vw, 76px)', lineHeight:1.1, color:'var(--white)',
             marginBottom:24
           }}>
             Pure Water.<br />
-            <span style={{
-              background:'linear-gradient(270deg, #3ecfbf, #f5faff, #c8a44a, #3ecfbf)',
-              backgroundSize:'300%', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent',
-              backgroundClip:'text', animation:'shimText 4s ease infinite'
-            }}>Your Brand.</span>
+            <span style={{ color:'var(--aqua)' }}>Your Brand.</span>
           </h1>
           <p style={{ color:'var(--muted)', fontSize:18, lineHeight:1.75, maxWidth:480, marginBottom:36 }}>
             {content?.heroSubheading || 'Premium Himalayan water, bottled with your logo. Trusted by 500+ brands for corporate events, hotels, offices, and more.'}
@@ -730,7 +744,6 @@ function AboutSection() {
     <section id="about" style={{ padding:'100px 5%', background:'var(--navy-mid)', position:'relative' }}>
       <div className="about-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, alignItems:'center', maxWidth:1200, margin:'0 auto' }}>
         <div ref={leftRef} className="reveal-left">
-          <SectionTag>About Us</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', lineHeight:1.1, color:'var(--white)', marginBottom:24 }}>
             Born in the Himalayas,<br />Built for Your Brand
           </h2>
@@ -768,15 +781,14 @@ function ServicesSection() {
   return (
     <section id="services" style={{ padding:'100px 5%', background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ textAlign:'center', marginBottom:60 }} ref={ref} className="reveal">
-          <SectionTag>What We Offer</SectionTag>
+        <div style={{ marginBottom:64 }} ref={ref} className="reveal">
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
-            End-to-End Branded Water Solutions
+            End-to-End Branded<br />Water Solutions
           </h2>
         </div>
-        <div className="services-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:24 }}>
+        <div className="services-numbered" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0 80px' }}>
           {SERVICES.map((s, i) => (
-            <ServiceCard key={s.title} service={s} delay={i * 0.1} />
+            <ServiceItem key={s.title} service={s} index={i} />
           ))}
         </div>
       </div>
@@ -784,16 +796,21 @@ function ServicesSection() {
   )
 }
 
-function ServiceCard({ service, delay }) {
+function ServiceItem({ service, index }) {
   const ref = useReveal()
   return (
-    <div ref={ref} className="glass-card service-card reveal" style={{ padding:'32px 28px', transitionDelay:`${delay}s` }}>
-      <div style={{ width:48, height:48, borderRadius:12, background:'rgba(255,255,255,0.05)',
-        border:'1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, marginBottom:20 }}>
-        {service.icon}
+    <div ref={ref} className="reveal" style={{
+      display:'grid', gridTemplateColumns:'56px 1fr', gap:24,
+      padding:'32px 0', borderTop:'1px solid var(--glass-border)',
+      transitionDelay:`${index * 0.08}s`
+    }}>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:38, fontWeight:700, color:'var(--aqua)', opacity:0.35, lineHeight:1, paddingTop:4 }}>
+        {String(index + 1).padStart(2, '0')}
       </div>
-      <h3 style={{ fontFamily:'Cormorant Garamond, serif', fontSize:22, fontWeight:600, color:'var(--white)', marginBottom:12 }}>{service.title}</h3>
-      <p style={{ color:'var(--muted)', lineHeight:1.75, fontSize:15 }}>{service.desc}</p>
+      <div>
+        <h3 style={{ fontFamily:'Cormorant Garamond, serif', fontSize:22, fontWeight:600, color:'var(--white)', marginBottom:10 }}>{service.title}</h3>
+        <p style={{ color:'var(--muted)', lineHeight:1.75, fontSize:15 }}>{service.desc}</p>
+      </div>
     </div>
   )
 }
@@ -805,7 +822,6 @@ function HowItWorksSection() {
     <section id="how" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
-          <SectionTag>The Process</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             From Logo to Doorstep in 4 Steps
           </h2>
@@ -914,7 +930,6 @@ function IndustriesSection() {
     <section id="industries" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
-          <SectionTag>Industries We Serve</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Trusted Across Every Sector
           </h2>
@@ -938,8 +953,7 @@ function IndustryChip({ ind, delay }) {
       transition:'all 0.3s', cursor:'default', transitionDelay:`${delay}s`
     }}>
       <span style={{ fontSize:28, flexShrink:0 }}>{ind.icon}</span>
-      <span style={{ fontWeight:500, fontSize:15, color:'var(--white)', flex:1 }}>{ind.name}</span>
-      <span style={{ color:'var(--aqua)', fontSize:18, flexShrink:0 }}>›</span>
+      <span style={{ fontWeight:500, fontSize:15, color:'var(--white)' }}>{ind.name}</span>
     </div>
   )
 }
@@ -954,7 +968,14 @@ function CustomizerSection() {
   const rightRef = useReveal()
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
-  const COLORS = ['#3ecfbf', '#c8a44a', '#5b8ff9', '#e85d75', '#7c4dff', '#ff7043']
+  const COLORS = [
+    { hex: '#3ecfbf', name: 'Glacial Teal' },
+    { hex: '#c8a44a', name: 'Durbar Gold' },
+    { hex: '#5b8ff9', name: 'Himalayan Blue' },
+    { hex: '#e85d75', name: 'Coral Rose' },
+    { hex: '#7c4dff', name: 'Lavender' },
+    { hex: '#ff7043', name: 'Amber' },
+  ]
   const SIZES = ['100ml', '250ml', '350ml', '500ml', '1L']
 
   const handleFile = (e) => {
@@ -979,8 +1000,8 @@ function CustomizerSection() {
           {/* Controls */}
           <div ref={leftRef} className="reveal-left">
             {/* Upload zone */}
-            <div onClick={() => fileRef.current?.click()} style={{
-              border:'2px dashed rgba(62,207,191,0.3)', borderRadius:18, padding:'32px',
+            <button type="button" onClick={() => fileRef.current?.click()} style={{
+              width:'100%', border:'2px dashed rgba(62,207,191,0.3)', borderRadius:18, padding:'32px',
               textAlign:'center', cursor:'pointer', marginBottom:28, transition:'border-color 0.3s',
               background:'rgba(11,34,68,0.4)'
             }}
@@ -999,7 +1020,7 @@ function CustomizerSection() {
                   <div style={{ color:'var(--muted)', fontSize:13 }}>PNG, SVG or JPG · Max 5MB</div>
                 </>
               )}
-            </div>
+            </button>
             <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleFile} />
             {logo && (
               <button onClick={() => setLogo(null)} style={{
@@ -1014,10 +1035,17 @@ function CustomizerSection() {
               <div style={{ fontSize:14, fontWeight:600, color:'var(--white)', marginBottom:14, letterSpacing:'0.05em', textTransform:'uppercase' }}>Label Color</div>
               <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
                 {COLORS.map(c => (
-                  <div key={c} onClick={() => setColor(c)} style={{
-                    width:32, height:32, borderRadius:'50%', background:c, cursor:'pointer', transition:'all 0.2s',
-                    boxShadow: color === c ? `0 0 0 3px white, 0 0 0 5px ${c}` : 'none'
-                  }} />
+                  <button
+                    key={c.hex}
+                    type="button"
+                    aria-label={`${c.name}${color === c.hex ? ' (selected)' : ''}`}
+                    onClick={() => setColor(c.hex)}
+                    style={{
+                      width:32, height:32, borderRadius:'50%', background:c.hex, cursor:'pointer',
+                      transition:'all 0.2s', border:'none', padding:0,
+                      boxShadow: color === c.hex ? `0 0 0 3px white, 0 0 0 5px ${c.hex}` : 'none'
+                    }}
+                  />
                 ))}
               </div>
             </div>
@@ -1077,7 +1105,6 @@ function TestimonialsSection({ content }) {
     <section id="testimonials" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
-          <SectionTag>What Clients Say</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Trusted by India's Leading Brands
           </h2>
@@ -1122,22 +1149,45 @@ function TestimonialsSection({ content }) {
 function ContactSection({ content }) {
   const [form, setForm] = useState({ name:'', company:'', email:'', phone:'', quantity:'', message:'' })
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState(null)
   const leftRef = useReveal()
   const rightRef = useReveal()
   const phone = content?.phone || '+91 76248 03460'
   const deliveryNote = content?.deliveryNote || 'Currently serving Delhi NCR.'
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
-  const handleSubmit = () => {
-    if (!form.name || !form.email) return
-    setSubmitted(true)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.name || !form.email) {
+      setError('Please fill in your name and email.')
+      return
+    }
+    setError(null)
+    setIsSubmitting(true)
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (res.ok) {
+        setSubmitted(true)
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setError(data?.errors?.[0]?.message || 'Submission failed. Please contact us via WhatsApp or email.')
+      }
+    } catch {
+      setError('Network error. Please contact us via WhatsApp or email directly.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const SOCIAL = [
-    { label:'IG', href:'https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0', color:'#e1306c', path:'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z' },
-    { label:'LI', color:'#0077b5', path:'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z' },
-    { label:'TW', color:'#1da1f2', path:'M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z' },
-    { label:'YT', color:'#ff0000', path:'M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z' },
+    { label:'Instagram', href:'https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0', color:'#e1306c', path:'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z' },
+    { label:'LinkedIn', href:'https://www.linkedin.com/company/aquavia', color:'#0077b5', path:'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z' },
   ]
 
   return (
@@ -1156,7 +1206,7 @@ function ContactSection({ content }) {
             {[
               { icon:'📍', text:'Delhi, India' },
               { icon:'📞', text:phone },
-              { icon:'📧', text:'ravi.prakash4104@gmail.com' },
+              { icon:'📧', text:'hello@aquavia.in' },
               { icon:'🚚', text:deliveryNote },
             ].map(item => (
               <div key={item.text} style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
@@ -1165,18 +1215,15 @@ function ContactSection({ content }) {
               </div>
             ))}
             <div style={{ display:'flex', gap:12, marginTop:32 }}>
-              {SOCIAL.map(s => {
-                const el = (
-                  <div key={s.label} className="glass-card" style={{ width:44, height:44, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
+              {SOCIAL.map(s => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} style={{ textDecoration:'none' }}>
+                  <div className="glass-card" style={{ width:44, height:44, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill={s.color}>
                       <path d={s.path} />
                     </svg>
                   </div>
-                );
-                return s.href
-                  ? <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" style={{ textDecoration:'none' }}>{el}</a>
-                  : el;
-              })}
+                </a>
+              ))}
             </div>
           </div>
 
@@ -1189,12 +1236,12 @@ function ContactSection({ content }) {
                 <p style={{ color:'var(--muted)' }}>We'll be in touch within 24 hours!</p>
               </div>
             ) : (
-              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-                <input name="name" placeholder="Your Name" value={form.name} onChange={handleChange} className="form-input" />
+              <form onSubmit={handleSubmit} noValidate style={{ display:'flex', flexDirection:'column', gap:16 }}>
+                <input name="name" placeholder="Your Name *" value={form.name} onChange={handleChange} className="form-input" required />
                 <input name="company" placeholder="Company Name" value={form.company} onChange={handleChange} className="form-input" />
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                  <input name="email" placeholder="Email Address" value={form.email} onChange={handleChange} className="form-input" />
-                  <input name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} className="form-input" />
+                <div className="contact-form-row" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+                  <input name="email" type="email" placeholder="Email Address *" value={form.email} onChange={handleChange} className="form-input" required />
+                  <input name="phone" type="tel" placeholder="Phone Number" value={form.phone} onChange={handleChange} className="form-input" />
                 </div>
                 <select name="quantity" value={form.quantity} onChange={handleChange} className="form-input">
                   <option value="">Order Quantity</option>
@@ -1204,16 +1251,25 @@ function ContactSection({ content }) {
                   <option value="10000+">10,000+ bottles</option>
                 </select>
                 <textarea name="message" placeholder="Tell us about your requirements..." value={form.message} onChange={handleChange} rows={4} className="form-input" style={{ resize:'vertical' }} />
-                <div onClick={handleSubmit} style={{
-                  background:'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
-                  borderRadius:50, padding:'16px', textAlign:'center', color:'var(--navy)',
-                  fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:16,
-                  cursor:'pointer', transition:'all 0.3s', userSelect:'none'
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 12px 40px rgba(62,207,191,0.4)' }}
+                {error && (
+                  <p role="alert" style={{ color:'#e85d75', fontSize:14, margin:0 }}>{error}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  style={{
+                    background:'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
+                    border:'none', borderRadius:50, padding:'16px', textAlign:'center',
+                    color:'var(--navy)', fontFamily:'DM Sans, sans-serif', fontWeight:700,
+                    fontSize:16, cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                    transition:'all 0.3s', opacity: isSubmitting ? 0.7 : 1
+                  }}
+                  onMouseEnter={e => { if (!isSubmitting) { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 12px 40px rgba(62,207,191,0.4)' } }}
                   onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='none' }}
-                >Send Enquiry →</div>
-              </div>
+                >
+                  {isSubmitting ? 'Sending…' : 'Send Enquiry →'}
+                </button>
+              </form>
             )}
           </div>
         </div>
@@ -1240,10 +1296,10 @@ function Footer({ content }) {
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Quick Links</div>
           {['about','services','products','industries','customizer','contact'].map(id => (
-            <div key={id} onClick={() => scrollTo(id)} style={{ color:'var(--muted)', fontSize:14, marginBottom:10, cursor:'pointer', textTransform:'capitalize', transition:'color 0.2s' }}
-              onMouseEnter={e => e.target.style.color='var(--aqua)'}
-              onMouseLeave={e => e.target.style.color='var(--muted)'}
-            >{id}</div>
+            <button key={id} onClick={() => scrollTo(id)} style={{ display:'block', background:'none', border:'none', color:'var(--muted)', fontSize:14, marginBottom:10, cursor:'pointer', textTransform:'capitalize', transition:'color 0.2s', padding:0, fontFamily:'DM Sans, sans-serif' }}
+              onMouseEnter={e => e.currentTarget.style.color='var(--aqua)'}
+              onMouseLeave={e => e.currentTarget.style.color='var(--muted)'}
+            >{id}</button>
           ))}
         </div>
 
@@ -1258,14 +1314,14 @@ function Footer({ content }) {
         {/* Contact */}
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Contact</div>
-          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76248 03460'}`, '📧 ravi.prakash4104@gmail.com', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
+          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76248 03460'}`, '📧 hello@aquavia.in', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
             <div key={item} style={{ color:'var(--muted)', fontSize:13, marginBottom:10, lineHeight:1.5 }}>{item}</div>
           ))}
         </div>
       </div>
 
       <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:24, maxWidth:1200, margin:'0 auto', display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
-        <span style={{ color:'var(--muted)', fontSize:13 }}>© 2024 AquaVia. All rights reserved.</span>
+        <span style={{ color:'var(--muted)', fontSize:13 }}>© 2026 AquaVia. All rights reserved.</span>
         <span style={{ color:'var(--muted)', fontSize:13 }}>Made with 💧 in India</span>
       </div>
     </footer>
@@ -1286,18 +1342,23 @@ function WhatsAppButton({ content }) {
         animation:'ripple 2s ease-out infinite', pointerEvents:'none'
       }} />
       {/* Button */}
-      <div onClick={handleClick} style={{
-        position:'fixed', bottom:28, right:28, zIndex:9999,
-        width:58, height:58, borderRadius:'50%',
-        background:'linear-gradient(135deg, #25d366, #1aad52)',
-        boxShadow:'0 6px 24px rgba(37,211,102,0.25)',
-        display:'flex', alignItems:'center', justifyContent:'center',
-        cursor:'pointer', animation:'waBounce 2.5s ease-in-out infinite'
-      }}>
+      <button
+        onClick={handleClick}
+        aria-label="Contact via WhatsApp"
+        style={{
+          position:'fixed', bottom:28, right:28, zIndex:9999,
+          width:58, height:58, borderRadius:'50%',
+          background:'linear-gradient(135deg, #25d366, #1aad52)',
+          boxShadow:'0 6px 24px rgba(37,211,102,0.25)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          cursor:'pointer', animation:'waBounce 2.5s ease-in-out infinite',
+          border:'none', padding:0
+        }}
+      >
         <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
-      </div>
+      </button>
     </>
   )
 }

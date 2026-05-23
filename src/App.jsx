@@ -273,6 +273,7 @@ const HS_SCHEMA = [
     offers: [
       { '@type': 'Offer', name: '100ml Custom Bottle', price: '9',  priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
       { '@type': 'Offer', name: '250ml Custom Bottle', price: '12', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
+      { '@type': 'Offer', name: '350ml Custom Bottle', price: '15', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
       { '@type': 'Offer', name: '500ml Custom Bottle', price: '18', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
       { '@type': 'Offer', name: '1L Custom Bottle',   price: '28', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
     ],
@@ -517,6 +518,7 @@ const STEPS = [
 const PRODUCTS = [
   { size: '100ml', name: 'Nano', desc: 'Perfect for airlines, mini-bars & luxury amenity kits', price: '₹9/bottle', minOrder: '1000 units', color: '#a78bfa', featured: false },
   { size: '250ml', name: 'Petite', desc: 'Ideal for flights, meetings & premium gift hampers', price: '₹12/bottle', minOrder: '500 units', color: '#3ecfbf', featured: false },
+  { size: '350ml', name: 'Slim', desc: 'Great for cafes, travel & daily hydration', price: '₹15/bottle', minOrder: '350 units', color: '#f97316', featured: false },
   { size: '500ml', name: 'Classic', desc: 'Our most popular — perfect for offices & events', price: '₹18/bottle', minOrder: '250 units', color: '#c8a44a', featured: true },
   { size: '1 Litre', name: 'Grande', desc: 'Ideal for gyms, hotels & extended stays', price: '₹28/bottle', minOrder: '150 units', color: '#5b8ff9', featured: false },
 ]
@@ -942,7 +944,7 @@ function CustomizerSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
   const COLORS = ['#3ecfbf', '#c8a44a', '#5b8ff9', '#e85d75', '#7c4dff', '#ff7043']
-  const SIZES = ['100ml', '250ml', '500ml', '1L']
+  const SIZES = ['100ml', '250ml', '350ml', '500ml', '1L']
 
   const handleFile = (e) => {
     const file = e.target.files?.[0]

@@ -11,6 +11,7 @@ const SectionTag = ({ children }) => (
 
 const PRODUCTS = [
   { size: '250ml', name: 'Petite', desc: 'Ideal for flights, meetings & premium gift hampers', price: '₹12/bottle', minOrder: '500 units', color: '#3ecfbf', featured: false },
+  { size: '350ml', name: 'Slim', desc: 'Great for cafes, travel & daily hydration', price: '₹15/bottle', minOrder: '350 units', color: '#f97316', featured: false },
   { size: '500ml', name: 'Classic', desc: 'Our most popular — perfect for offices & events', price: '₹18/bottle', minOrder: '250 units', color: '#c8a44a', featured: true },
   { size: '1 Litre', name: 'Grande', desc: 'Ideal for gyms, hotels & extended stays', price: '₹28/bottle', minOrder: '150 units', color: '#5b8ff9', featured: false },
 ];

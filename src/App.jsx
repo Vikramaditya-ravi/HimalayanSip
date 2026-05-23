@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID'
+const WEB3FORMS_KEY = '1f5d2cae-cd17-42c3-b5d0-a3f5117d55c3'
 
 // ─── Global Style Injection ───────────────────────────────────────────────────
 function useGlobalStyles() {
@@ -1167,10 +1167,10 @@ function ContactSection({ content }) {
     setError(null)
     setIsSubmitting(true)
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ access_key: WEB3FORMS_KEY, ...form }),
       })
       if (res.ok) {
         setSubmitted(true)

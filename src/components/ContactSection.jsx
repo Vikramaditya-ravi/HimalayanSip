@@ -10,10 +10,10 @@ const SectionTag = ({ children }) => (
 );
 
 const SOCIAL_ICONS = [
-  { label: 'Instagram', svg: '📸' },
-  { label: 'LinkedIn', svg: '💼' },
-  { label: 'Twitter', svg: '🐦' },
-  { label: 'YouTube', svg: '▶️' },
+  { label: 'Instagram', svg: '📸', href: 'https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0' },
+  { label: 'LinkedIn', svg: '💼', href: null },
+  { label: 'Twitter', svg: '🐦', href: null },
+  { label: 'YouTube', svg: '▶️', href: null },
 ];
 
 export default function ContactSection() {
@@ -71,20 +71,23 @@ export default function ContactSection() {
             ))}
 
             <div style={{ display: 'flex', gap: 12, marginTop: 36 }}>
-              {SOCIAL_ICONS.map(({ label, svg }) => (
-                <div
-                  key={label}
-                  className="glass-card"
-                  style={{
-                    width: 44, height: 44, borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, cursor: 'pointer',
-                  }}
-                  title={label}
-                >
-                  {svg}
-                </div>
-              ))}
+              {SOCIAL_ICONS.map(({ label, svg, href }) => {
+                const el = (
+                  <div
+                    key={label}
+                    className="glass-card"
+                    style={{
+                      width: 44, height: 44, borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 18, cursor: 'pointer',
+                    }}
+                    title={label}
+                  >
+                    {svg}
+                  </div>
+                );
+                return href ? <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>{el}</a> : el;
+              })}
             </div>
           </div>
 

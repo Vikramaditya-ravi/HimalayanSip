@@ -30,14 +30,22 @@ export default function Footer() {
               Pure Himalayan hydration for brands that care.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
-              {['📸', '💼', '🐦', '▶️'].map((icon, i) => (
-                <div key={i} style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 15, cursor: 'pointer',
-                }}>{icon}</div>
-              ))}
+              {[
+                { icon: '📸', href: 'https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0' },
+                { icon: '💼', href: null },
+                { icon: '🐦', href: null },
+                { icon: '▶️', href: null },
+              ].map(({ icon, href }, i) => {
+                const el = (
+                  <div key={i} style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 15, cursor: 'pointer',
+                  }}>{icon}</div>
+                );
+                return href ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>{el}</a> : el;
+              })}
             </div>
           </div>
 

@@ -240,7 +240,7 @@ const HS_SCHEMA = [
     areaServed: { '@type': 'City', name: 'Delhi NCR' },
     address: { '@type': 'PostalAddress', addressLocality: 'New Delhi', addressRegion: 'Delhi', postalCode: '110001', addressCountry: 'IN' },
     openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:00', closes: '18:00' }],
-    sameAs: ['https://www.instagram.com/aquavia','https://www.linkedin.com/company/aquavia'],
+    sameAs: ['https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0','https://www.linkedin.com/company/aquavia'],
   },
   {
     '@context': 'https://schema.org', '@type': 'Product',

@@ -44,6 +44,18 @@ function useGlobalStyles() {
       @keyframes badgePulse { 0%,100%{transform:translateX(-50%) scale(1);box-shadow:0 4px 20px rgba(200,164,74,0.4)} 50%{transform:translateX(-50%) scale(1.06);box-shadow:0 6px 28px rgba(200,164,74,0.7)} }
       @keyframes borderGlow { 0%,100%{border-color:rgba(62,207,191,0.4)} 50%{border-color:rgba(62,207,191,0.9)} }
       @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+      @keyframes sonarPulse { 0%{transform:scale(0.1);opacity:0.8} 100%{transform:scale(1.8);opacity:0} }
+      @keyframes dropRise { 0%{transform:translateY(0);opacity:0} 20%{opacity:0.9} 80%{opacity:0.9} 100%{transform:translateY(-80px);opacity:0} }
+      @keyframes filterLight { 0%,100%{opacity:0.15} 50%{opacity:0.95} }
+      @keyframes orbitSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes fillBottle { 0%,100%{transform:translateY(85px)} 45%,75%{transform:translateY(0)} }
+      @keyframes burstLine { 0%{stroke-dashoffset:68;opacity:1} 60%{stroke-dashoffset:0;opacity:0.6} 100%{stroke-dashoffset:0;opacity:0} }
+      @keyframes twinkle { 0%,100%{opacity:0.1;transform:scale(0.5)} 50%{opacity:1;transform:scale(1.3)} }
+      @keyframes truckWobble { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+      @keyframes snowFloat { from{transform:translate(0,0);opacity:0.5} to{transform:translate(8px,-12px);opacity:0.08} }
+      @keyframes speedLine { from{opacity:0.35;transform:scaleX(1)} to{opacity:0;transform:scaleX(0.1)} }
+
+      .svg-anim { transform-box: fill-box; transform-origin: center center; }
 
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
@@ -146,6 +158,7 @@ function useGlobalStyles() {
         .hero-h1 { font-size: clamp(36px,8vw,52px) !important; }
         .services-numbered { grid-template-columns: 1fr !important; }
         .testimonials-grid { grid-template-columns: 1fr !important; }
+        .journey-row-grid { grid-template-columns: 1fr !important; }
       }
     `
     document.head.appendChild(style)
@@ -556,6 +569,23 @@ const INDUSTRIES = [
   { icon: '🍽️', name: 'Restaurants & Cafes' }, { icon: '✈️', name: 'Airlines & Travel' },
 ]
 
+const JOURNEY_STEPS = [
+  { num:'01', title:'The Ancient Source', color:'#3ecfbf',
+    body:'Deep beneath the earth, ancient groundwater lies pristine and untouched — patient for centuries, waiting to become something extraordinary.' },
+  { num:'02', title:'Precision Extraction', color:'#5b8ff9',
+    body:'Our precision-engineered wells reach into protected aquifers, drawing water upward gently, without disturbance to the surrounding ecosystem.' },
+  { num:'03', title:'7-Stage Filtration', color:'#7c4dff',
+    body:'Every drop enters our fortress of purity — seven sequential stages stripping out sediment, bacteria, dissolved solids, and invisible contaminants.' },
+  { num:'04', title:'Mineral Alchemy', color:'#c8a44a',
+    body:'Stripped of impurities but not of life. Essential minerals — calcium, magnesium, potassium — are woven back in, perfectly balanced for the human body.' },
+  { num:'05', title:'Custom Bottling', color:'#3ecfbf',
+    body:"Your brand. Your label. Your identity. Each bottle is filled, sealed, and dressed in your livery — a product that's unmistakably yours." },
+  { num:'06', title:'Cold-Chain Delivery', color:'#5b8ff9',
+    body:"Temperature never rises above 4°C from the moment it's sealed. Our refrigerated fleet ensures every bottle arrives as cold as it was born." },
+  { num:'07', title:'Your Water', color:'#c8a44a',
+    body:'Cold. Crisp. Crafted for you. Not mass-produced. Not generic. Your water — made to your specification, delivered to your door.' },
+]
+
 const TESTIMONIALS = [
   { name: 'Priya Sharma', title: 'Marketing Head, Nexus Realty', initials: 'PS', text: 'AquaVia transformed our site visits. Handing branded water to potential buyers elevated our brand perception instantly. Orders arrived ahead of schedule — flawless execution.', rating: 5 },
   { name: 'Arjun Mehta', title: 'Director of Operations, Transcend Hotels', initials: 'AM', text: 'As a luxury hotel group, presentation is everything. AquaVia bottles sit on every dining table. Guests always comment on them. Exceptional quality, beautiful labels, reliable supply.', rating: 5 },
@@ -586,7 +616,7 @@ function Navbar() {
 
       {/* Nav links */}
       <div className="nav-links" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-        {['about','services','products','industries','customizer','contact'].map(id => (
+        {['about','services','journey','products','industries','customizer','contact'].map(id => (
           <button key={id} onClick={() => scrollTo(id)} style={{
             background: 'none', border: 'none', color: 'var(--muted)', fontSize: 14,
             fontFamily: 'DM Sans, sans-serif', fontWeight: 500, cursor: 'pointer',
@@ -858,6 +888,294 @@ function StepCard({ step, delay, isLast }) {
       <h3 style={{ fontFamily:'Cormorant Garamond, serif', fontSize:20, fontWeight:600, color:'var(--white)', marginBottom:10 }}>{step.title}</h3>
       <p style={{ color:'var(--muted)', lineHeight:1.75, fontSize:14 }}>{step.desc}</p>
     </div>
+  )
+}
+
+// ─── Journey: "From Earth to You" ─────────────────────────────────────────────
+function IllusSource() {
+  return (
+    <svg viewBox="0 0 200 200" width="190" height="190" style={{overflow:'visible'}}>
+      <defs>
+        <radialGradient id="dropGrad1" cx="38%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#7efff4"/><stop offset="100%" stopColor="#1a8a80"/>
+        </radialGradient>
+      </defs>
+      {[0, 0.75, 1.5].map((delay,i) => (
+        <circle key={i} cx="100" cy="110" r="50" fill="none" stroke="#3ecfbf" strokeWidth="1.5"
+          className="svg-anim"
+          style={{animation:`sonarPulse 2.25s ${delay}s ease-out infinite`,animationFillMode:'both'}}/>
+      ))}
+      <ellipse cx="100" cy="140" rx="72" ry="10" fill="#3ecfbf" opacity="0.07"/>
+      <ellipse cx="100" cy="152" rx="56" ry="7" fill="#3ecfbf" opacity="0.05"/>
+      <path d="M100 72 C100 72 74 100 74 116 C74 133 86 144 100 144 C114 144 126 133 126 116 C126 100 100 72 100 72Z" fill="url(#dropGrad1)"/>
+      <ellipse cx="90" cy="104" rx="7" ry="10" fill="white" opacity="0.22"/>
+    </svg>
+  )
+}
+
+function IllusExtraction() {
+  return (
+    <svg viewBox="0 0 200 200" width="190" height="190">
+      <ellipse cx="100" cy="166" rx="60" ry="9" fill="#5b8ff9" opacity="0.12"/>
+      <rect x="94" y="38" width="12" height="128" rx="6" fill="#5b8ff9" opacity="0.18"/>
+      <rect x="96" y="40" width="8" height="124" rx="4" fill="#5b8ff9" opacity="0.35"/>
+      <path d="M97 40 L100 28 L103 40Z" fill="#5b8ff9" opacity="0.9"/>
+      {[0, 0.7, 1.4].map((delay,i) => (
+        <ellipse key={i} cx="100" cy="150" rx="4.5" ry="6.5" fill="#5b8ff9"
+          className="svg-anim"
+          style={{animation:`dropRise 2.1s ${delay}s ease-in-out infinite`,animationFillMode:'both',opacity:0}}/>
+      ))}
+      <rect x="28" y="158" width="144" height="2" fill="#5b8ff9" opacity="0.2" rx="1"/>
+    </svg>
+  )
+}
+
+function IllusFiltration() {
+  const BAR_COLORS = ['#3ecfbf','#5b8ff9','#7c4dff','#c8a44a','#7c4dff','#5b8ff9','#3ecfbf']
+  return (
+    <svg viewBox="0 0 200 200" width="190" height="190">
+      <rect x="16" y="158" width="168" height="2" fill="white" opacity="0.07" rx="1"/>
+      {BAR_COLORS.map((color,i) => {
+        const x = 20 + i * 23
+        return (
+          <g key={i}>
+            <rect x={x} y="48" width="17" height="110" rx="8" fill={color} opacity="0.08"/>
+            <rect x={x} y="48" width="17" height="110" rx="8" fill={color}
+              style={{animation:`filterLight 1.96s ${i*0.24}s ease-in-out infinite`,opacity:0.15}}/>
+            <text x={x+8.5} y="178" textAnchor="middle" fill={color} fontSize="7.5" fontFamily="DM Sans" opacity="0.8">S{i+1}</text>
+          </g>
+        )
+      })}
+      {[0,1,2,3,4,5].map(i => (
+        <path key={i} d={`M${37+i*23} 100 L${43+i*23} 100`} stroke="white" strokeWidth="0.6" opacity="0.15"/>
+      ))}
+    </svg>
+  )
+}
+
+function IllusMinerals() {
+  const IONS = [
+    {label:'Ca',color:'#c8a44a',r:42,speed:'3.2s',di:0},
+    {label:'Mg',color:'#3ecfbf',r:32,speed:'2.4s',di:1},
+    {label:'K', color:'#7c4dff',r:50,speed:'4s',  di:0},
+    {label:'Na',color:'#5b8ff9',r:38,speed:'2.8s',di:1},
+  ]
+  return (
+    <svg viewBox="0 0 200 200" width="190" height="190">
+      <defs>
+        <radialGradient id="dropGrad4" cx="38%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#b2fff8"/><stop offset="100%" stopColor="#1a8a80"/>
+        </radialGradient>
+      </defs>
+      {[32,42,50].map((r,i) => (
+        <circle key={i} cx="100" cy="100" r={r} fill="none" stroke="white" strokeWidth="0.6" opacity="0.08" strokeDasharray="4 6"/>
+      ))}
+      {IONS.map((ion,i) => (
+        <g key={i} style={{
+          transformOrigin:'100px 100px',
+          animation:`orbitSpin ${ion.speed} ${i*0.4}s linear infinite`,
+          animationDirection: ion.di===1 ? 'reverse' : 'normal'
+        }}>
+          <circle cx={100+ion.r} cy="100" r="10" fill={ion.color} opacity="0.18"/>
+          <circle cx={100+ion.r} cy="100" r="6" fill={ion.color} opacity="0.7"/>
+          <text x={100+ion.r} y="104" textAnchor="middle" fill="white" fontSize="6" fontFamily="DM Sans" fontWeight="600">{ion.label}</text>
+        </g>
+      ))}
+      <path d="M100 80 C100 80 84 97 84 108 C84 119 91 126 100 126 C109 126 116 119 116 108 C116 97 100 80 100 80Z" fill="url(#dropGrad4)"/>
+      <ellipse cx="93" cy="102" rx="5" ry="7" fill="white" opacity="0.25"/>
+    </svg>
+  )
+}
+
+function IllusBottling() {
+  return (
+    <svg viewBox="0 0 200 200" width="190" height="190">
+      <defs>
+        <clipPath id="bottleClip5">
+          <path d="M88 48 L88 68 L78 78 L78 170 L122 170 L122 78 L112 68 L112 48 Z"/>
+        </clipPath>
+        <linearGradient id="waterGrad5" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#3ecfbf" stopOpacity="0.9"/>
+          <stop offset="100%" stopColor="#1a8a80" stopOpacity="0.7"/>
+        </linearGradient>
+      </defs>
+      <path d="M88 48 L88 68 L78 78 L78 170 L122 170 L122 78 L112 68 L112 48 Z"
+        fill="rgba(62,207,191,0.06)" stroke="#3ecfbf" strokeWidth="1.5" strokeLinejoin="round"/>
+      <rect x="86" y="40" width="28" height="10" rx="4" fill="#3ecfbf" opacity="0.4"/>
+      <rect x="78" y="100" width="44" height="40" fill="rgba(62,207,191,0.06)" stroke="rgba(62,207,191,0.2)" strokeWidth="0.8"/>
+      <text x="100" y="118" textAnchor="middle" fill="#3ecfbf" fontSize="7" fontFamily="DM Sans" opacity="0.7">YOUR</text>
+      <text x="100" y="128" textAnchor="middle" fill="#3ecfbf" fontSize="7" fontFamily="DM Sans" opacity="0.7">BRAND</text>
+      <rect x="78" y="78" width="44" height="92" fill="url(#waterGrad5)"
+        clipPath="url(#bottleClip5)"
+        className="svg-anim"
+        style={{animation:'fillBottle 3s ease-in-out infinite'}}/>
+      <path d="M86 82 L86 160" stroke="white" strokeWidth="2" opacity="0.08" strokeLinecap="round"/>
+      <rect x="50" y="172" width="100" height="3" rx="1.5" fill="white" opacity="0.08"/>
+      {[0,1,2,3].map(i => (
+        <circle key={i} cx={58+i*22} cy="178" r="4" fill="none" stroke="white" strokeWidth="0.8" opacity="0.12"/>
+      ))}
+    </svg>
+  )
+}
+
+function IllusDelivery() {
+  return (
+    <svg viewBox="0 0 200 200" width="190" height="190">
+      <rect x="8" y="160" width="184" height="4" rx="2" fill="#5b8ff9" opacity="0.12"/>
+      {[0,1,2,3,4].map(i => (
+        <rect key={i} x={12+i*36} y="161.5" width="18" height="1" rx="0.5" fill="#5b8ff9" opacity="0.18"/>
+      ))}
+      {[0,1,2].map(i => (
+        <line key={i} x1="8" y1={124+i*10} x2={48+i*4} y2={124+i*10}
+          stroke="#5b8ff9" strokeWidth={1.2-i*0.3} opacity="0.2"
+          style={{transformOrigin:'48px 100px',animation:`speedLine 1.2s ${i*0.25}s ease-out infinite`}}/>
+      ))}
+      <g style={{animation:'truckWobble 0.6s ease-in-out infinite'}}>
+        <rect x="38" y="104" width="94" height="56" rx="5" fill="#0b2244" stroke="#5b8ff9" strokeWidth="1.5" opacity="0.95"/>
+        <text x="68" y="136" fontSize="16" fill="#5b8ff9" opacity="0.55" textAnchor="middle">❄</text>
+        <text x="95" y="136" fontSize="16" fill="#5b8ff9" opacity="0.45" textAnchor="middle">❄</text>
+        <text x="116" y="136" fontSize="13" fill="#5b8ff9" opacity="0.35" textAnchor="middle">❄</text>
+        <text x="85" y="154" fontSize="9.5" fill="#3ecfbf" fontFamily="DM Sans" fontWeight="600" textAnchor="middle">4°C</text>
+        <rect x="130" y="116" width="36" height="44" rx="4" fill="#081b35" stroke="#5b8ff9" strokeWidth="1.5"/>
+        <rect x="135" y="122" width="20" height="17" rx="3" fill="#3ecfbf" opacity="0.22"/>
+        <circle cx="163" cy="152" r="3.5" fill="#c8a44a" opacity="0.85"/>
+        <circle cx="163" cy="152" r="6" fill="#c8a44a" opacity="0.12"/>
+        <circle cx="70" cy="160" r="11" fill="#04101f" stroke="#5b8ff9" strokeWidth="2"/>
+        <circle cx="70" cy="160" r="5" fill="#5b8ff9" opacity="0.4"/>
+        <circle cx="148" cy="160" r="11" fill="#04101f" stroke="#5b8ff9" strokeWidth="2"/>
+        <circle cx="148" cy="160" r="5" fill="#5b8ff9" opacity="0.4"/>
+        <rect x="38" y="158" width="130" height="4" rx="2" fill="#5b8ff9" opacity="0.1"/>
+      </g>
+      {[{x:28,y:80,d:0},{x:18,y:62,d:0.5},{x:44,y:55,d:1},{x:12,y:92,d:0.8}].map((s,i) => (
+        <circle key={i} cx={s.x} cy={s.y} r="2.5" fill="#5b8ff9" opacity="0.35"
+          className="svg-anim"
+          style={{animation:`snowFloat 2.2s ${s.d}s ease-in-out infinite alternate`}}/>
+      ))}
+    </svg>
+  )
+}
+
+function IllusYours() {
+  const RAY_ANGLES = [0,45,90,135,180,225,270,315]
+  const SPARK_ANGLES = [22,67,112,157,202,247,292,337]
+  return (
+    <svg viewBox="0 0 200 200" width="190" height="190" style={{overflow:'visible'}}>
+      <defs>
+        <radialGradient id="dropGrad7" cx="38%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#fffbf0"/><stop offset="100%" stopColor="#3ecfbf"/>
+        </radialGradient>
+        <radialGradient id="glowGrad7" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#c8a44a" stopOpacity="0.25"/>
+          <stop offset="100%" stopColor="#c8a44a" stopOpacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="100" cy="100" r="65" fill="url(#glowGrad7)"/>
+      {RAY_ANGLES.map((angle,i) => {
+        const rad = angle * Math.PI / 180
+        const x2 = 100 + Math.cos(rad) * 68
+        const y2 = 100 + Math.sin(rad) * 68
+        return (
+          <line key={i} x1="100" y1="100" x2={x2} y2={y2}
+            stroke={i%2===0?'#c8a44a':'#3ecfbf'} strokeWidth="1.8" strokeLinecap="round"
+            strokeDasharray="68" strokeDashoffset="68"
+            style={{animation:`burstLine 2.4s ${i*0.18}s ease-out infinite`}}/>
+        )
+      })}
+      {SPARK_ANGLES.map((angle,i) => {
+        const rad = angle * Math.PI / 180
+        const cx = 100 + Math.cos(rad) * 55
+        const cy = 100 + Math.sin(rad) * 55
+        return (
+          <circle key={i} cx={cx} cy={cy} r="3.5" fill={i%2===0?'#c8a44a':'#3ecfbf'}
+            className="svg-anim"
+            style={{animation:`twinkle 1.8s ${i*0.22}s ease-in-out infinite`,opacity:0.1}}/>
+        )
+      })}
+      <path d="M100 68 C100 68 76 93 76 109 C76 124 87 134 100 134 C113 134 124 124 124 109 C124 93 100 68 100 68Z" fill="url(#dropGrad7)"/>
+      <ellipse cx="91" cy="97" rx="7" ry="9" fill="white" opacity="0.28"/>
+    </svg>
+  )
+}
+
+const ILLUS_COMPONENTS = [IllusSource, IllusExtraction, IllusFiltration, IllusMinerals, IllusBottling, IllusDelivery, IllusYours]
+
+function colorToRgb(hex) {
+  if (hex === '#3ecfbf') return '62,207,191'
+  if (hex === '#5b8ff9') return '91,143,249'
+  if (hex === '#7c4dff') return '124,77,255'
+  if (hex === '#c8a44a') return '200,164,74'
+  return '62,207,191'
+}
+
+function JourneyRow({ step, index }) {
+  const ref = useReveal()
+  const IllusComp = ILLUS_COMPONENTS[index]
+  const isReversed = index % 2 === 1
+  const rgb = colorToRgb(step.color)
+  const textEl = (
+    <div style={{ display:'flex', flexDirection:'column', justifyContent:'center' }}>
+      <span style={{ color:step.color, fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, letterSpacing:3, textTransform:'uppercase', marginBottom:12 }}>
+        {step.num}
+      </span>
+      <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontWeight:700, fontSize:'clamp(24px,2.8vw,38px)', color:'var(--white)', lineHeight:1.1, marginBottom:16 }}>
+        {step.title}
+      </h3>
+      <div style={{ width:40, height:2, background:step.color, marginBottom:20, borderRadius:2 }}/>
+      <p style={{ color:'var(--muted)', lineHeight:1.8, fontSize:15, maxWidth:420 }}>{step.body}</p>
+    </div>
+  )
+  const illusEl = (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{
+        width:240, height:240, borderRadius:'50%',
+        background:`radial-gradient(circle, rgba(${rgb},0.09) 0%, transparent 70%)`,
+        border:`1px solid rgba(${rgb},0.15)`,
+        display:'flex', alignItems:'center', justifyContent:'center',
+      }}>
+        <IllusComp />
+      </div>
+    </div>
+  )
+  return (
+    <div ref={ref} className="reveal journey-row-grid"
+      style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(32px,5vw,80px)', alignItems:'center', marginBottom:64, transitionDelay:`${index*0.04}s` }}>
+      {isReversed ? <>{textEl}{illusEl}</> : <>{illusEl}{textEl}</>}
+    </div>
+  )
+}
+
+function JourneySection() {
+  const titleRef = useReveal()
+  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior:'smooth' })
+  return (
+    <section id="journey" style={{ padding:'100px 5%', background:'var(--navy)', position:'relative', overflow:'hidden' }}>
+      <div style={{ position:'absolute', top:'30%', left:'50%', transform:'translateX(-50%)', width:700, height:700, background:'radial-gradient(circle,rgba(62,207,191,0.035) 0%,transparent 70%)', borderRadius:'50%', pointerEvents:'none' }}/>
+      <div style={{ maxWidth:1200, margin:'0 auto', position:'relative' }}>
+        <div ref={titleRef} className="reveal" style={{ textAlign:'center', marginBottom:88 }}>
+          <p style={{ color:'var(--aqua)', fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, letterSpacing:4, textTransform:'uppercase', marginBottom:16 }}>THE JOURNEY</p>
+          <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontWeight:700, fontSize:'clamp(34px,5vw,64px)', color:'var(--white)', lineHeight:1.05, marginBottom:20 }}>
+            From Earth to <span style={{ color:'var(--gold)' }}>You</span>
+          </h2>
+          <p style={{ color:'var(--muted)', fontSize:16, lineHeight:1.75, maxWidth:560, margin:'0 auto' }}>
+            Every drop carries a story — a journey of purity, precision, and care from ancient aquifers to your hands.
+          </p>
+        </div>
+        {JOURNEY_STEPS.map((step,i) => (
+          <JourneyRow key={step.num} step={step} index={i} />
+        ))}
+        <div style={{ textAlign:'center', marginTop:8 }}>
+          <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:'clamp(20px,2.5vw,30px)', fontStyle:'italic', color:'var(--muted)', marginBottom:32 }}>
+            Not just water. <span style={{ color:'var(--white)', fontStyle:'italic' }}>Your</span> water.
+          </p>
+          <button onClick={() => scrollTo('contact')}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 16px 44px rgba(62,207,191,0.48)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(62,207,191,0.3)' }}
+            style={{ background:'linear-gradient(135deg,var(--aqua-dim),var(--aqua))', color:'var(--navy)', border:'none', borderRadius:50, padding:'14px 38px', fontFamily:"'DM Sans',sans-serif", fontSize:15, fontWeight:600, cursor:'pointer', boxShadow:'0 8px 32px rgba(62,207,191,0.3)', transition:'all 0.3s' }}>
+            Start Your Journey
+          </button>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -1402,6 +1720,7 @@ export default function App() {
       <AboutSection />
       <ServicesSection />
       <HowItWorksSection />
+      <JourneySection />
       <ProductsSection />
       <IndustriesSection />
       <div ref={customizerRef}>{customizerVisible && <CustomizerSection />}</div>

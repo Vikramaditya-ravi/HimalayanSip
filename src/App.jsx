@@ -110,8 +110,10 @@ function useGlobalStyles() {
       .featured-badge { animation: badgePulse 2.4s ease-in-out infinite; }
       .featured-card { animation: borderGlow 2.5s ease-in-out infinite; }
 
-      @media (max-width: 900px) { .products-grid { grid-template-columns: repeat(2,1fr) !important; } }
-      @media (max-width: 520px) { .products-grid { grid-template-columns: 1fr !important; } }
+      .products-grid { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
+      .products-grid::-webkit-scrollbar { height: 4px; }
+      .products-grid::-webkit-scrollbar-track { background: transparent; }
+      .products-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
 
       @media (max-width: 768px) {
         .hero-grid { grid-template-columns: 1fr !important; }
@@ -851,7 +853,7 @@ function ProductsSection() {
             Choose Your Perfect Size
           </h2>
         </div>
-        <div className="products-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:22, paddingTop:20 }}>
+        <div className="products-grid" style={{ display:'flex', overflowX:'auto', gap:22, paddingTop:20, paddingBottom:16, scrollSnapType:'x mandatory', WebkitOverflowScrolling:'touch' }}>
           {PRODUCTS.map((p, i) => (
             <ProductCard key={p.size} product={p} delay={i * 0.12} scrollTo={scrollTo} />
           ))}
@@ -867,7 +869,8 @@ function ProductCard({ product, delay, scrollTo }) {
     <div ref={ref} className={`bottle-card reveal${product.featured ? ' featured-card' : ''}`} style={{
       background:'var(--navy-card)', border:`1px solid ${product.featured ? 'rgba(62,207,191,0.4)' : 'var(--glass-border)'}`,
       borderRadius:24, padding:'32px 28px', textAlign:'center', position:'relative',
-      transitionDelay:`${delay}s`, display:'flex', flexDirection:'column', alignItems:'center', gap:0
+      transitionDelay:`${delay}s`, display:'flex', flexDirection:'column', alignItems:'center', gap:0,
+      flex:'0 0 270px', minWidth:270, scrollSnapAlign:'start'
     }}>
       {product.featured && (
         <div className="featured-badge" style={{

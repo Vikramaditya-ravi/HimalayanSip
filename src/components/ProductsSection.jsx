@@ -37,9 +37,10 @@ export default function ProductsSection() {
           </h2>
         </div>
 
-        <div ref={gridRef} className="reveal" style={{
-          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28,
-        }} className="products-grid reveal">
+        <div ref={gridRef} className="products-grid reveal" style={{
+          display: 'flex', overflowX: 'auto', gap: 28, paddingBottom: 16,
+          scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
+        }}>
           {PRODUCTS.map(({ size, name, desc, price, minOrder, color, featured }) => (
             <div
               key={name}
@@ -49,6 +50,7 @@ export default function ProductsSection() {
                 textAlign: 'center',
                 position: 'relative',
                 border: featured ? '1px solid rgba(62,207,191,0.4)' : '1px solid var(--glass-border)',
+                flex: '0 0 270px', minWidth: 270, scrollSnapAlign: 'start',
               }}
             >
               {featured && (

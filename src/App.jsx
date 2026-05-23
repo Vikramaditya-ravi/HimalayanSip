@@ -106,7 +106,7 @@ function useGlobalStyles() {
       }
       .bottle-card:hover::after { animation: shimmerSweep 0.65s ease forwards; }
       .bottle-card svg { transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), filter 0.3s ease; }
-      .bottle-card:hover svg { transform: scale(1.1) translateY(-8px) !important; filter: drop-shadow(0 24px 48px rgba(62,207,191,0.45)) !important; }
+      .bottle-card:hover svg { transform: scale(1.06) !important; filter: drop-shadow(0 24px 48px rgba(62,207,191,0.45)) !important; }
       .featured-badge { animation: badgePulse 2.4s ease-in-out infinite; }
       .featured-card { animation: borderGlow 2.5s ease-in-out infinite; }
 
@@ -848,7 +848,7 @@ function ProductsSection() {
             Choose Your Perfect Size
           </h2>
         </div>
-        <div className="products-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:22 }}>
+        <div className="products-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:22, paddingTop:20 }}>
           {PRODUCTS.map((p, i) => (
             <ProductCard key={p.size} product={p} delay={i * 0.12} scrollTo={scrollTo} />
           ))}
@@ -868,10 +868,10 @@ function ProductCard({ product, delay, scrollTo }) {
     }}>
       {product.featured && (
         <div className="featured-badge" style={{
-          position:'absolute', top:-13, left:'50%', transform:'translateX(-50%)',
+          position:'absolute', top:-16, left:'50%', transform:'translateX(-50%)',
           background:'linear-gradient(135deg, var(--gold), #a87c28)', borderRadius:50,
           padding:'4px 18px', fontSize:11, fontWeight:700, letterSpacing:'0.1em',
-          color:'var(--navy)', textTransform:'uppercase'
+          color:'var(--navy)', textTransform:'uppercase', zIndex:10, whiteSpace:'nowrap'
         }}>Most Popular</div>
       )}
       <BottleSVG color={product.color} label={product.size} size={210} />

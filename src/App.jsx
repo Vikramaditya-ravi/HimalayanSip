@@ -38,6 +38,10 @@ function useGlobalStyles() {
       @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(2.4);opacity:0} }
       @keyframes waBounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
       @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes floatD { 0%,100%{transform:translateY(0px) rotate(5deg)} 50%{transform:translateY(-20px) rotate(5deg)} }
+      @keyframes shimmerSweep { 0%{left:-80%} 100%{left:130%} }
+      @keyframes badgePulse { 0%,100%{transform:translateX(-50%) scale(1);box-shadow:0 4px 20px rgba(200,164,74,0.4)} 50%{transform:translateX(-50%) scale(1.06);box-shadow:0 6px 28px rgba(200,164,74,0.7)} }
+      @keyframes borderGlow { 0%,100%{border-color:rgba(62,207,191,0.4)} 50%{border-color:rgba(62,207,191,0.9)} }
 
       .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.75s ease,transform 0.75s ease; }
       .reveal.visible { opacity:1; transform:translateY(0); }
@@ -87,8 +91,28 @@ function useGlobalStyles() {
       .service-card:hover { transform:translateY(-6px); border-color:rgba(62,207,191,0.3); box-shadow:0 24px 60px rgba(62,207,191,0.1); }
       .step-card:hover .step-num { background: var(--aqua); color: var(--navy); }
       .industry-chip:hover { border-color:var(--aqua) !important; background:rgba(62,207,191,0.08) !important; transform:translateX(4px); }
-      .bottle-card:hover { transform:translateY(-8px); }
-      .bottle-card { transition: transform 0.35s; }
+      .bottle-card {
+        transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease, border-color 0.3s ease !important;
+        overflow: hidden !important;
+        position: relative !important;
+      }
+      .bottle-card::after {
+        content:''; position:absolute; top:0; left:-80%; width:50%; height:100%;
+        background:linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent);
+        transform:skewX(-18deg); pointer-events:none; z-index:2;
+      }
+      .bottle-card:hover {
+        transform: translateY(-12px) scale(1.02) !important;
+        box-shadow: 0 32px 64px rgba(0,0,0,0.45), 0 0 50px rgba(62,207,191,0.12) !important;
+      }
+      .bottle-card:hover::after { animation: shimmerSweep 0.65s ease forwards; }
+      .bottle-card svg { transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), filter 0.3s ease; }
+      .bottle-card:hover svg { transform: scale(1.1) translateY(-8px) !important; filter: drop-shadow(0 24px 48px rgba(62,207,191,0.45)) !important; }
+      .featured-badge { animation: badgePulse 2.4s ease-in-out infinite; }
+      .featured-card { animation: borderGlow 2.5s ease-in-out infinite; }
+
+      @media (max-width: 900px) { .products-grid { grid-template-columns: repeat(2,1fr) !important; } }
+      @media (max-width: 520px) { .products-grid { grid-template-columns: 1fr !important; } }
 
       @media (max-width: 768px) {
         .hero-grid { grid-template-columns: 1fr !important; }
@@ -245,9 +269,10 @@ const HS_SCHEMA = [
   {
     '@context': 'https://schema.org', '@type': 'Product',
     name: 'Custom Branded Water Bottles',
-    description: 'Personalized bottled water with your company logo. Available in 250ml, 500ml, and 1L sizes.',
+    description: 'Personalized bottled water with your company logo. Available in 100ml, 250ml, 500ml, and 1L sizes.',
     brand: { '@type': 'Brand', name: 'AquaVia' },
     offers: [
+      { '@type': 'Offer', name: '100ml Custom Bottle', price: '9',  priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
       { '@type': 'Offer', name: '250ml Custom Bottle', price: '12', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
       { '@type': 'Offer', name: '500ml Custom Bottle', price: '18', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
       { '@type': 'Offer', name: '1L Custom Bottle',   price: '28', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
@@ -256,7 +281,7 @@ const HS_SCHEMA = [
   {
     '@context': 'https://schema.org', '@type': 'FAQPage',
     mainEntity: [
-      { '@type': 'Question', name: 'What is the minimum order quantity for custom water bottles?', acceptedAnswer: { '@type': 'Answer', text: 'Minimum order is 150 units for 1L bottles, 250 units for 500ml, and 500 units for 250ml bottles.' } },
+      { '@type': 'Question', name: 'What is the minimum order quantity for custom water bottles?', acceptedAnswer: { '@type': 'Answer', text: 'Minimum order is 1000 units for 100ml, 500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' } },
       { '@type': 'Question', name: 'Which areas do you currently serve?', acceptedAnswer: { '@type': 'Answer', text: 'We currently serve Delhi and Delhi NCR including Gurugram, Noida, Faridabad and Ghaziabad.' } },
       { '@type': 'Question', name: 'How long does production and delivery take?', acceptedAnswer: { '@type': 'Answer', text: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days.' } },
       { '@type': 'Question', name: 'Can I get a sample bottle before placing a bulk order?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, we offer sample bottles so you can verify quality and design before committing to a bulk order.' } },
@@ -266,7 +291,7 @@ const HS_SCHEMA = [
 
 // ─── FAQSection ───────────────────────────────────────────────────────────────
 const FAQS = [
-  { q: 'What is the minimum order quantity?', a: '150 units for 1L, 250 units for 500ml, and 500 units for 250ml bottles.' },
+  { q: 'What is the minimum order quantity?', a: '1000 units for 100ml, 500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' },
   { q: 'Which areas do you currently serve?', a: 'We currently serve Delhi and Delhi NCR — including Gurugram, Noida, Faridabad, and Ghaziabad.' },
   { q: 'How long does production and delivery take?', a: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days. Rush orders available.' },
   { q: 'What file format should I send my logo in?', a: 'We accept PNG, SVG, PDF, and AI files. Vector formats (SVG, AI) yield the sharpest print results.' },
@@ -490,6 +515,7 @@ const STEPS = [
 ]
 
 const PRODUCTS = [
+  { size: '100ml', name: 'Nano', desc: 'Perfect for airlines, mini-bars & luxury amenity kits', price: '₹9/bottle', minOrder: '1000 units', color: '#a78bfa', featured: false },
   { size: '250ml', name: 'Petite', desc: 'Ideal for flights, meetings & premium gift hampers', price: '₹12/bottle', minOrder: '500 units', color: '#3ecfbf', featured: false },
   { size: '500ml', name: 'Classic', desc: 'Our most popular — perfect for offices & events', price: '₹18/bottle', minOrder: '250 units', color: '#c8a44a', featured: true },
   { size: '1 Litre', name: 'Grande', desc: 'Ideal for gyms, hotels & extended stays', price: '₹28/bottle', minOrder: '150 units', color: '#5b8ff9', featured: false },
@@ -823,7 +849,7 @@ function ProductsSection() {
             Choose Your Perfect Size
           </h2>
         </div>
-        <div className="products-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:28 }}>
+        <div className="products-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:22 }}>
           {PRODUCTS.map((p, i) => (
             <ProductCard key={p.size} product={p} delay={i * 0.12} scrollTo={scrollTo} />
           ))}
@@ -836,13 +862,13 @@ function ProductsSection() {
 function ProductCard({ product, delay, scrollTo }) {
   const ref = useReveal()
   return (
-    <div ref={ref} className="bottle-card reveal" style={{
+    <div ref={ref} className={`bottle-card reveal${product.featured ? ' featured-card' : ''}`} style={{
       background:'var(--navy-card)', border:`1px solid ${product.featured ? 'rgba(62,207,191,0.4)' : 'var(--glass-border)'}`,
       borderRadius:24, padding:'32px 28px', textAlign:'center', position:'relative',
       transitionDelay:`${delay}s`, display:'flex', flexDirection:'column', alignItems:'center', gap:0
     }}>
       {product.featured && (
-        <div style={{
+        <div className="featured-badge" style={{
           position:'absolute', top:-13, left:'50%', transform:'translateX(-50%)',
           background:'linear-gradient(135deg, var(--gold), #a87c28)', borderRadius:50,
           padding:'4px 18px', fontSize:11, fontWeight:700, letterSpacing:'0.1em',
@@ -916,7 +942,7 @@ function CustomizerSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
   const COLORS = ['#3ecfbf', '#c8a44a', '#5b8ff9', '#e85d75', '#7c4dff', '#ff7043']
-  const SIZES = ['250ml', '500ml', '1L']
+  const SIZES = ['100ml', '250ml', '500ml', '1L']
 
   const handleFile = (e) => {
     const file = e.target.files?.[0]

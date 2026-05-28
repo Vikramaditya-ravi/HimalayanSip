@@ -809,11 +809,11 @@ function AboutSection() {
 function ServicesSection() {
   const ref = useReveal()
   return (
-    <section id="services" style={{ padding:'100px 5%', background:'var(--navy)' }}>
+    <section id="services" style={{ padding:'68px 5%', background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ marginBottom:64 }} ref={ref} className="reveal">
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
-            End-to-End Branded<br />Water Solutions
+        <div style={{ marginBottom:36 }} ref={ref} className="reveal">
+          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(26px,3.2vw,44px)', color:'var(--white)', lineHeight:1.1, whiteSpace:'nowrap' }}>
+            End-to-End Branded Water Solutions
           </h2>
         </div>
         <div className="services-numbered" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0 80px' }}>
@@ -831,7 +831,7 @@ function ServiceItem({ service, index }) {
   return (
     <div ref={ref} className="reveal" style={{
       display:'grid', gridTemplateColumns:'56px 1fr', gap:24,
-      padding:'32px 0', borderTop:'1px solid var(--glass-border)',
+      padding:'20px 0', borderTop:'1px solid var(--glass-border)',
       transitionDelay:`${index * 0.08}s`
     }}>
       <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:38, fontWeight:700, color:'var(--aqua)', opacity:0.35, lineHeight:1, paddingTop:4 }}>

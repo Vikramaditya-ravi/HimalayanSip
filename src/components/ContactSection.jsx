@@ -62,7 +62,7 @@ export default function ContactSection() {
             {[
               { icon: '📍', label: 'Bengaluru, India' },
               { icon: '📞', label: '+91 76248 03460' },
-              { icon: '📧', label: 'hello@aquavia.com' },
+              { icon: '📧', label: 'ravi.prakash4104@gmail.com' },
             ].map(({ icon, label }) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
                 <span style={{ fontSize: 20 }}>{icon}</span>

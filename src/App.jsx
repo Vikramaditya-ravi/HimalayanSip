@@ -1,6 +1,15 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
-const WEB3FORMS_KEY = '1f5d2cae-cd17-42c3-b5d0-a3f5117d55c3'
+import { initTracker, track } from './analytics/tracker'
+import { initDelegatedTracking } from './analytics/delegate'
+import { TrackInView } from './analytics/TrackInView.jsx'
+import { ConsentBanner } from './analytics/consent.jsx'
+import { SiteSearch } from './SiteSearch.jsx'
+
+// The Web3Forms key used to live here, in the client bundle, in version control.
+// The form now posts to /api/lead, which persists the enquiry, emits the
+// conversion event as server truth, and forwards using a key that never leaves
+// the server. Rotate the old key — it is in the git history.
 
 // ─── Global Style Injection ───────────────────────────────────────────────────
 function useGlobalStyles() {
@@ -347,7 +356,12 @@ function FAQSection() {
           {FAQS.map((item, i) => (
             <div key={i} className="glass-card" style={{ overflow:'hidden' }}>
               <button
-                onClick={() => setOpen(open===i ? null : i)}
+                onClick={() => {
+                  const opening = open !== i
+                  setOpen(opening ? i : null)
+                  // Only on open. A collapse is not a question being asked.
+                  if (opening) track('faq_opened', { sectionId: 'faq', props: { question: item.q } })
+                }}
                 aria-expanded={open === i}
                 style={{
                   width:'100%', background:'none', border:'none', cursor:'pointer',
@@ -592,6 +606,37 @@ const TESTIMONIALS = [
   { name: 'Kiran Rao', title: 'COO, Summit Ventures', initials: 'KR', text: "We've branded our annual summit for 3 consecutive years with AquaVia. 800 attendees, branded bottles at every seat. The design team's attention to detail is genuinely unmatched.", rating: 5 },
 ]
 
+/**
+ * Searchable content, assembled from the same consts the page renders.
+ * Built from the existing data rather than a hand-written list, so a new bottle
+ * size or FAQ becomes searchable without anyone remembering to update an index.
+ */
+const SEARCH_INDEX = [
+  ...PRODUCTS.map(p => ({
+    id: `product-${p.size}`, sectionId: 'products', kind: 'Bottle size',
+    title: `${p.size} — ${p.name}`, body: `${p.desc} ${p.price} ${p.minOrder}`,
+  })),
+  ...SERVICES.map(s => ({
+    id: `service-${s.title}`, sectionId: 'services', kind: 'Service',
+    title: s.title, body: s.desc,
+  })),
+  ...INDUSTRIES.map(i => ({
+    id: `industry-${i.name}`, sectionId: 'industries', kind: 'Industry',
+    title: i.name, body: `${i.name} branded water bottles supply`,
+  })),
+  ...FAQS.map(f => ({
+    id: `faq-${f.q}`, sectionId: 'faq', kind: 'FAQ', title: f.q, body: f.a,
+  })),
+  ...JOURNEY_STEPS.map(j => ({
+    id: `journey-${j.num}`, sectionId: 'journey', kind: 'Our process',
+    title: j.title, body: j.body,
+  })),
+  { id: 'customizer', sectionId: 'customizer', kind: 'Tool', title: 'Design your bottle live',
+    body: 'customizer preview logo upload label colour color mockup' },
+  { id: 'contact', sectionId: 'contact', kind: 'Page', title: 'Get a quote',
+    body: 'contact enquiry quote sample pricing order delivery' },
+]
+
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -627,10 +672,11 @@ function Navbar() {
             onMouseLeave={e => e.target.style.color = 'var(--muted)'}
           >{id}</button>
         ))}
+        <SiteSearch index={SEARCH_INDEX} onNavigate={scrollTo} />
       </div>
 
       {/* CTA */}
-      <button onClick={() => scrollTo('contact')} style={{
+      <button onClick={() => scrollTo('contact')} data-evt="product_cta_clicked" data-sku="nav-quote" style={{
         background: 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
         border: 'none', borderRadius: 50, padding: '10px 24px',
         color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
@@ -1196,7 +1242,17 @@ function ProductsSection() {
         <div className="marquee-wrapper" style={{ paddingTop:20, paddingBottom:16 }}>
           <div className="marquee-track" style={{ animation:'marquee 22s linear infinite' }}>
             {doubled.map((p, i) => (
-              <ProductCard key={`${p.size}-${i}`} product={p} delay={0} scrollTo={scrollTo} marquee />
+              // The marquee renders PRODUCTS twice to loop seamlessly. Only the
+              // first copy emits view events, or every bottle size would report
+              // exactly double the views it actually got.
+              <ProductCard
+                key={`${p.size}-${i}`}
+                product={p}
+                delay={0}
+                scrollTo={scrollTo}
+                marquee
+                trackable={i < PRODUCTS.length}
+              />
             ))}
           </div>
         </div>
@@ -1205,9 +1261,9 @@ function ProductsSection() {
   )
 }
 
-function ProductCard({ product, delay, scrollTo, marquee }) {
+function ProductCard({ product, delay, scrollTo, marquee, trackable = true }) {
   const ref = useReveal()
-  return (
+  const card = (
     <div ref={marquee ? null : ref} className={`bottle-card${marquee ? '' : ' reveal'}${product.featured ? ' featured-card' : ''}`} style={{
       background:'var(--navy-card)', border:`1px solid ${product.featured ? 'rgba(62,207,191,0.4)' : 'var(--glass-border)'}`,
       borderRadius:24, padding:'32px 28px', textAlign:'center', position:'relative',
@@ -1229,7 +1285,11 @@ function ProductCard({ product, delay, scrollTo, marquee }) {
       <div style={{ width:'100%', height:1, background:'var(--glass-border)', margin:'4px 0 20px' }} />
       <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:28, fontWeight:700, color:'var(--white)', marginBottom:4 }}>{product.price}</div>
       <div style={{ fontSize:13, color:'var(--muted)', marginBottom:24 }}>Min. {product.minOrder}</div>
-      <button onClick={() => scrollTo('contact')} style={{
+      <button
+        onClick={() => scrollTo('contact')}
+        data-evt="product_cta_clicked"
+        data-sku={product.size}
+        style={{
         width:'100%', background:`linear-gradient(135deg, ${product.color}, ${product.color}aa)`,
         border:'none', borderRadius:12, padding:'12px', color:'var(--navy)',
         fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:15, cursor:'pointer', transition:'all 0.3s'
@@ -1238,6 +1298,20 @@ function ProductCard({ product, delay, scrollTo, marquee }) {
         onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}
       >Order Now</button>
     </div>
+  )
+
+  if (!trackable) return card
+  return (
+    // The wrapper becomes the marquee's flex item; the card keeps its own
+    // minWidth/marginRight so the track spacing is unchanged.
+    <TrackInView
+      event="product_viewed"
+      productSku={product.size}
+      sectionId="products"
+      style={{ flex: '0 0 auto', display: 'flex' }}
+    >
+      {card}
+    </TrackInView>
   )
 }
 
@@ -1265,12 +1339,17 @@ function IndustriesSection() {
 function IndustryChip({ ind, delay }) {
   const ref = useReveal()
   return (
-    <div ref={ref} className="industry-chip reveal" style={{
+    <div
+      ref={ref}
+      className="industry-chip reveal"
+      data-evt="industry_clicked"
+      data-industry={ind.name.toLowerCase().replace(/[^a-z]+/g, '-')}
+      style={{
       background:'rgba(11,34,68,0.7)', border:'1px solid var(--glass-border)', borderRadius:14,
       padding:'18px 20px', display:'flex', alignItems:'center', gap:14,
       transition:'all 0.3s', cursor:'default', transitionDelay:`${delay}s`
     }}>
-      <span style={{ fontSize:28, flexShrink:0 }}>{ind.icon}</span>
+      <span style={{ fontSize:28, flexShrink:0 }} aria-hidden="true">{ind.icon}</span>
       <span style={{ fontWeight:500, fontSize:15, color:'var(--white)' }}>{ind.name}</span>
     </div>
   )
@@ -1302,6 +1381,22 @@ function CustomizerSection() {
     const reader = new FileReader()
     reader.onload = (ev) => setLogo(ev.target.result)
     reader.readAsDataURL(file)
+    // The logo itself is customer IP and the filename can identify a company —
+    // record only that an upload happened, plus coarse non-identifying facts.
+    track('customizer_logo_uploaded', {
+      sectionId: 'customizer',
+      props: { fileType: file.type, sizeBucket: file.size > 1e6 ? 'large' : 'small' },
+    })
+  }
+
+  const chooseColor = (hex, name) => {
+    setColor(hex)
+    track('customizer_color_changed', { sectionId: 'customizer', props: { color: name } })
+  }
+
+  const chooseSize = (s) => {
+    setSize(s)
+    track('customizer_size_changed', { sectionId: 'customizer', productSku: s })
   }
 
   return (
@@ -1357,7 +1452,7 @@ function CustomizerSection() {
                     key={c.hex}
                     type="button"
                     aria-label={`${c.name}${color === c.hex ? ' (selected)' : ''}`}
-                    onClick={() => setColor(c.hex)}
+                    onClick={() => chooseColor(c.hex, c.name)}
                     style={{
                       width:32, height:32, borderRadius:'50%', background:c.hex, cursor:'pointer',
                       transition:'all 0.2s', border:'none', padding:0,
@@ -1373,7 +1468,7 @@ function CustomizerSection() {
               <div style={{ fontSize:14, fontWeight:600, color:'var(--white)', marginBottom:14, letterSpacing:'0.05em', textTransform:'uppercase' }}>Bottle Size</div>
               <div style={{ display:'flex', gap:10 }}>
                 {SIZES.map(s => (
-                  <button key={s} onClick={() => setSize(s)} style={{
+                  <button key={s} onClick={() => chooseSize(s)} style={{
                     borderRadius:50, padding:'9px 22px', fontSize:14, fontWeight:600, cursor:'pointer', border:'none', transition:'all 0.25s',
                     background: size === s ? 'var(--aqua)' : 'rgba(11,34,68,0.8)',
                     color: size === s ? 'var(--navy)' : 'var(--muted)',
@@ -1474,27 +1569,56 @@ function ContactSection({ content }) {
   const phone = content?.phone || '+91 76248 03460'
   const deliveryNote = content?.deliveryNote || 'Currently serving Delhi NCR.'
 
+  // Funnel instrumentation. Each step fires at most once per mount — the funnel
+  // is counted in sessions, so a visitor who refills a field twice is still one
+  // person who reached that step.
+  const startedRef = useRef(false)
+  const completedFields = useRef(new Set())
+
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+
+  const handleFocus = () => {
+    if (startedRef.current) return
+    startedRef.current = true
+    track('contact_form_started')
+  }
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target
+    if (!value.trim() || completedFields.current.has(name)) return
+    completedFields.current.add(name)
+    // The field NAME only. What the visitor typed is customer data and belongs in
+    // the Lead row, never in the event stream.
+    track('contact_form_field_completed', { props: { field: name } })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.email) {
+
+    const missing = [!form.name && 'name', !form.email && 'email'].filter(Boolean)
+    if (missing.length) {
+      track('contact_form_validation_failed', { props: { fields: missing } })
       setError('Please fill in your name and email.')
       return
     }
+
     setError(null)
     setIsSubmitting(true)
     try {
-      const res = await fetch('https://api.web3forms.com/submit', {
+      // Posts to our own server, which writes the Lead row, emits `lead_submitted`
+      // as server truth, stitches this visitor's prior anonymous events to the new
+      // leadId, and only then forwards to Web3Forms.
+      const res = await fetch('/api/lead', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ access_key: WEB3FORMS_KEY, ...form }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(form),
       })
       if (res.ok) {
         setSubmitted(true)
       } else {
         const data = await res.json().catch(() => ({}))
-        setError(data?.errors?.[0]?.message || 'Submission failed. Please contact us via WhatsApp or email.')
+        setError(data?.message || 'Submission failed. Please contact us via WhatsApp or email.')
       }
     } catch {
       setError('Network error. Please contact us via WhatsApp or email directly.')
@@ -1521,15 +1645,25 @@ function ContactSection({ content }) {
             <p style={{ color:'var(--muted)', lineHeight:1.75, marginBottom:36 }}>
               Ready to put your brand on every bottle? Tell us about your requirements and we'll craft a solution tailored to your needs and timeline.
             </p>
+            {/* The phone and email were plain <span>s — unclickable on mobile and
+                invisible to intent tracking. As real tel:/mailto: links they are
+                both usable and picked up automatically by the delegated click
+                listener, which sniffs hrefs. */}
             {[
               { icon:'📍', text:'Delhi, India' },
-              { icon:'📞', text:phone },
-              { icon:'📧', text:'hello@aquavia.in' },
+              { icon:'📞', text:phone, href:`tel:${phone.replace(/\s/g, '')}` },
+              { icon:'📧', text:'hello@aquavia.in', href:'mailto:hello@aquavia.in' },
               { icon:'🚚', text:deliveryNote },
             ].map(item => (
               <div key={item.text} style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
-                <span style={{ fontSize:20 }}>{item.icon}</span>
-                <span style={{ color:'var(--white)', fontSize:15 }}>{item.text}</span>
+                <span style={{ fontSize:20 }} aria-hidden="true">{item.icon}</span>
+                {item.href ? (
+                  <a href={item.href} style={{ color:'var(--white)', fontSize:15, textDecoration:'none' }}>
+                    {item.text}
+                  </a>
+                ) : (
+                  <span style={{ color:'var(--white)', fontSize:15 }}>{item.text}</span>
+                )}
               </div>
             ))}
             <div style={{ display:'flex', gap:12, marginTop:32 }}>
@@ -1546,6 +1680,7 @@ function ContactSection({ content }) {
           </div>
 
           {/* Right — Form */}
+          <TrackInView event="contact_form_viewed" sectionId="contact">
           <div ref={rightRef} className="glass-card reveal-right" style={{ padding:'40px 36px' }}>
             {submitted ? (
               <div style={{ textAlign:'center', padding:'40px 0' }}>
@@ -1554,7 +1689,9 @@ function ContactSection({ content }) {
                 <p style={{ color:'var(--muted)' }}>We'll be in touch within 24 hours!</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} noValidate style={{ display:'flex', flexDirection:'column', gap:16 }}>
+              // React's onFocus/onBlur bubble, so one pair of handlers on the form
+              // instruments every field — new fields are tracked by default.
+              <form onSubmit={handleSubmit} onFocus={handleFocus} onBlur={handleBlur} noValidate style={{ display:'flex', flexDirection:'column', gap:16 }}>
                 <input name="name" placeholder="Your Name *" value={form.name} onChange={handleChange} className="form-input" required />
                 <input name="company" placeholder="Company Name" value={form.company} onChange={handleChange} className="form-input" />
                 <div className="contact-form-row" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
@@ -1590,6 +1727,7 @@ function ContactSection({ content }) {
               </form>
             )}
           </div>
+          </TrackInView>
         </div>
       </div>
     </section>
@@ -1662,6 +1800,10 @@ function WhatsAppButton({ content }) {
       {/* Button */}
       <button
         onClick={handleClick}
+        // window.open() means there is no href for the delegated listener to
+        // sniff, so the intent is declared explicitly.
+        data-evt="contact_intent_clicked"
+        data-evt-props={JSON.stringify({ channel: 'whatsapp', placement: 'floating' })}
         aria-label="Contact via WhatsApp"
         style={{
           position:'fixed', bottom:28, right:28, zIndex:9999,
@@ -1686,6 +1828,14 @@ export default function App() {
   useGlobalStyles()
   const geo = useGeoTarget()
   const content = useGeoContent(geo)
+
+  // Analytics boot. Both are idempotent, which matters because React Strict Mode
+  // double-invokes effects in development — without the guard every visitor would
+  // record two page views locally and none of the numbers would be trustworthy.
+  useEffect(() => {
+    initTracker()
+    initDelegatedTracking()
+  }, [])
 
   useSEO({
     title: content.seoTitle,
@@ -1716,19 +1866,37 @@ export default function App() {
   return (
     <div role="main" style={{ fontFamily:'DM Sans, sans-serif' }}>
       <Navbar />
-      <HeroSection geo={geo} content={content} />
-      <AboutSection />
-      <ServicesSection />
-      <HowItWorksSection />
-      <JourneySection />
-      <ProductsSection />
-      <IndustriesSection />
-      <div ref={customizerRef}>{customizerVisible && <CustomizerSection />}</div>
-      <div ref={testimonialsRef}>{testimonialsVisible && <TestimonialsSection content={content} />}</div>
-      <FAQSection />
+      {/* This is a single page, so there are no route changes to hang page views
+          on. Section views are the stand-in: they are what make "top pages",
+          scroll depth, and the bounce definition mean anything here. */}
+      <TrackInView event="section_viewed" sectionId="hero">
+        <HeroSection geo={geo} content={content} />
+      </TrackInView>
+      <TrackInView event="section_viewed" sectionId="about"><AboutSection /></TrackInView>
+      <TrackInView event="section_viewed" sectionId="services"><ServicesSection /></TrackInView>
+      <TrackInView event="section_viewed" sectionId="how"><HowItWorksSection /></TrackInView>
+      <TrackInView event="section_viewed" sectionId="journey"><JourneySection /></TrackInView>
+      <TrackInView event="section_viewed" sectionId="products"><ProductsSection /></TrackInView>
+      <TrackInView event="section_viewed" sectionId="industries"><IndustriesSection /></TrackInView>
+      <div ref={customizerRef}>
+        {customizerVisible && (
+          <TrackInView event="customizer_opened" sectionId="customizer">
+            <CustomizerSection />
+          </TrackInView>
+        )}
+      </div>
+      <div ref={testimonialsRef}>
+        {testimonialsVisible && (
+          <TrackInView event="section_viewed" sectionId="testimonials">
+            <TestimonialsSection content={content} />
+          </TrackInView>
+        )}
+      </div>
+      <TrackInView event="section_viewed" sectionId="faq"><FAQSection /></TrackInView>
       <ContactSection content={content} />
       <Footer content={content} />
       <WhatsAppButton content={content} />
+      <ConsentBanner />
     </div>
   )
 }

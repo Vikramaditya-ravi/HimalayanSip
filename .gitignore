@@ -31,3 +31,10 @@ yarn-error.log*
 Thumbs.db
 .agents
 .claude
+
+# Local test database
+.pgdata/
+.pgdata.log
+.pgpass.tmp
+
+.vercel

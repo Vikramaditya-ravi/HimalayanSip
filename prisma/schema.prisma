@@ -1,0 +1,237 @@
+// AquaVia first-party analytics.
+//
+// The event stream is the product. Everything analytics reads comes from `Event`
+// and the rollup tables derived from it — never from `Lead` or any other business
+// table. If a number isn't in the stream, emit a better event; don't add a join.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled connection (Neon pgbouncer) — serverless functions open many short-lived
+  // connections and would exhaust a direct pool.
+  url       = env("DATABASE_URL")
+  // Unpooled, used by `prisma migrate` only.
+  directUrl = env("DIRECT_URL")
+}
+
+enum Actor {
+  visitor
+  customer
+  admin
+  system
+}
+
+enum EventSource {
+  web
+  server
+  admin
+  api
+}
+
+enum LeadStatus {
+  new
+  contacted
+  on_hold
+  won
+  lost
+  dispatched
+}
+
+/// Append-only. One row per event. Never modelled per-feature.
+///
+/// The single exception to immutability is identity stitching, which back-stamps
+/// `leadId` onto prior anonymous events for a visitor (see lib/stitch.ts).
+model Event {
+  id         String   @id @default(uuid())
+  /// Plain string, deliberately NOT an enum: adding an event must never require a
+  /// migration. Validated against the catalog at write time instead.
+  name       String
+  occurredAt DateTime @db.Timestamptz(3)
+  receivedAt DateTime @default(now()) @db.Timestamptz(3)
+
+  // ---- Identity (always stamped server-side from httpOnly cookies) ----
+  visitorId String?
+  sessionId String?
+  actor     Actor   @default(visitor)
+  actorId   String?
+
+  // ---- Subject soft-keys ----
+  // Intentionally NOT foreign keys: deleting a lead must never delete its history.
+  leadId       String?
+  productSku   String?
+  industrySlug String?
+  sectionId    String?
+  queryText    String?
+
+  // ---- Context ----
+  source   EventSource @default(web)
+  pageUrl  String?
+  prevPage String?
+  referrer String?
+  device   String? // mobile | tablet | desktop | bot
+  browser  String?
+  os       String?
+  country  String?
+  city     String?
+
+  // ---- Attribution ----
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+  gclid       String?
+  fbclid      String?
+  msclkid     String?
+
+  /// Whether third-party consent was granted when this event was recorded.
+  /// Each sink decides independently; the first-party DB sink always writes.
+  consent Boolean @default(false)
+
+  /// JSON escape hatch. Serialized size capped at ~8KB at write time.
+  /// NEVER PII — no addresses, message bodies, or field values.
+  props Json?
+
+  /// Outbox marker for forwarding to external sinks.
+  forwardedAt DateTime? @db.Timestamptz(3)
+
+  @@index([name, occurredAt])
+  @@index([occurredAt])
+  @@index([visitorId, occurredAt])
+  @@index([sessionId, occurredAt])
+  @@index([leadId])
+  @@index([productSku, occurredAt])
+  @@index([industrySlug, occurredAt])
+  @@index([queryText])
+  @@index([forwardedAt])
+}
+
+/// The conversion entity. This site has no orders — an enquiry is the conversion,
+/// and an admin marks it won/lost with a deal value. That value is what makes
+/// revenue attribution real rather than stubbed.
+///
+/// PII lives HERE, never in Event.props.
+model Lead {
+  id       String  @id @default(uuid())
+  name     String
+  company  String?
+  email    String
+  phone    String?
+  quantity String?
+  message  String?
+
+  status LeadStatus @default(new)
+  /// Deal value in INR. Set by an admin when the lead is won.
+  value  Decimal?   @db.Decimal(12, 2)
+
+  /// Identity of the visitor who submitted. Enables reverse lookup so that
+  /// admin-triggered lifecycle events attribute back to the buyer, not the admin.
+  visitorId String?
+  sessionId String?
+
+  /// First-touch attribution, denormalised at submit time so it survives event pruning.
+  firstSource   String?
+  firstMedium   String?
+  firstCampaign String?
+  firstReferrer String?
+  landingPage   String?
+
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+  contactedAt DateTime? @db.Timestamptz(3)
+  closedAt    DateTime? @db.Timestamptz(3)
+
+  @@index([status, createdAt])
+  @@index([visitorId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Rollups. Raw events are truth for EVENT_RETENTION_DAYS; these are kept forever.
+// Every insert is ON CONFLICT DO UPDATE — idempotent, safe to re-run or backfill.
+// ---------------------------------------------------------------------------
+
+model EventDaily {
+  day    DateTime @db.Date
+  /// Per-name counts, plus a synthetic name = "__all__" row carrying TRUE daily
+  /// uniques. Per-name unique counts are not summable, so the "__all__" row is the
+  /// only correct source for total visitors/sessions.
+  name   String
+  events Int      @default(0)
+  visitors Int    @default(0)
+  sessions Int    @default(0)
+  bounced  Int    @default(0)
+
+  @@id([day, name])
+  @@index([day])
+}
+
+model DimensionDaily {
+  day       DateTime @db.Date
+  /// device | browser | os | country | city | page
+  dimension String
+  value     String
+  sessions  Int      @default(0)
+  events    Int      @default(0)
+
+  @@id([day, dimension, value])
+  @@index([day, dimension])
+}
+
+model ProductDaily {
+  day        DateTime @db.Date
+  productSku String
+  views      Int      @default(0)
+  ctaClicks  Int      @default(0)
+  sessions   Int      @default(0)
+
+  @@id([day, productSku])
+  @@index([day])
+}
+
+model SourceDaily {
+  day         DateTime @db.Date
+  source      String
+  medium      String   @default("")
+  campaign    String   @default("")
+  sessions    Int      @default(0)
+  conversions Int      @default(0)
+  revenue     Decimal  @default(0) @db.Decimal(14, 2)
+
+  @@id([day, source, medium, campaign])
+  @@index([day])
+}
+
+model SearchDaily {
+  day         DateTime @db.Date
+  query       String
+  searches    Int      @default(0)
+  zeroResults Int      @default(0)
+  clicks      Int      @default(0)
+
+  @@id([day, query])
+  @@index([day])
+  @@index([zeroResults])
+}
+
+/// One row per (day, detector). The SQL detector produces the numbers; the LLM
+/// only ranks and narrates them.
+model Insight {
+  id        String   @id @default(uuid())
+  day       DateTime @db.Date
+  detector  String
+  severity  String
+  category  String
+  title     String
+  /// Structured numeric evidence produced by SQL. The narration never invents these.
+  metric    Json
+  narrative String?
+  notifiedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([day, detector])
+  @@index([day])
+}

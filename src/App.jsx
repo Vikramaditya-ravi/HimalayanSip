@@ -299,7 +299,7 @@ const HS_SCHEMA = [
     name: 'AquaVia',
     description: 'Premium customized branded bottled water solutions for businesses in Delhi NCR',
     url: 'https://himalayan-sip.vercel.app',
-    telephone: '+91-76248-03460', email: 'hello@aquavia.in',
+    telephone: '+91-76248-03460', email: 'info@aquaviaworld.com',
     priceRange: '₹₹', currenciesAccepted: 'INR', paymentAccepted: 'Cash, Credit Card, UPI, Bank Transfer',
     areaServed: { '@type': 'City', name: 'Delhi NCR' },
     address: { '@type': 'PostalAddress', addressLocality: 'New Delhi', addressRegion: 'Delhi', postalCode: '110001', addressCountry: 'IN' },
@@ -1652,7 +1652,7 @@ function ContactSection({ content }) {
             {[
               { icon:'📍', text:'Delhi, India' },
               { icon:'📞', text:phone, href:`tel:${phone.replace(/\s/g, '')}` },
-              { icon:'📧', text:'hello@aquavia.in', href:'mailto:hello@aquavia.in' },
+              { icon:'📧', text:'info@aquaviaworld.com', href:'mailto:info@aquaviaworld.com' },
               { icon:'🚚', text:deliveryNote },
             ].map(item => (
               <div key={item.text} style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
@@ -1770,7 +1770,7 @@ function Footer({ content }) {
         {/* Contact */}
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Contact</div>
-          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76248 03460'}`, '📧 hello@aquavia.in', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
+          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76248 03460'}`, '📧 info@aquaviaworld.com', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
             <div key={item} style={{ color:'var(--muted)', fontSize:13, marginBottom:10, lineHeight:1.5 }}>{item}</div>
           ))}
         </div>

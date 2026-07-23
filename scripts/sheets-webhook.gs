@@ -1,4 +1,4 @@
-const NOTIFY_EMAIL = 'hello@aquavia.in'
+const NOTIFY_EMAIL = 'info@aquaviaworld.com'
 
 function doPost(e) {
   try {

@@ -51,7 +51,7 @@ describe('marketing page renders after instrumentation', () => {
 
   it('makes phone and email real links', () => {
     expect(html).toContain('href="tel:');
-    expect(html).toContain('href="mailto:hello@aquavia.in"');
+    expect(html).toContain('href="mailto:info@aquaviaworld.com"');
   });
 
   it('no longer ships the Web3Forms key in the bundle', () => {

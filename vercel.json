@@ -4,6 +4,9 @@
     { "path": "/api/cron/rollup", "schedule": "0 2 * * *" },
     { "path": "/api/cron/insights", "schedule": "30 2 * * *" }
   ],
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",

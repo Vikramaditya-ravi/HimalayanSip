@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useMetric } from './api'
-import { BarList, Card, Empty, FunnelChart, LineChart, StatTile, Table, fmt, inr, pct } from './viz.jsx'
+import { BarChart, BarList, Card, Empty, FunnelChart, StatTile, Table, fmt, inr, pct } from './viz.jsx'
 
 /*
  * Dashboard tabs. Every number here comes from /api/analytics/*, which reads the
@@ -164,7 +164,7 @@ export function OverviewTab({ days, onUnauthorized }) {
           {traffic.loading ? (
             <Loading />
           ) : (
-            <LineChart
+            <BarChart
               data={traffic.data ?? []}
               series={[
                 { key: 'visitors', label: 'Visitors', color: 'var(--s1)' },
@@ -177,7 +177,7 @@ export function OverviewTab({ days, onUnauthorized }) {
           {traffic.loading ? (
             <Loading />
           ) : (
-            <LineChart
+            <BarChart
               data={traffic.data ?? []}
               series={[{ key: 'conversions', label: 'Enquiries', color: 'var(--s3)' }]}
             />

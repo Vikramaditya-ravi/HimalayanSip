@@ -183,6 +183,132 @@ export function LineChart({ data, series, height = 200, format = fmt.format }) {
 }
 
 /**
+ * Day-wise grouped bar chart. Same axis behavior and tooltip as LineChart, but
+ * each day is a discrete bar rather than a point on a line — so sparse measures
+ * (a conversion here and there) and zero-days read as what they are instead of
+ * collapsing into a single spike or an invisible gap.
+ *
+ * One series → one bar per day. Multiple series → bars grouped within each day.
+ */
+export function BarChart({ data, series, height = 200, format = fmt.format }) {
+  const [hover, setHover] = useState(null)
+  const ref = useRef(null)
+
+  const W = 800
+  const H = height
+  const pad = { top: 12, right: 16, bottom: 24, left: 44 }
+
+  const { max, bands, ticks, bandW } = useMemo(() => {
+    const values = data.flatMap((d) => series.map((s) => Number(d[s.key]) || 0))
+    const rawMax = Math.max(1, ...values)
+    // Round the ceiling up so gridlines land on readable numbers (matches LineChart).
+    const mag = Math.pow(10, Math.floor(Math.log10(rawMax)))
+    const max = Math.ceil(rawMax / mag) * mag
+    const innerW = W - pad.left - pad.right
+    const innerH = H - pad.top - pad.bottom
+    const base = pad.top + innerH
+    const bandW = data.length ? innerW / data.length : innerW
+    // Leave 22% of each band as padding around the group; split the rest across bars.
+    const groupW = bandW * 0.78
+    const barW = groupW / series.length
+    const y = (v) => base - (v / max) * innerH
+    return {
+      max,
+      bandW,
+      bands: data.map((row, i) => {
+        const x0 = pad.left + i * bandW + (bandW - groupW) / 2
+        return {
+          bars: series.map((s, j) => {
+            const v = Number(row[s.key]) || 0
+            return { key: s.key, color: s.color, x: x0 + j * barW, w: barW, y: y(v), h: base - y(v), v }
+          }),
+        }
+      }),
+      ticks: [0, 0.5, 1].map((f) => ({ v: max * f, y: y(max * f) })),
+    }
+  }, [data, series, H])
+
+  if (!data.length) return <Empty />
+
+  const onMove = (e) => {
+    const rect = ref.current.getBoundingClientRect()
+    const rel = ((e.clientX - rect.left) / rect.width) * W
+    const i = Math.floor((rel - pad.left) / bandW)
+    const idx = Math.max(0, Math.min(data.length - 1, i))
+    setHover({ idx, left: ((pad.left + (idx + 0.5) * bandW) / W) * rect.width })
+  }
+
+  const row = hover ? data[hover.idx] : null
+
+  return (
+    <div className="chart">
+      <Legend series={series} />
+      <svg
+        ref={ref}
+        viewBox={`0 0 ${W} ${H}`}
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+        onMouseMove={onMove}
+        onMouseLeave={() => setHover(null)}
+        role="img"
+        aria-label={`Daily ${series.map((s) => s.label).join(', ')}`}
+      >
+        {ticks.map((t) => (
+          <g key={t.v}>
+            <line x1={pad.left} x2={W - pad.right} y1={t.y} y2={t.y} stroke="var(--grid)" strokeWidth="1" />
+            <text x={pad.left - 8} y={t.y + 4} textAnchor="end" fontSize="11" fill="var(--muted)">
+              {format(Math.round(t.v))}
+            </text>
+          </g>
+        ))}
+
+        {hover && (
+          <rect
+            x={pad.left + hover.idx * bandW} y={pad.top}
+            width={bandW} height={H - pad.top - pad.bottom}
+            fill="var(--axis)" opacity="0.12"
+          />
+        )}
+
+        {bands.map((band, i) => (
+          <g key={i}>
+            {band.bars.map((b) => (
+              <rect key={b.key} x={b.x} y={b.y} width={b.w} height={b.h} fill={b.color} rx="1" />
+            ))}
+          </g>
+        ))}
+
+        {data.length > 1 && (
+          <>
+            <text x={pad.left} y={H - 6} fontSize="11" fill="var(--muted)">{data[0].day}</text>
+            <text x={W - pad.right} y={H - 6} fontSize="11" fill="var(--muted)" textAnchor="end">
+              {data[data.length - 1].day}
+            </text>
+          </>
+        )}
+      </svg>
+
+      {row && (
+        <div
+          className="tooltip"
+          style={{ left: Math.min(hover.left + 10, (ref.current?.clientWidth ?? 0) - 150), top: 8 }}
+        >
+          <div className="t-head">{row.day}</div>
+          {series.map((s) => (
+            <div className="t-row" key={s.key}>
+              <span>
+                <i className="swatch" style={{ background: s.color, display: 'inline-block', marginRight: 6 }} />
+                {s.label}
+              </span>
+              <strong>{format(Number(row[s.key]) || 0)}</strong>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
  * Horizontal bar list — the right form for ranked categories with long labels.
  * Vertical bars would force the labels diagonal, which is the single most common
  * way a category chart becomes unreadable.

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useMetric } from './api'
 import { BarList, Card, Empty, FunnelChart, LineChart, StatTile, Table, fmt, inr, pct } from './viz.jsx'
 
@@ -552,5 +552,236 @@ export function SearchTab({ days, onUnauthorized }) {
         />
       )}
     </Card>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Contacts — a plain business directory of customers and suppliers. Full CRUD.
+// Deliberately outside analytics: this reads/writes the Contact table directly
+// and emits no events.
+// ---------------------------------------------------------------------------
+
+const CONTACT_TYPES = [
+  { id: 'customer', label: 'Customers' },
+  { id: 'bottle_supplier', label: 'Bottle suppliers' },
+  { id: 'water_plant', label: 'Water plant' },
+]
+
+const CONTACT_STATUS_BADGE = { active: 'good', inactive: 'muted' }
+
+function blankContact(type) {
+  return {
+    type,
+    name: '', company: '', contactPerson: '', phone: '', email: '',
+    location: '', address: '', supplyQuantity: '', unit: '', rate: '',
+    notes: '', status: 'active',
+  }
+}
+
+export function ContactsTab({ onUnauthorized }) {
+  const [contacts, setContacts] = useState(null)
+  const [filter, setFilter] = useState('customer')
+  const [editing, setEditing] = useState(null)
+  const [busy, setBusy] = useState(false)
+
+  const reload = useCallback(
+    (type) =>
+      fetch(`/api/admin/contacts?type=${type}`, { credentials: 'same-origin' })
+        .then((r) => {
+          if (r.status === 401) { onUnauthorized?.(); return { data: [] } }
+          return r.json()
+        })
+        .then((j) => setContacts(j.data ?? []))
+        .catch(() => setContacts([])),
+    [onUnauthorized],
+  )
+
+  useEffect(() => { setContacts(null); reload(filter) }, [filter, reload])
+
+  const save = async () => {
+    if (!editing.name.trim()) return
+    setBusy(true)
+    try {
+      const isNew = !editing.id
+      await fetch('/api/admin/contacts', {
+        method: isNew ? 'POST' : 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(editing),
+      })
+      const savedType = editing.type
+      setEditing(null)
+      // Surface the saved record: if its type differs from the current filter,
+      // switching the filter reloads via the effect; otherwise reload in place.
+      if (savedType !== filter) setFilter(savedType)
+      else await reload(filter)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const remove = async (contact) => {
+    if (!window.confirm(`Delete ${contact.name}? This cannot be undone.`)) return
+    setBusy(true)
+    try {
+      await fetch('/api/admin/contacts', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ id: contact.id }),
+      })
+      await reload(filter)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const field = (key, label, opts = {}) => {
+    const set = (v) => setEditing({ ...editing, [key]: v })
+    return (
+      <label className={`field${opts.full ? ' full' : ''}`}>
+        <span>{label}</span>
+        {opts.textarea ? (
+          <textarea value={editing[key] ?? ''} rows={opts.rows ?? 2} onChange={(e) => set(e.target.value)} />
+        ) : opts.options ? (
+          <select value={editing[key] ?? ''} onChange={(e) => set(e.target.value)}>
+            {opts.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        ) : (
+          <input
+            type={opts.type ?? 'text'}
+            value={editing[key] ?? ''}
+            placeholder={opts.placeholder}
+            onChange={(e) => set(e.target.value)}
+          />
+        )}
+      </label>
+    )
+  }
+
+  const activeType = CONTACT_TYPES.find((t) => t.id === filter)
+
+  return (
+    <div className="grid" style={{ gap: 16 }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="ranges" role="group" aria-label="Contact type">
+          {CONTACT_TYPES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className="range"
+              aria-pressed={t.id === filter}
+              onClick={() => { setEditing(null); setFilter(t.id) }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div style={{ flex: 1 }} />
+        <button type="button" className="btn" onClick={() => setEditing(blankContact(filter))}>
+          + Add contact
+        </button>
+      </div>
+
+      {editing && (
+        <Card title={editing.id ? 'Edit contact' : 'Add contact'}>
+          <div className="contact-form">
+            <div className="fields">
+              {field('name', 'Name *')}
+              {field('company', 'Company')}
+              {field('contactPerson', 'Contact person')}
+              {field('type', 'Type', { options: CONTACT_TYPES.map((t) => ({ value: t.id, label: t.label })) })}
+              {field('phone', 'Phone', { type: 'tel' })}
+              {field('email', 'Email', { type: 'email' })}
+              {field('location', 'Location', { placeholder: 'City / area' })}
+              {field('status', 'Status', {
+                options: [{ value: 'active', label: 'active' }, { value: 'inactive', label: 'inactive' }],
+              })}
+              {field('supplyQuantity', 'Supply quantity', { placeholder: 'e.g. 500' })}
+              {field('unit', 'Unit', { placeholder: 'e.g. bottles/week' })}
+              {field('rate', 'Rate (₹ per unit)', { type: 'number' })}
+              {field('address', 'Address', { textarea: true, full: true })}
+              {field('notes', 'Notes', { textarea: true, full: true })}
+            </div>
+            <div className="form-actions">
+              <button type="button" className="btn" disabled={busy || !editing.name.trim()} onClick={save}>
+                {busy ? 'Saving…' : editing.id ? 'Save changes' : 'Add contact'}
+              </button>
+              <button type="button" className="range" disabled={busy} onClick={() => setEditing(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <Card
+        title={activeType?.label}
+        sub="Add, edit, or remove records. This directory is separate from analytics — nothing here is tracked."
+      >
+        {contacts === null ? (
+          <Loading />
+        ) : (
+          <Table
+            empty="No contacts yet. Use “Add contact” to create one."
+            columns={[
+              {
+                key: 'name',
+                label: 'Name',
+                render: (r) => (
+                  <div>
+                    <div style={{ color: 'var(--ink)' }}>{r.name}</div>
+                    {(r.company || r.contactPerson) && (
+                      <div style={{ color: 'var(--muted)', fontSize: 12 }}>
+                        {[r.company, r.contactPerson].filter(Boolean).join(' · ')}
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              { key: 'location', label: 'Location', render: (r) => r.location || '—' },
+              {
+                key: 'supplyQuantity',
+                label: 'Qty',
+                render: (r) => (r.supplyQuantity ? `${r.supplyQuantity}${r.unit ? ` ${r.unit}` : ''}` : '—'),
+              },
+              { key: 'rate', label: 'Rate', num: true, render: (r) => (r.rate == null ? '—' : inr(r.rate)) },
+              {
+                key: 'contact',
+                label: 'Phone / Email',
+                render: (r) => (
+                  <div>
+                    <div>{r.phone || '—'}</div>
+                    {r.email && <div style={{ color: 'var(--muted)', fontSize: 12 }}>{r.email}</div>}
+                  </div>
+                ),
+              },
+              {
+                key: 'status',
+                label: 'Status',
+                render: (r) => (
+                  <span className={`badge ${CONTACT_STATUS_BADGE[r.status] || 'muted'}`}>{r.status}</span>
+                ),
+              },
+              {
+                key: 'actions',
+                label: '',
+                render: (r) => (
+                  <div style={{ display: 'flex', gap: 6, whiteSpace: 'nowrap' }}>
+                    <button type="button" className="range" disabled={busy} onClick={() => setEditing({ ...r, rate: r.rate ?? '' })}>
+                      Edit
+                    </button>
+                    <button type="button" className="btn-danger" disabled={busy} onClick={() => remove(r)}>
+                      Delete
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            rows={contacts}
+          />
+        )}
+      </Card>
+    </div>
   )
 }

@@ -40,6 +40,17 @@ enum LeadStatus {
   dispatched
 }
 
+enum ContactType {
+  customer
+  bottle_supplier
+  water_plant
+}
+
+enum ContactStatus {
+  active
+  inactive
+}
+
 /// Append-only. One row per event. Never modelled per-feature.
 ///
 /// The single exception to immutability is identity stitching, which back-stamps
@@ -147,6 +158,32 @@ model Lead {
   @@index([status, createdAt])
   @@index([visitorId])
   @@index([createdAt])
+}
+
+/// Business contact directory: customers and their suppliers (water bottles and
+/// the water plant). Pure CRUD, like Lead — analytics never reads this table, so
+/// it holds PII freely and is edited in place.
+model Contact {
+  id             String        @id @default(uuid())
+  type           ContactType
+  name           String
+  company        String?
+  contactPerson  String?
+  phone          String?
+  email          String?
+  location       String? // city / area — the quick column
+  address        String? // full multi-line address
+  supplyQuantity String? // free text like Lead.quantity ("500")
+  unit           String? // e.g. bottles/week, litres/day
+  rate           Decimal?      @db.Decimal(12, 2) // INR per unit
+  notes          String?
+  status         ContactStatus @default(active)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([type, createdAt])
+  @@index([status])
 }
 
 // ---------------------------------------------------------------------------

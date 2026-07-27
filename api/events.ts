@@ -1,4 +1,4 @@
-import { isClientEmittable } from '../src/analytics/catalog.js';
+import { isClientEmittable, normalizeProductSku } from '../src/analytics/catalog.js';
 import { clientIp } from '../lib/geo.js';
 import { type ApiRequest, type ApiResponse, readJsonBody } from '../lib/http.js';
 import { resolveIdentity, rollingIdentityCookies } from '../lib/identity.js';
@@ -109,7 +109,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
         pageUrl: s(ev.pageUrl),
         prevPage: s(ev.prevPage),
         sectionId: s(ev.sectionId),
-        productSku: s(ev.productSku),
+        productSku: normalizeProductSku(s(ev.productSku)),
         industrySlug: s(ev.industrySlug),
         queryText: s(ev.queryText),
 

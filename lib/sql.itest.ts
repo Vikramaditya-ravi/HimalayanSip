@@ -141,7 +141,7 @@ function buildSeed(): Row[] {
   const sc2 = S('0000c2');
   rows.push(
     base({ name: 'page_viewed', occurredAt: ago(5, 10), visitorId: V.c, sessionId: sc1 }),
-    base({ name: 'product_viewed', occurredAt: ago(5, 10.2), visitorId: V.c, sessionId: sc1, productSku: '1 Litre' }),
+    base({ name: 'product_viewed', occurredAt: ago(5, 10.2), visitorId: V.c, sessionId: sc1, productSku: '1L' }),
     base({ name: 'customizer_opened', occurredAt: ago(5, 10.3), visitorId: V.c, sessionId: sc1 }),
     base({ name: 'customizer_logo_uploaded', occurredAt: ago(5, 10.4), visitorId: V.c, sessionId: sc1 }),
     base({ name: 'contact_intent_clicked', occurredAt: ago(5, 10.5), visitorId: V.c, sessionId: sc1, props: { channel: 'whatsapp' } }),
@@ -410,7 +410,7 @@ describe('products', () => {
     expect(p500!.views).toBe(1);
     expect(p500!.ctaClicks).toBe(1);
     expect(p500!.ctr).toBe(1);
-    expect(data.find((p) => p.productSku === '1 Litre')!.ctaClicks).toBe(0);
+    expect(data.find((p) => p.productSku === '1L')!.ctaClicks).toBe(0);
   });
 });
 

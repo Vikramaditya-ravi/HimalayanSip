@@ -57,10 +57,24 @@ export const EVENTS = {
     status: 'live',
     description: 'An industry chip was clicked.',
   },
+  pricing_brochure_downloaded: {
+    subjects: [],
+    status: 'live',
+    description:
+      'The pricing brochure PDF was downloaded. High intent: a visitor taking the ' +
+      'price list to an internal decision-maker.',
+  },
   faq_opened: {
     subjects: [],
     status: 'live',
     description: 'A FAQ <details> accordion was expanded.',
+  },
+  filtration_stages_expanded: {
+    subjects: ['sectionId'],
+    status: 'live',
+    description:
+      'The 7-stage filtration breakdown in Journey step 03 was expanded. A visitor ' +
+      'checking the spec — a quality-led buyer signal distinct from generic section scroll.',
   },
 
   search_performed: {
@@ -235,6 +249,46 @@ export const EVENTS = {
 
 export type EventName = keyof typeof EVENTS;
 
+/**
+ * The canonical `productSku` vocabulary.
+ *
+ * A SKU is a grouping key, not a caption. The product cards say "1 Litre" and the
+ * customizer chips say "1L" because those read better in their own contexts — but
+ * both once shipped their caption straight into `productSku`, so the same bottle
+ * arrived as two values and `GROUP BY "productSku"` split one product across two
+ * rows in every dashboard.
+ *
+ * Display strings stay free to differ. This is what the database is allowed to see.
+ */
+export const PRODUCT_SKUS = ['250ml', '500ml', '1L'] as const;
+
+export type ProductSku = (typeof PRODUCT_SKUS)[number];
+
+const SKU_ALIASES: Record<string, ProductSku> = {
+  '1 litre': '1L',
+  '1litre': '1L',
+  '1 liter': '1L',
+  '1000ml': '1L',
+  '1l': '1L',
+  '250 ml': '250ml',
+  '500 ml': '500ml',
+};
+
+/**
+ * Fold a display label onto its canonical SKU.
+ *
+ * Applied at ingest rather than only at the call sites, because a visitor with a
+ * cached copy of the old bundle keeps emitting the old captions for as long as
+ * their tab lives — the client cannot be trusted to have been redeployed.
+ * Anything unrecognised passes through untouched: a new size must show up in the
+ * dashboard as itself, not vanish because nobody updated this map.
+ */
+export function normalizeProductSku(raw: string | null): string | null {
+  if (!raw) return null;
+  const key = raw.trim().toLowerCase();
+  return SKU_ALIASES[key] ?? raw.trim();
+}
+
 export const EVENT_NAMES = Object.keys(EVENTS) as EventName[];
 
 export const LIVE_EVENT_NAMES = EVENT_NAMES.filter((n) => EVENTS[n].status === 'live');
@@ -260,7 +314,9 @@ export const CLIENT_EMITTABLE = new Set<EventName>([
   'product_viewed',
   'product_cta_clicked',
   'industry_clicked',
+  'pricing_brochure_downloaded',
   'faq_opened',
+  'filtration_stages_expanded',
   'search_performed',
   'search_zero_results',
   'search_result_clicked',
@@ -290,7 +346,9 @@ export const ENGAGEMENT_EVENTS: readonly EventName[] = [
   'product_viewed',
   'product_cta_clicked',
   'industry_clicked',
+  'pricing_brochure_downloaded',
   'faq_opened',
+  'filtration_stages_expanded',
   'search_performed',
   'search_result_clicked',
   'customizer_opened',

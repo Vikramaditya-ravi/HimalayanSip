@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { CLIENT_EMITTABLE, EVENTS, isEventName } from '../catalog';
+import { CLIENT_EMITTABLE, EVENTS, PRODUCT_SKUS, isEventName, normalizeProductSku } from '../catalog';
 
 /**
  * The compile-error guarantee, reconstructed for plain JS.
@@ -20,8 +20,7 @@ const HERE = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
 const SCAN_DIRS = ['src', 'lib', 'api'];
 const EXTS = /\.(jsx?|tsx?)$/;
-// Dead code, not wired into the app — excluded rather than fixed.
-const SKIP = /node_modules|dist|__tests__|src[\\/]components|src[\\/]hooks/;
+const SKIP = /node_modules|dist|__tests__/;
 
 function walk(dir: string, out: string[] = []): string[] {
   let entries: string[];
@@ -127,6 +126,27 @@ describe('catalog integrity', () => {
         `${name} must never be forgeable from a browser`,
       ).toBe(false);
     }
+  });
+
+  it('folds every display label onto one canonical SKU', () => {
+    // The bug this exists to prevent: the cards said "1 Litre", the customizer
+    // said "1L", and one bottle occupied two rows in the products dashboard.
+    expect(normalizeProductSku('1 Litre')).toBe('1L');
+    expect(normalizeProductSku('1 litre')).toBe('1L');
+    expect(normalizeProductSku('  1L  ')).toBe('1L');
+    expect(normalizeProductSku('1000ml')).toBe('1L');
+    expect(normalizeProductSku('500 ml')).toBe('500ml');
+  });
+
+  it('leaves canonical SKUs and unknown values alone', () => {
+    for (const sku of PRODUCT_SKUS) {
+      expect(normalizeProductSku(sku)).toBe(sku);
+    }
+    // A size added later must reach the dashboard as itself, not disappear
+    // because nobody remembered to extend the alias map.
+    expect(normalizeProductSku('750ml')).toBe('750ml');
+    expect(normalizeProductSku(null)).toBe(null);
+    expect(normalizeProductSku('')).toBe(null);
   });
 
   it('every event has a non-empty description', () => {

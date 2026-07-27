@@ -63,6 +63,11 @@ function useGlobalStyles() {
       @keyframes truckWobble { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
       @keyframes snowFloat { from{transform:translate(0,0);opacity:0.5} to{transform:translate(8px,-12px);opacity:0.08} }
       @keyframes speedLine { from{opacity:0.35;transform:scaleX(1)} to{opacity:0;transform:scaleX(0.1)} }
+      @keyframes stageIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+      @keyframes flowRight { 0%{transform:translateX(0);opacity:0} 8%{opacity:1} 90%{opacity:1} 100%{transform:translateX(640px);opacity:0} }
+      @keyframes dashFlow { to{stroke-dashoffset:-36} }
+      @keyframes stageHalo { 0%,100%{opacity:0.22;transform:scale(0.94)} 50%{opacity:0.6;transform:scale(1.06)} }
+      @keyframes gritFall { 0%{transform:translateY(-6px);opacity:0} 25%{opacity:0.75} 100%{transform:translateY(30px);opacity:0} }
 
       .svg-anim { transform-box: fill-box; transform-origin: center center; }
 
@@ -145,6 +150,31 @@ function useGlobalStyles() {
       .bottle-card:hover::after { animation: shimmerSweep 0.65s ease forwards; }
       .bottle-card svg { transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.3s ease; }
       .bottle-card:hover svg { transform: scale(1.06) !important; filter: drop-shadow(0 24px 48px rgba(62,207,191,0.45)) !important; }
+      /* The stage cards enter in flow order, 01 → 07, so the reveal reads as water
+         moving down the filtration train rather than seven boxes appearing at once.
+         fill-mode is 'backwards' on purpose: 'both' would pin transform after the
+         animation and silently kill the .glass-card:hover lift. */
+      .stage-card-in { animation: stageIn 0.5s cubic-bezier(0.22,1,0.36,1) backwards; }
+      .stage-btn {
+        text-align: left; background: var(--navy-card); cursor: pointer;
+        border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px 18px;
+        font-family: 'DM Sans', sans-serif; width: 100%;
+        /* A button centres its content vertically; the grid stretches these to a
+           common height, so without this the seven headings sit at seven
+           different heights across the row. */
+        display: flex; flex-direction: column; align-items: flex-start;
+        transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.4s ease;
+      }
+      .stage-btn:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
+      .filtration-rail { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+      @media (max-width: 1080px) { .filtration-rail { grid-template-columns: repeat(4, 1fr); } }
+      @media (max-width: 768px)  { .filtration-rail { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 460px)  { .filtration-rail { grid-template-columns: 1fr; } }
+      .stage-toggle { transition: opacity 0.25s cubic-bezier(0.22,1,0.36,1); }
+      .stage-toggle:hover { opacity: 0.78; }
+      .stage-toggle:focus-visible { outline: 2px solid var(--aqua); outline-offset: 4px; border-radius: 4px; }
+      .stage-toggle-icon { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); }
+
       .featured-badge { animation: badgePulse 2.4s ease-in-out infinite; }
       .featured-card { animation: borderGlow 2.5s ease-in-out infinite; }
 
@@ -157,11 +187,13 @@ function useGlobalStyles() {
         .hero-grid { grid-template-columns: 1fr !important; }
         .about-grid { grid-template-columns: 1fr !important; }
         .products-grid { grid-template-columns: 1fr !important; }
+        .pricing-grid { grid-template-columns: 1fr !important; }
         .contact-grid { grid-template-columns: 1fr !important; }
         .how-grid { grid-template-columns: 1fr 1fr !important; }
         .industries-grid { grid-template-columns: 1fr !important; }
         .footer-grid { grid-template-columns: 1fr !important; text-align: center; }
         .nav-links { display: none !important; }
+        .nav-brochure { display: none !important; }
         .hero-bottles { display: none !important; }
         .hero-bottle-single { display: flex !important; }
         .hero-h1 { font-size: clamp(36px,8vw,52px) !important; }
@@ -309,20 +341,25 @@ const HS_SCHEMA = [
   {
     '@context': 'https://schema.org', '@type': 'Product',
     name: 'Custom Branded Water Bottles',
-    description: 'Personalized bottled water with your company logo. Available in 100ml, 250ml, 500ml, and 1L sizes.',
+    description: 'Personalized bottled water with your company logo, sold by the case across three corporate pricing tiers. Available in 250ml, 500ml, and 1L sizes.',
     brand: { '@type': 'Brand', name: 'AquaVia' },
-    offers: [
-      { '@type': 'Offer', name: '100ml Custom Bottle', price: '9',  priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: '250ml Custom Bottle', price: '12', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: '350ml Custom Bottle', price: '15', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: '500ml Custom Bottle', price: '18', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: '1L Custom Bottle',   price: '28', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-    ],
+    // One offer per size we actually sell, priced from the brochure.
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'INR', lowPrice: '4.61', highPrice: '8.33', offerCount: 3,
+      availability: 'https://schema.org/InStock',
+      offers: [
+        { '@type': 'Offer', name: '250ml Custom Bottle', price: '4.89', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
+        { '@type': 'Offer', name: '500ml Custom Bottle', price: '5.67', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
+        { '@type': 'Offer', name: '1L Custom Bottle',    price: '8.33', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
+      ],
+    },
   },
   {
     '@context': 'https://schema.org', '@type': 'FAQPage',
     mainEntity: [
-      { '@type': 'Question', name: 'What is the minimum order quantity for custom water bottles?', acceptedAnswer: { '@type': 'Answer', text: 'Minimum order is 1000 units for 100ml, 500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' } },
+      { '@type': 'Question', name: 'What is the minimum order quantity for custom water bottles?', acceptedAnswer: { '@type': 'Answer', text: 'Minimum order is 500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' } },
+      { '@type': 'Question', name: 'How is your pricing structured?', acceptedAnswer: { '@type': 'Answer', text: 'Pricing is per case across three partnership tiers based on weekly dispatch volume: Signature (1–10 dispatches/week), Preferred (11–50) and Enterprise (51+). A case is 12 × 1L, 24 × 500ml or 36 × 250ml. Rates start at ₹100, ₹136 and ₹176 per case respectively and fall with volume. GST and transportation are quoted separately.' } },
       { '@type': 'Question', name: 'Which areas do you currently serve?', acceptedAnswer: { '@type': 'Answer', text: 'We currently serve Delhi and Delhi NCR including Gurugram, Noida, Faridabad and Ghaziabad.' } },
       { '@type': 'Question', name: 'How long does production and delivery take?', acceptedAnswer: { '@type': 'Answer', text: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days.' } },
       { '@type': 'Question', name: 'Can I get a sample bottle before placing a bulk order?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, we offer sample bottles so you can verify quality and design before committing to a bulk order.' } },
@@ -332,7 +369,8 @@ const HS_SCHEMA = [
 
 // ─── FAQSection ───────────────────────────────────────────────────────────────
 const FAQS = [
-  { q: 'What is the minimum order quantity?', a: '1000 units for 100ml, 500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' },
+  { q: 'What is the minimum order quantity?', a: '500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' },
+  { q: 'How is your pricing structured?', a: 'Pricing is per case across three partnership tiers set by weekly dispatch volume — Signature (1–10 / week), Preferred (11–50) and Enterprise (51+). A case is 12 × 1L, 24 × 500ml or 36 × 250ml. Rates start at ₹100 / ₹136 / ₹176 per case and fall with volume. GST and transportation are quoted separately.' },
   { q: 'Which areas do you currently serve?', a: 'We currently serve Delhi and Delhi NCR — including Gurugram, Noida, Faridabad, and Ghaziabad.' },
   { q: 'How long does production and delivery take?', a: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days. Rush orders available.' },
   { q: 'What file format should I send my logo in?', a: 'We accept PNG, SVG, PDF, and AI files. Vector formats (SVG, AI) yield the sharpest print results.' },
@@ -568,13 +606,41 @@ const STEPS = [
   { num: '04', title: 'Get Delivery', desc: 'Your branded bottles arrive at your doorstep, packaged and ready to impress.' },
 ]
 
+// The range is exactly the three sizes the corporate pricing brochure quotes.
+// Prices are its Signature (entry) tier — what a first-time buyer actually pays.
+//
+// `size` is the caption; `sku` is what analytics groups by. They differ for the
+// litre bottle on purpose — see PRODUCT_SKUS in analytics/catalog.ts.
 const PRODUCTS = [
-  { size: '100ml', name: 'Nano', desc: 'Perfect for airlines, mini-bars & luxury amenity kits', price: '₹9/bottle', minOrder: '1000 units', color: '#a78bfa', featured: false },
-  { size: '250ml', name: 'Petite', desc: 'Ideal for flights, meetings & premium gift hampers', price: '₹12/bottle', minOrder: '500 units', color: '#3ecfbf', featured: false },
-  { size: '350ml', name: 'Slim', desc: 'Great for cafes, travel & daily hydration', price: '₹15/bottle', minOrder: '350 units', color: '#f97316', featured: false },
-  { size: '500ml', name: 'Classic', desc: 'Our most popular — perfect for offices & events', price: '₹18/bottle', minOrder: '250 units', color: '#c8a44a', featured: true },
-  { size: '1 Litre', name: 'Grande', desc: 'Ideal for gyms, hotels & extended stays', price: '₹28/bottle', minOrder: '150 units', color: '#5b8ff9', featured: false },
+  { size: '250ml', sku: '250ml', name: 'Petite', desc: 'Ideal for flights, meetings & premium gift hampers', price: '₹4.89/bottle', caseNote: '₹176 per case of 36', minOrder: '500 units', color: '#3ecfbf', featured: false },
+  { size: '500ml', sku: '500ml', name: 'Classic', desc: 'Our most popular — perfect for offices & events', price: '₹5.67/bottle', caseNote: '₹136 per case of 24', minOrder: '250 units', color: '#c8a44a', featured: true },
+  { size: '1 Litre', sku: '1L', name: 'Grande', desc: 'Ideal for gyms, hotels & extended stays', price: '₹8.33/bottle', caseNote: '₹100 per case of 12', minOrder: '150 units', color: '#5b8ff9', featured: false },
 ]
+
+// ─── Corporate pricing programme (from the pricing brochure) ──────────────────
+const BROCHURE_URL = '/aquavia-pricing-brochure.pdf'
+
+const PACK_SIZES = ['1000 ML', '500 ML', '250 ML']
+
+// Not assumed — these are implied by the brochure's own per-bottle figures, and
+// hold for all nine cells (100/8.33 = 12, 136/5.67 = 24, 176/4.89 = 36).
+const CASE_SIZES = { '1000 ML': 12, '500 ML': 24, '250 ML': 36 }
+
+const PRICING_TIERS = [
+  { num:'01', name:'Signature', segment:'Hotels & Luxury', dispatches:'1–10 dispatches / week', featured:false,
+    prices:{ '1000 ML':100, '500 ML':136, '250 ML':176 } },
+  { num:'02', name:'Preferred', segment:'Restaurants & Corporate', dispatches:'11–50 dispatches / week', featured:true,
+    prices:{ '1000 ML':96, '500 ML':130, '250 ML':170 } },
+  { num:'03', name:'Enterprise', segment:'Large Enterprises', dispatches:'51+ dispatches / week', featured:false,
+    prices:{ '1000 ML':92, '500 ML':126, '250 ML':166 } },
+]
+
+const PRICING_INCLUDES = ['Premium mineral water', 'Custom branding', 'High quality label printing', 'Corporate dispatch', 'Quality assurance']
+const PRICING_FOOTNOTE = 'GST and transportation charges are quoted separately where applicable.'
+
+// Derived, never hard-coded a second time: one edit to a case price cannot leave
+// a stale per-bottle figure sitting next to it.
+const perBottle = (casePrice, size) => (casePrice / CASE_SIZES[size]).toFixed(2)
 
 const INDUSTRIES = [
   { icon: '🏨', name: 'Hotels & Resorts' }, { icon: '🏥', name: 'Hospitals & Clinics' },
@@ -583,13 +649,43 @@ const INDUSTRIES = [
   { icon: '🍽️', name: 'Restaurants & Cafes' }, { icon: '✈️', name: 'Airlines & Travel' },
 ]
 
+/**
+ * The actual plant process behind the "7-Stage Filtration" claim.
+ *
+ * Ordered as the water flows, and indexed 1:1 with the seven bars IllusFiltration
+ * draws (S1–S7) — adding a stage here without adding a bar there leaves the
+ * illustration lying about the process.
+ */
+// Shared by the showcase pipeline and the step-03 illustration so a stage is the
+// same colour wherever it appears — the two are cross-highlighted on hover, which
+// only reads as "the same thing" if the colour agrees.
+const FILTRATION_COLORS = ['#3ecfbf','#5b8ff9','#7c4dff','#c8a44a','#7c4dff','#5b8ff9','#3ecfbf']
+
+const FILTRATION_STAGES = [
+  { num:'01', name:'Back-Wash Sand Filter',
+    purpose:'Removes large suspended particles — sand, dust, rust and mud.' },
+  { num:'02', name:'Double Y-Strainer',
+    purpose:'Two passes, 10–20 micron then 5 micron, clearing finer suspended solids before the sensitive filters.' },
+  { num:'03', name:'CTO Carbon Block',
+    purpose:'Chlorine, Taste & Odour. Removes chlorine, pesticides and organic chemicals.' },
+  { num:'04', name:'Sediment Filter',
+    purpose:'5 then 1 micron. Removes fine silt, rust and particulate matter, protecting the RO membrane downstream.' },
+  { num:'05', name:'RO Membrane',
+    purpose:'Reverse osmosis strips dissolved solids, heavy metals and microbiological contaminants.' },
+  { num:'06', name:'Activated Carbon',
+    purpose:'Adsorbs dissolved organic compounds — removes residual odour and colour, and improves taste.' },
+  { num:'07', name:'Ozonation',
+    purpose:'Ozone (O₃) is injected into the purified water, destroying bacteria, viruses and fungi and preventing microbial growth inside the sealed bottle.' },
+]
+
 const JOURNEY_STEPS = [
   { num:'01', title:'The Ancient Source', color:'#3ecfbf',
     body:'Deep beneath the earth, ancient groundwater lies pristine and untouched — patient for centuries, waiting to become something extraordinary.' },
   { num:'02', title:'Precision Extraction', color:'#5b8ff9',
     body:'Our precision-engineered wells reach into protected aquifers, drawing water upward gently, without disturbance to the surrounding ecosystem.' },
   { num:'03', title:'7-Stage Filtration', color:'#7c4dff',
-    body:'Every drop enters our fortress of purity — seven sequential stages stripping out sediment, bacteria, dissolved solids, and invisible contaminants.' },
+    body:'Every drop enters our fortress of purity — seven sequential stages stripping out sediment, bacteria, dissolved solids, and invisible contaminants.',
+    stages: FILTRATION_STAGES },
   { num:'04', title:'Mineral Alchemy', color:'#c8a44a',
     body:'Stripped of impurities but not of life. Essential minerals — calcium, magnesium, potassium — are woven back in, perfectly balanced for the human body.' },
   { num:'05', title:'Custom Bottling', color:'#3ecfbf',
@@ -631,10 +727,27 @@ const SEARCH_INDEX = [
     id: `journey-${j.num}`, sectionId: 'journey', kind: 'Our process',
     title: j.title, body: j.body,
   })),
+  // A buyer evaluating water quality searches "RO membrane" or "ozonation", not
+  // "filtration" — the stage names are the terms worth being findable on.
+  ...FILTRATION_STAGES.map(s => ({
+    id: `filtration-${s.num}`, sectionId: 'journey', kind: 'Filtration stage',
+    title: `${s.num} — ${s.name}`, body: s.purpose,
+  })),
+  ...FILTRATION_STAGES.map(s => ({
+    id: `filtration-${s.num}`, sectionId: 'journey', kind: 'Filtration stage',
+    title: s.name, body: s.purpose,
+  })),
   { id: 'customizer', sectionId: 'customizer', kind: 'Tool', title: 'Design your bottle live',
     body: 'customizer preview logo upload label colour color mockup' },
+  ...PRICING_TIERS.map(t => ({
+    id: `tier-${t.name}`, sectionId: 'pricing', kind: 'Pricing tier',
+    title: `${t.name} — ${t.segment}`,
+    body: `${t.dispatches} price per case ${PACK_SIZES.map(s => `${s} ₹${t.prices[s]}`).join(' ')}`,
+  })),
+  { id: 'brochure', sectionId: 'pricing', kind: 'Download', title: 'Pricing brochure (PDF)',
+    body: 'price list rate card pdf download tiers per case gst transportation' },
   { id: 'contact', sectionId: 'contact', kind: 'Page', title: 'Get a quote',
-    body: 'contact enquiry quote sample pricing order delivery' },
+    body: 'contact enquiry quote sample pricing order delivery brochure rate card' },
 ]
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
@@ -661,7 +774,7 @@ function Navbar() {
 
       {/* Nav links */}
       <div className="nav-links" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-        {['about','services','journey','products','industries','customizer','contact'].map(id => (
+        {['about','services','journey','products','pricing','industries','customizer','contact'].map(id => (
           <button key={id} onClick={() => scrollTo(id)} style={{
             background: 'none', border: 'none', color: 'var(--muted)', fontSize: 14,
             fontFamily: 'DM Sans, sans-serif', fontWeight: 500, cursor: 'pointer',
@@ -675,17 +788,39 @@ function Navbar() {
         <SiteSearch index={SEARCH_INDEX} onNavigate={scrollTo} />
       </div>
 
-      {/* CTA */}
-      <button onClick={() => scrollTo('contact')} data-evt="product_cta_clicked" data-sku="nav-quote" style={{
-        background: 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
-        border: 'none', borderRadius: 50, padding: '10px 24px',
-        color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
-        fontSize: 14, cursor: 'pointer', transition: 'all 0.3s',
-        boxShadow: '0 4px 16px rgba(62,207,191,0.18)'
-      }}
-        onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 24px rgba(62,207,191,0.28)' }}
-        onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 16px rgba(62,207,191,0.18)' }}
-      >Get a Quote</button>
+      {/* Two CTAs, one hierarchy: the brochure is the ghost variant so the solid
+          pill stays the single primary action. Below 768px the brochure drops out
+          (see .nav-brochure) — the footer and pricing section still carry it, and
+          the contact path is the one that must survive on a phone. */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <a
+          className="nav-brochure"
+          href={BROCHURE_URL}
+          download
+          target="_blank"
+          rel="noopener"
+          data-evt="pricing_brochure_downloaded"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap',
+            background: 'transparent', border: '1px solid rgba(62,207,191,0.4)',
+            borderRadius: 50, padding: '9px 20px',
+            color: 'var(--aqua)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+            fontSize: 14, cursor: 'pointer', transition: 'all 0.3s', textDecoration: 'none',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(62,207,191,0.08)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateY(0)' }}
+        >↓ Brochure</a>
+        <button onClick={() => scrollTo('contact')} data-evt="product_cta_clicked" data-sku="nav-quote" style={{
+          background: 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
+          border: 'none', borderRadius: 50, padding: '10px 24px', whiteSpace: 'nowrap',
+          color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+          fontSize: 14, cursor: 'pointer', transition: 'all 0.3s',
+          boxShadow: '0 4px 16px rgba(62,207,191,0.18)'
+        }}
+          onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 24px rgba(62,207,191,0.28)' }}
+          onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 16px rgba(62,207,191,0.18)' }}
+        >Get a Quote</button>
+      </div>
     </nav>
   )
 }
@@ -976,19 +1111,35 @@ function IllusExtraction() {
   )
 }
 
-function IllusFiltration() {
-  const BAR_COLORS = ['#3ecfbf','#5b8ff9','#7c4dff','#c8a44a','#7c4dff','#5b8ff9','#3ecfbf']
+function IllusFiltration({ activeStage = null, onStageHover }) {
+  const BAR_COLORS = FILTRATION_COLORS
   return (
     <svg viewBox="0 0 200 200" width="190" height="190">
       <rect x="16" y="158" width="168" height="2" fill="white" opacity="0.07" rx="1"/>
       {BAR_COLORS.map((color,i) => {
         const x = 20 + i * 23
+        const isActive = activeStage === i
+        const isDimmed = activeStage !== null && !isActive
         return (
-          <g key={i}>
+          // Dim/undim rides on the group, not on the animated rect: the
+          // filterLight keyframe owns that rect's opacity and would win.
+          <g key={i}
+            onMouseEnter={() => onStageHover?.(i)}
+            onMouseLeave={() => onStageHover?.(null)}
+            style={{ opacity: isDimmed ? 0.2 : 1, transition:'opacity 0.3s cubic-bezier(0.22,1,0.36,1)' }}>
+            <title>{`${FILTRATION_STAGES[i].num} — ${FILTRATION_STAGES[i].name}`}</title>
             <rect x={x} y="48" width="17" height="110" rx="8" fill={color} opacity="0.08"/>
             <rect x={x} y="48" width="17" height="110" rx="8" fill={color}
-              style={{animation:`filterLight 1.96s ${i*0.24}s ease-in-out infinite`,opacity:0.15}}/>
-            <text x={x+8.5} y="178" textAnchor="middle" fill={color} fontSize="7.5" fontFamily="DM Sans" opacity="0.8">S{i+1}</text>
+              style={{
+                animation:`filterLight 1.96s ${i*0.24}s ease-in-out infinite`, opacity:0.15,
+                // Hold the shimmer still while a stage is being inspected, so the
+                // steady highlight below reads as the answer to the hover.
+                animationPlayState: activeStage !== null ? 'paused' : 'running',
+              }}/>
+            <rect x={x} y="48" width="17" height="110" rx="8" fill={color}
+              style={{ opacity: isActive ? 0.95 : 0, transition:'opacity 0.3s cubic-bezier(0.22,1,0.36,1)' }}/>
+            <text x={x+8.5} y="178" textAnchor="middle" fill={color} fontSize="7.5" fontFamily="DM Sans"
+              style={{ opacity: isActive ? 1 : 0.8, transition:'opacity 0.3s ease' }}>S{i+1}</text>
           </g>
         )
       })}
@@ -1155,6 +1306,10 @@ function colorToRgb(hex) {
 
 function JourneyRow({ step, index }) {
   const ref = useReveal()
+  // The step-03 illustration is hover-linked to its own bars: the rects are
+  // labelled S1–S7, and this is what makes that labelling mean something
+  // instead of being decoration.
+  const [activeStage, setActiveStage] = useState(null)
   const IllusComp = ILLUS_COMPONENTS[index]
   const isReversed = index % 2 === 1
   const rgb = colorToRgb(step.color)
@@ -1168,6 +1323,21 @@ function JourneyRow({ step, index }) {
       </h3>
       <div style={{ width:40, height:2, background:step.color, marginBottom:20, borderRadius:2 }}/>
       <p style={{ color:'var(--muted)', lineHeight:1.8, fontSize:15, maxWidth:420 }}>{step.body}</p>
+      {step.stages && (
+        // The stage detail now leads the section rather than hiding behind a
+        // toggle here; this just points at it.
+        <button
+          onClick={scrollToFiltration}
+          className="stage-toggle"
+          style={{
+            display:'flex', alignItems:'center', gap:10, background:'none', border:'none',
+            padding:0, marginTop:20, cursor:'pointer', color:step.color,
+            fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:600, letterSpacing:1,
+          }}>
+          See all seven stages
+          <span className="stage-toggle-icon" style={{ fontSize:16, lineHeight:1 }}>↑</span>
+        </button>
+      )}
     </div>
   )
   const illusEl = (
@@ -1178,7 +1348,9 @@ function JourneyRow({ step, index }) {
         border:`1px solid rgba(${rgb},0.15)`,
         display:'flex', alignItems:'center', justifyContent:'center',
       }}>
-        <IllusComp />
+        {/* activeStage is meaningful only to IllusFiltration; the other six
+            illustrations take the prop and ignore it. */}
+        <IllusComp activeStage={activeStage} onStageHover={setActiveStage} />
       </div>
     </div>
   )
@@ -1186,6 +1358,219 @@ function JourneyRow({ step, index }) {
     <div ref={ref} className="reveal journey-row-grid"
       style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(32px,5vw,80px)', alignItems:'center', marginBottom:64, transitionDelay:`${index*0.04}s` }}>
       {isReversed ? <>{textEl}{illusEl}</> : <>{illusEl}{textEl}</>}
+    </div>
+  )
+}
+
+// ─── 7-Stage Filtration showcase ──────────────────────────────────────────────
+/**
+ * The plant spec, promoted out of Journey step 03 and given the whole width.
+ *
+ * It used to sit behind a "See the seven stages" toggle inside step 03, which
+ * meant the single most concrete proof on the page — the actual filtration
+ * train — was invisible unless a visitor thought to click. Procurement buyers
+ * come here for exactly this.
+ *
+ * The pipeline and the cards are two views of one selection: hovering either
+ * lights the other, which is the same cross-highlight the step-03 illustration
+ * already does.
+ */
+const FILTRATION_GEOM = { start: 30, slot: 86, barW: 48, top: 46, barH: 104, vbW: 624, vbH: 200 }
+
+/**
+ * Deliberately NOT scrollIntoView.
+ *
+ * #filtration sits inside the journey <section>, which sets overflow:hidden.
+ * That makes the section its own scrollport, and scrollIntoView stops there:
+ * the element is already fully visible *within the clipped box*, so the browser
+ * considers the job done and the document never moves. The nav links get away
+ * with scrollIntoView because they target top-level sections.
+ *
+ * Scrolling the window against the element's absolute offset skips the
+ * intervening scrollport entirely. The 96px offset clears the fixed navbar.
+ */
+function scrollToFiltration() {
+  const el = document.getElementById('filtration')
+  if (!el) return
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 96, behavior: 'smooth' })
+}
+
+function FiltrationShowcase() {
+  const headRef = useReveal()
+  const railRef = useReveal()
+  const [active, setActive] = useState(null)
+  const [pinned, setPinned] = useState(null)
+  const [scan, setScan] = useState(0)
+  const inspectedRef = useRef(false)
+
+  // Idle attract loop. It walks S1→S7 so the pipeline reads as a sequence a drop
+  // travels through rather than seven unrelated bars — but it yields the moment a
+  // visitor takes over, and never runs for people who asked for less motion.
+  const engaged = pinned !== null || active !== null
+  useEffect(() => {
+    if (engaged) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => setScan(s => (s + 1) % FILTRATION_STAGES.length), 1700)
+    return () => clearInterval(id)
+  }, [engaged])
+
+  const shown = pinned ?? active ?? (engaged ? null : scan)
+
+  // Fires once per mount, on the first deliberate inspection of a stage. A
+  // visitor who merely scrolled past has not checked the spec.
+  const noteInspection = () => {
+    if (inspectedRef.current) return
+    inspectedRef.current = true
+    track('filtration_stages_expanded', { sectionId: 'journey' })
+  }
+
+  const { start, slot, barW, top, barH, vbW, vbH } = FILTRATION_GEOM
+
+  return (
+    <div id="filtration" style={{ marginBottom:96, scrollMarginTop:96 }}>
+      <div ref={headRef} className="reveal" style={{ textAlign:'center', marginBottom:32 }}>
+        <p style={{ color:'#7c4dff', fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, letterSpacing:4, textTransform:'uppercase', marginBottom:14 }}>
+          SEVEN-STAGE FILTRATION
+        </p>
+        <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontWeight:700, fontSize:'clamp(26px,3.4vw,44px)', color:'var(--white)', lineHeight:1.1, marginBottom:16 }}>
+          Every drop, <span style={{ color:'var(--aqua)' }}>seven times over</span>
+        </h3>
+        <p style={{ color:'var(--muted)', fontSize:15, lineHeight:1.75, maxWidth:600, margin:'0 auto' }}>
+          Water enters raw and leaves sealed. Between those two moments it passes through
+          seven sequential stages — each one removing what the last could not.
+        </p>
+      </div>
+
+      {/* The pipeline. Decorative in the accessibility tree: every stage it draws
+          is stated as real text in the rail below, so a screen reader gets the
+          spec without having to parse an SVG. */}
+      <div className="glass-card" style={{ padding:'28px 20px 18px', marginBottom:22, overflowX:'auto' }}>
+        {/* Capped and centred: stretched to the full 1200px column the bars grow
+            to ~440px tall and the diagram bullies the section it introduces. */}
+        <svg viewBox={`0 0 ${vbW} ${vbH}`} aria-hidden="true" focusable="false"
+          style={{ display:'block', width:'100%', maxWidth:860, minWidth:560, margin:'0 auto' }}>
+          <defs>
+            <linearGradient id="filtFlow" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#c8a44a" stopOpacity="0.5"/>
+              <stop offset="55%" stopColor="#5b8ff9" stopOpacity="0.5"/>
+              <stop offset="100%" stopColor="#3ecfbf" stopOpacity="0.9"/>
+            </linearGradient>
+          </defs>
+
+          {/* The pipe the water runs along, dashes drifting downstream. */}
+          <line x1="0" y1={top + barH / 2} x2={vbW} y2={top + barH / 2}
+            stroke="url(#filtFlow)" strokeWidth="2.5" strokeLinecap="round"
+            strokeDasharray="10 8" style={{ animation:'dashFlow 1.6s linear infinite' }}/>
+
+          {/* One droplet making the full traverse, left (raw) to right (pure). */}
+          <circle cx="-8" cy={top + barH / 2} r="5.5" fill="#3ecfbf"
+            style={{ animation:'flowRight 5.2s linear infinite' }}/>
+
+          {FILTRATION_STAGES.map((stage, i) => {
+            const color = FILTRATION_COLORS[i]
+            const x = start + i * slot
+            const isActive = shown === i
+            const isDimmed = shown !== null && !isActive
+            return (
+              <g key={stage.num}
+                onMouseEnter={() => { setActive(i); noteInspection() }}
+                onMouseLeave={() => setActive(null)}
+                style={{ opacity: isDimmed ? 0.28 : 1, transition:'opacity 0.35s cubic-bezier(0.22,1,0.36,1)', cursor:'pointer' }}>
+                <title>{`${stage.num} — ${stage.name}`}</title>
+
+                {isActive && (
+                  <ellipse cx={x + barW / 2} cy={top + barH / 2} rx={barW * 0.82} ry={barH * 0.58}
+                    fill={color} opacity="0.18"
+                    style={{
+                      animation:'stageHalo 2.4s ease-in-out infinite',
+                      // Without these the scale() in the keyframe pivots on the
+                      // SVG origin and throws the halo off to the top-left.
+                      transformBox:'fill-box', transformOrigin:'center',
+                    }}/>
+                )}
+
+                <rect x={x} y={top} width={barW} height={barH} rx="14" fill={color} opacity="0.09"/>
+                <rect x={x} y={top} width={barW} height={barH} rx="14" fill={color}
+                  style={{
+                    animation:`filterLight 1.96s ${i * 0.24}s ease-in-out infinite`, opacity:0.16,
+                    animationPlayState: shown !== null ? 'paused' : 'running',
+                  }}/>
+                <rect x={x} y={top} width={barW} height={barH} rx="14" fill={color}
+                  style={{ opacity: isActive ? 0.9 : 0, transition:'opacity 0.35s cubic-bezier(0.22,1,0.36,1)' }}/>
+                <rect x={x} y={top} width={barW} height={barH} rx="14" fill="none"
+                  stroke={color} strokeWidth="1.2" opacity={isActive ? 0.95 : 0.3}
+                  style={{ transition:'opacity 0.35s ease' }}/>
+
+                {/* Grit caught by this stage, settling out of the stream. */}
+                {[0, 1, 2].map(d => (
+                  <circle key={d} cx={x + 12 + d * 12} cy={top + 34} r="2" fill={color}
+                    style={{ animation:`gritFall 2.6s ${(i * 0.24) + d * 0.5}s ease-in infinite`, opacity:0 }}/>
+                ))}
+
+                <text x={x + barW / 2} y={top + barH + 22} textAnchor="middle" fill={color}
+                  fontSize="12" fontWeight="600" fontFamily="DM Sans"
+                  style={{ opacity: isActive ? 1 : 0.75, transition:'opacity 0.3s ease' }}>
+                  S{i + 1}
+                </text>
+                <text x={x + barW / 2} y={top + barH + 40} textAnchor="middle" fill="#ffffff"
+                  fontSize="9.5" fontFamily="DM Sans" opacity={isActive ? 0.75 : 0.32}
+                  style={{ transition:'opacity 0.3s ease' }}>
+                  {stage.num}
+                </text>
+              </g>
+            )
+          })}
+        </svg>
+
+        {/* Same max-width as the svg so these sit under the ends of the pipeline
+            rather than drifting out to the card's corners. */}
+        <div style={{ display:'flex', justifyContent:'space-between', width:'100%', maxWidth:860, minWidth:560, margin:'0 auto', padding:'4px 6px 0', fontFamily:"'DM Sans',sans-serif", fontSize:11, letterSpacing:2, textTransform:'uppercase' }}>
+          <span style={{ color:'rgba(200,164,74,0.75)' }}>Raw intake</span>
+          <span style={{ color:'var(--aqua)' }}>Sealed &amp; pure</span>
+        </div>
+      </div>
+
+      {/* The spec as text. Click pins a stage so it can be read without holding
+          a hover — the descriptions are long enough that hover-only would be a
+          usability trap on the way to reading one. */}
+      <div ref={railRef} className="reveal filtration-rail">
+        {FILTRATION_STAGES.map((stage, i) => {
+          const color = FILTRATION_COLORS[i]
+          const isActive = shown === i
+          const isDimmed = shown !== null && !isActive
+          const isPinned = pinned === i
+          return (
+            <button
+              key={stage.num}
+              type="button"
+              aria-pressed={isPinned}
+              className="stage-btn stage-card-in"
+              onMouseEnter={() => { setActive(i); noteInspection() }}
+              onMouseLeave={() => setActive(null)}
+              onFocus={() => { setActive(i); noteInspection() }}
+              onBlur={() => setActive(null)}
+              onClick={() => { setPinned(p => (p === i ? null : i)); noteInspection() }}
+              style={{
+                animationDelay:`${i * 70}ms`,
+                opacity: isDimmed ? 0.5 : 1,
+                borderColor: isActive ? color : undefined,
+                transform: isActive ? 'translateY(-6px)' : undefined,
+                boxShadow: isActive ? `0 18px 40px rgba(0,0,0,0.35), 0 0 26px ${color}22` : undefined,
+              }}>
+              <span style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+                <span aria-hidden="true" style={{ width:8, height:8, borderRadius:'50%', background:color, flexShrink:0, boxShadow: isActive ? `0 0 12px ${color}` : 'none', transition:'box-shadow 0.3s ease' }}/>
+                <span style={{ color, fontSize:12, fontWeight:600, letterSpacing:3 }}>{stage.num}</span>
+              </span>
+              <span style={{ display:'block', color:'var(--white)', fontSize:14.5, fontWeight:600, lineHeight:1.35, marginBottom:8 }}>
+                {stage.name}
+              </span>
+              <span style={{ display:'block', color:'var(--muted)', fontSize:13, lineHeight:1.65 }}>
+                {stage.purpose}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -1206,6 +1591,7 @@ function JourneySection() {
             Every drop carries a story — a journey of purity, precision, and care from ancient aquifers to your hands.
           </p>
         </div>
+        <FiltrationShowcase />
         {JOURNEY_STEPS.map((step,i) => (
           <JourneyRow key={step.num} step={step} index={i} />
         ))}
@@ -1284,11 +1670,16 @@ function ProductCard({ product, delay, scrollTo, marquee, trackable = true }) {
       <p style={{ color:'var(--muted)', fontSize:14, lineHeight:1.6, marginBottom:20 }}>{product.desc}</p>
       <div style={{ width:'100%', height:1, background:'var(--glass-border)', margin:'4px 0 20px' }} />
       <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:28, fontWeight:700, color:'var(--white)', marginBottom:4 }}>{product.price}</div>
+      {/* Always rendered, blank when absent: the sizes quoted on request would
+          otherwise sit a line higher and knock the row of buttons out of line. */}
+      <div style={{ fontSize:12, color:'var(--muted)', marginBottom:4 }}>
+        {product.caseNote ? `${product.caseNote} · lower at volume` : ' '}
+      </div>
       <div style={{ fontSize:13, color:'var(--muted)', marginBottom:24 }}>Min. {product.minOrder}</div>
       <button
         onClick={() => scrollTo('contact')}
         data-evt="product_cta_clicked"
-        data-sku={product.size}
+        data-sku={product.sku}
         style={{
         width:'100%', background:`linear-gradient(135deg, ${product.color}, ${product.color}aa)`,
         border:'none', borderRadius:12, padding:'12px', color:'var(--navy)',
@@ -1306,12 +1697,149 @@ function ProductCard({ product, delay, scrollTo, marquee, trackable = true }) {
     // minWidth/marginRight so the track spacing is unchanged.
     <TrackInView
       event="product_viewed"
-      productSku={product.size}
+      productSku={product.sku}
       sectionId="products"
       style={{ flex: '0 0 auto', display: 'flex' }}
     >
       {card}
     </TrackInView>
+  )
+}
+
+// ─── Pricing ──────────────────────────────────────────────────────────────────
+/**
+ * The brochure link, defined once.
+ *
+ * `data-evt` is all the instrumentation this needs — the delegated listener in
+ * analytics/delegate.ts resolves it on any click, and an explicit data-evt beats
+ * its href sniffing, so this doesn't get miscounted as a generic outbound click.
+ */
+function BrochureLink({ style }) {
+  return (
+    <a
+      href={BROCHURE_URL}
+      download
+      target="_blank"
+      rel="noopener"
+      data-evt="pricing_brochure_downloaded"
+      style={{
+        display:'inline-block', padding:'14px 28px', borderRadius:50,
+        border:'1px solid var(--aqua)', color:'var(--aqua)', background:'transparent',
+        fontFamily:'DM Sans, sans-serif', fontWeight:600, fontSize:15,
+        textDecoration:'none', transition:'all 0.3s', whiteSpace:'nowrap', ...style
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background='rgba(62,207,191,0.1)'; e.currentTarget.style.transform='translateY(-2px)' }}
+      onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.transform='translateY(0)' }}
+    >
+      ↓ Download pricing brochure (PDF)
+    </a>
+  )
+}
+
+function PricingSection() {
+  const titleRef = useReveal()
+  const footRef = useReveal()
+  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  return (
+    <section id="pricing" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
+      <div style={{ maxWidth:1200, margin:'0 auto' }}>
+        <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
+          <SectionTag>Corporate Programme</SectionTag>
+          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+            Pricing, <span style={{ color:'var(--aqua)' }}>refined.</span>
+          </h2>
+          <p style={{ color:'var(--muted)', maxWidth:560, margin:'18px auto 0', lineHeight:1.75 }}>
+            Three tiers of partnership, each engineered around volume, presentation, and the standard your guests expect.
+          </p>
+        </div>
+
+        {/* auto-fit rather than a fixed 3 columns: each card carries its own
+            three-column price table, which turns unreadable if the cards are
+            squeezed at tablet widths. They drop to two, then one, on their own. */}
+        <div className="pricing-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:28, alignItems:'stretch' }}>
+          {PRICING_TIERS.map((tier, i) => (
+            <TierCard key={tier.name} tier={tier} delay={i * 0.12} />
+          ))}
+        </div>
+
+        <div ref={footRef} className="reveal" style={{ marginTop:48 }}>
+          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'12px 28px', paddingTop:32, borderTop:'1px solid var(--glass-border)' }}>
+            {PRICING_INCLUDES.map(item => (
+              <span key={item} style={{ display:'flex', alignItems:'center', gap:8, color:'var(--white)', fontSize:14 }}>
+                <span style={{ color:'var(--aqua)' }} aria-hidden="true">✓</span>{item}
+              </span>
+            ))}
+          </div>
+          <p style={{ textAlign:'center', color:'var(--muted)', fontSize:13, marginTop:20 }}>{PRICING_FOOTNOTE}</p>
+
+          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:16, marginTop:36 }}>
+            <button
+              onClick={() => scrollTo('contact')}
+              data-evt="product_cta_clicked"
+              data-sku="pricing-get-quote"
+              style={{
+                background:'linear-gradient(135deg, var(--aqua), var(--aqua-dim))', border:'none',
+                borderRadius:50, padding:'14px 32px', color:'var(--navy)',
+                fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:15, cursor:'pointer', transition:'all 0.3s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}
+            >Get a Quote →</button>
+            <BrochureLink />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TierCard({ tier, delay }) {
+  const ref = useReveal()
+  return (
+    <div
+      ref={ref}
+      className={`bottle-card reveal${tier.featured ? ' featured-card' : ''}`}
+      style={{
+        background:'var(--navy-card)',
+        border:`1px solid ${tier.featured ? 'rgba(62,207,191,0.4)' : 'var(--glass-border)'}`,
+        borderRadius:24, padding:'36px 30px', position:'relative', transitionDelay:`${delay}s`,
+        display:'flex', flexDirection:'column'
+      }}
+    >
+      {tier.featured && (
+        <div className="featured-badge" style={{
+          position:'absolute', top:-16, left:'50%', transform:'translateX(-50%)',
+          background:'linear-gradient(135deg, var(--aqua), var(--aqua-dim))', borderRadius:50,
+          padding:'4px 18px', fontSize:11, fontWeight:700, letterSpacing:'0.1em',
+          color:'var(--navy)', textTransform:'uppercase', zIndex:10, whiteSpace:'nowrap'
+        }}>Most Chosen</div>
+      )}
+
+      <div style={{
+        width:34, height:34, borderRadius:'50%', border:'1px solid rgba(62,207,191,0.4)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        color:'var(--aqua)', fontSize:11, letterSpacing:'0.06em', marginBottom:14
+      }}>{tier.num}</div>
+
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:32, fontWeight:700, color:'var(--white)', lineHeight:1.1 }}>{tier.name}</div>
+      <div style={{ color:'var(--gold)', fontSize:12, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', marginTop:6 }}>{tier.segment}</div>
+      <div style={{ color:'var(--muted)', fontSize:13, marginTop:10, marginBottom:26 }}>{tier.dispatches}</div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:12, marginTop:'auto' }}>
+        {PACK_SIZES.map(size => (
+          <div key={size}>
+            <div style={{ color:'var(--muted)', fontSize:11, letterSpacing:'0.1em', marginBottom:6 }}>{size}</div>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:30, fontWeight:700, color:'var(--white)', lineHeight:1 }}>
+              <span style={{ fontSize:16, color:'var(--aqua)', verticalAlign:'super' }}>₹</span>{tier.prices[size]}
+            </div>
+            <div style={{ color:'var(--muted)', fontSize:12, marginTop:6 }}>per case</div>
+            <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11, marginTop:2 }}>
+              {`₹${perBottle(tier.prices[size], size)} / bottle`}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -1373,7 +1901,10 @@ function CustomizerSection() {
     { hex: '#7c4dff', name: 'Lavender' },
     { hex: '#ff7043', name: 'Amber' },
   ]
-  const SIZES = ['100ml', '250ml', '350ml', '500ml', '1L']
+  // Derived, not a second hand-written list: this one silently kept offering
+  // 100ml and 350ml after both were discontinued, and labelled the litre bottle
+  // differently from the product cards. The chips ARE the SKUs.
+  const SIZES = PRODUCTS.map(p => p.sku)
 
   const handleFile = (e) => {
     const file = e.target.files?.[0]
@@ -1666,6 +2197,10 @@ function ContactSection({ content }) {
                 )}
               </div>
             ))}
+            {/* The price list, inside the quote block — a buyer who wants numbers
+                before filling in a form gets them here instead of bouncing. */}
+            <BrochureLink style={{ marginTop:14 }} />
+
             <div style={{ display:'flex', gap:12, marginTop:32 }}>
               {SOCIAL.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} style={{ textDecoration:'none' }}>
@@ -1751,12 +2286,17 @@ function Footer({ content }) {
         {/* Quick Links */}
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Quick Links</div>
-          {['about','services','products','industries','customizer','contact'].map(id => (
+          {['about','services','products','pricing','industries','customizer','contact'].map(id => (
             <button key={id} onClick={() => scrollTo(id)} style={{ display:'block', background:'none', border:'none', color:'var(--muted)', fontSize:14, marginBottom:10, cursor:'pointer', textTransform:'capitalize', transition:'color 0.2s', padding:0, fontFamily:'DM Sans, sans-serif' }}
               onMouseEnter={e => e.currentTarget.style.color='var(--aqua)'}
               onMouseLeave={e => e.currentTarget.style.color='var(--muted)'}
             >{id}</button>
           ))}
+          <a
+            href={BROCHURE_URL} download target="_blank" rel="noopener"
+            data-evt="pricing_brochure_downloaded"
+            style={{ display:'block', color:'var(--aqua)', fontSize:14, marginTop:4, textDecoration:'none' }}
+          >↓ Pricing brochure (PDF)</a>
         </div>
 
         {/* Services */}
@@ -1877,6 +2417,7 @@ export default function App() {
       <TrackInView event="section_viewed" sectionId="how"><HowItWorksSection /></TrackInView>
       <TrackInView event="section_viewed" sectionId="journey"><JourneySection /></TrackInView>
       <TrackInView event="section_viewed" sectionId="products"><ProductsSection /></TrackInView>
+      <TrackInView event="section_viewed" sectionId="pricing"><PricingSection /></TrackInView>
       <TrackInView event="section_viewed" sectionId="industries"><IndustriesSection /></TrackInView>
       <div ref={customizerRef}>
         {customizerVisible && (

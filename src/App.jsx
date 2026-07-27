@@ -7,9 +7,10 @@ import { ConsentBanner } from './analytics/consent.jsx'
 import { SiteSearch } from './SiteSearch.jsx'
 
 // The Web3Forms key used to live here, in the client bundle, in version control.
-// The form now posts to /api/lead, which persists the enquiry, emits the
-// conversion event as server truth, and forwards using a key that never leaves
-// the server. Rotate the old key — it is in the git history.
+// The enquiry form that used it has since been removed entirely (see
+// ContactSection), so nothing on this page posts a lead any more. /api/lead and
+// its Web3Forms forward still exist server-side and are unreferenced from the
+// browser. Rotate the old key regardless: it is in the git history.
 
 // ─── Global Style Injection ───────────────────────────────────────────────────
 function useGlobalStyles() {
@@ -79,9 +80,6 @@ function useGlobalStyles() {
         }
       }
 
-      @media (max-width: 600px) {
-        .contact-form-row { grid-template-columns: 1fr !important; }
-      }
 
       .marquee-wrapper { overflow:hidden; -webkit-mask-image:linear-gradient(to right,transparent 0%,black 8%,black 92%,transparent 100%); mask-image:linear-gradient(to right,transparent 0%,black 8%,black 92%,transparent 100%); }
       .marquee-track { display:flex; width:max-content; }
@@ -113,24 +111,75 @@ function useGlobalStyles() {
         border-bottom: 1px solid var(--glass-border) !important;
       }
 
-      .form-input {
-        width: 100%;
-        background: rgba(11,34,68,0.6);
+      /* Direct-lines panel. One opaque Navy Card surface holding three rows
+         divided by hairlines — deliberately not three separate cards, which
+         would flatten WhatsApp, phone, and email into equal weight when they
+         are not equal. The primary row carries a teal wash; the other two are
+         bare. Rows are real <a> elements so the delegated click listener in
+         analytics/delegate.ts instruments them from their href alone. */
+      .ch-panel {
+        background: var(--navy-card);
         border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        padding: 14px 18px;
-        color: var(--white);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 15px;
-        outline: none;
-        transition: border-color 0.3s, box-shadow 0.3s;
+        border-radius: 24px;
+        overflow: hidden;
       }
-      .form-input:focus {
-        border-color: var(--aqua);
-        box-shadow: 0 0 0 3px rgba(62,207,191,0.15);
+      .ch-row {
+        display: grid;
+        grid-template-columns: 46px 1fr 20px;
+        align-items: center;
+        gap: 18px;
+        padding: 22px 26px;
+        text-decoration: none;
+        border-top: 1px solid var(--glass-border);
+        transition: background-color 0.3s cubic-bezier(0.22,1,0.36,1);
       }
-      .form-input::placeholder { color: var(--muted); }
-      .form-input option { background: var(--navy-card); color: var(--white); }
+      .ch-row:first-child { border-top: none; }
+      .ch-row:hover { background: rgba(62,207,191,0.05); }
+      .ch-row:focus-visible { outline: 2px solid var(--aqua); outline-offset: -3px; }
+      /* The primary row is taller and pre-tinted: WhatsApp is where these
+         buyers actually start, so it should not have to be found. */
+      .ch-row-primary { padding: 28px 26px; background: rgba(62,207,191,0.07); }
+      .ch-row-primary:hover { background: rgba(62,207,191,0.11); }
+
+      .ch-disc {
+        width: 46px; height: 46px; border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        background: rgba(62,207,191,0.1);
+        border: 1px solid rgba(62,207,191,0.22);
+        color: var(--aqua);
+        transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), background-color 0.3s;
+      }
+      .ch-row:hover .ch-disc { transform: scale(1.07); background: rgba(62,207,191,0.18); }
+      .ch-row-primary .ch-disc { background: rgba(62,207,191,0.16); border-color: rgba(62,207,191,0.4); }
+
+      .ch-title { display: block; color: var(--white); font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+      .ch-row-primary .ch-title { font-size: 17px; font-weight: 700; }
+      .ch-note { display: block; color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 3px; }
+      .ch-value { display: block; color: var(--aqua); font-size: 13.5px; font-weight: 500; margin-top: 7px; letter-spacing: 0.01em; }
+
+      .ch-arrow {
+        color: var(--muted); font-size: 17px; line-height: 1;
+        transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), color 0.3s;
+      }
+      .ch-row:hover .ch-arrow { transform: translateX(4px); color: var(--aqua); }
+
+      /* The panel foot is the low-commitment exit: a buyer who is not ready to
+         talk to anyone still leaves with the rate card. */
+      .ch-foot {
+        border-top: 1px solid var(--glass-border);
+        background: rgba(4,16,31,0.35);
+        padding: 20px 26px;
+        display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+      }
+      @media (max-width: 600px) {
+        .ch-row { padding: 20px; gap: 14px; grid-template-columns: 42px 1fr 16px; }
+        .ch-row-primary { padding: 24px 20px; }
+        .ch-disc { width: 42px; height: 42px; }
+        .ch-foot { padding: 18px 20px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ch-row:hover .ch-disc, .ch-row:hover .ch-arrow { transform: none; }
+      }
 
       .step-card:hover .step-num { background: var(--aqua); color: var(--navy); }
       .industry-chip:hover { border-color:var(--aqua) !important; background:rgba(62,207,191,0.08) !important; transform:translateX(4px); }
@@ -178,6 +227,53 @@ function useGlobalStyles() {
       .featured-badge { animation: badgePulse 2.4s ease-in-out infinite; }
       .featured-card { animation: borderGlow 2.5s ease-in-out infinite; }
 
+      /* Download icon: the tray stays put, the arrow drops into it on hover.
+         Two separate transforms so the arrow can also fade at the bottom of the
+         travel and reappear at the top, which reads as a repeating download. */
+      .dl-icon { flex: none; overflow: visible; }
+      .dl-icon .dl-arrow { transform-origin: 50% 50%; }
+      /* Sheen sweep. Lives on ::after so it needs its own stacking context,
+         otherwise the clip would also catch the button's outer glow. */
+      .dl-btn { position: relative; overflow: hidden; isolation: isolate; }
+      .dl-btn::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        transform: translateX(-130%);
+        background: linear-gradient(100deg, transparent 25%, rgba(255,255,255,0.38) 50%, transparent 75%);
+      }
+      .dl-btn-ghost::after {
+        background: linear-gradient(100deg, transparent 25%, rgba(62,207,191,0.22) 50%, transparent 75%);
+      }
+      .dl-btn:hover::after { animation: dl-sheen 0.9s ease-out; }
+      @keyframes dl-sheen { to { transform: translateX(130%); } }
+      /* The icon sits in a tinted disc so the glyph reads as a badge, not a bullet. */
+      .dl-chip {
+        display: inline-flex; align-items: center; justify-content: center; flex: none;
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(4,26,43,0.14); transition: background 0.3s, transform 0.3s;
+      }
+      .dl-btn-ghost .dl-chip { background: rgba(62,207,191,0.14); }
+      .dl-btn:hover .dl-chip { background: rgba(4,26,43,0.22); transform: scale(1.06); }
+      .dl-btn-ghost:hover .dl-chip { background: rgba(62,207,191,0.24); }
+      .dl-btn:hover .dl-icon .dl-arrow { animation: dl-drop 0.9s ease-in-out infinite; }
+      .dl-btn:hover .dl-icon .dl-tray { animation: dl-pulse 0.9s ease-in-out infinite; }
+      @keyframes dl-drop {
+        0%   { transform: translateY(-1px); opacity: 1; }
+        55%  { transform: translateY(3px);  opacity: 1; }
+        70%  { transform: translateY(4px);  opacity: 0; }
+        71%  { transform: translateY(-4px); opacity: 0; }
+        100% { transform: translateY(-1px); opacity: 1; }
+      }
+      @keyframes dl-pulse {
+        0%, 45%, 100% { transform: translateY(0); }
+        62%           { transform: translateY(1px); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dl-btn:hover .dl-icon .dl-arrow,
+        .dl-btn:hover .dl-icon .dl-tray,
+        .dl-btn:hover::after { animation: none; }
+        .dl-btn:hover .dl-chip { transform: none; }
+      }
+
       .products-grid { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
       .products-grid::-webkit-scrollbar { height: 4px; }
       .products-grid::-webkit-scrollbar-track { background: transparent; }
@@ -193,7 +289,10 @@ function useGlobalStyles() {
         .industries-grid { grid-template-columns: 1fr !important; }
         .footer-grid { grid-template-columns: 1fr !important; text-align: center; }
         .nav-links { display: none !important; }
-        .nav-brochure { display: none !important; }
+        /* The brochure pill stays on mobile but drops to icon-only — it is the
+           only CTA in the bar now, and the label is what costs the width. */
+        .nav-brochure { padding: 11px !important; }
+        .nav-brochure-label { display: none !important; }
         .hero-bottles { display: none !important; }
         .hero-bottle-single { display: flex !important; }
         .hero-h1 { font-size: clamp(36px,8vw,52px) !important; }
@@ -750,6 +849,27 @@ const SEARCH_INDEX = [
     body: 'contact enquiry quote sample pricing order delivery brochure rate card' },
 ]
 
+/**
+ * Download glyph: an arrow falling into an open tray.
+ *
+ * Drawn as two groups (.dl-arrow / .dl-tray) so the hover animation defined in
+ * useResponsiveStyles can move them independently. `currentColor` keeps it in
+ * step with whatever the surrounding pill sets as its text colour.
+ */
+function DownloadIcon({ size = 16 }) {
+  return (
+    <svg className="dl-icon" width={size} height={size} viewBox="0 0 20 20" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      aria-hidden="true" focusable="false">
+      <g className="dl-arrow">
+        <path d="M10 2.5v9" />
+        <path d="M6 8.5l4 4 4-4" />
+      </g>
+      <path className="dl-tray" d="M3 14.5v1.5a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-1.5" />
+    </svg>
+  )
+}
+
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -788,38 +908,34 @@ function Navbar() {
         <SiteSearch index={SEARCH_INDEX} onNavigate={scrollTo} />
       </div>
 
-      {/* Two CTAs, one hierarchy: the brochure is the ghost variant so the solid
-          pill stays the single primary action. Below 768px the brochure drops out
-          (see .nav-brochure) — the footer and pricing section still carry it, and
-          the contact path is the one that must survive on a phone. */}
+      {/* One CTA. The brochure is now the single primary action in the bar, so it
+          takes the solid gradient pill and survives on mobile (the label collapses
+          to the icon below 768px — see .nav-brochure). The contact path is still
+          one tap away via the nav links and the footer. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <a
-          className="nav-brochure"
+          className="nav-brochure dl-btn"
           href={BROCHURE_URL}
           download
           target="_blank"
           rel="noopener"
+          aria-label="Download the pricing brochure (PDF)"
           data-evt="pricing_brochure_downloaded"
           style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap',
-            background: 'transparent', border: '1px solid rgba(62,207,191,0.4)',
-            borderRadius: 50, padding: '9px 20px',
-            color: 'var(--aqua)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
-            fontSize: 14, cursor: 'pointer', transition: 'all 0.3s', textDecoration: 'none',
+            display: 'inline-flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap',
+            background: 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
+            border: 'none', borderRadius: 50, padding: '10px 22px',
+            color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+            fontSize: 14, cursor: 'pointer', textDecoration: 'none',
+            boxShadow: '0 4px 16px rgba(62,207,191,0.18)',
+            transition: 'transform 0.3s, box-shadow 0.3s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(62,207,191,0.08)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateY(0)' }}
-        >↓ Brochure</a>
-        <button onClick={() => scrollTo('contact')} data-evt="product_cta_clicked" data-sku="nav-quote" style={{
-          background: 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
-          border: 'none', borderRadius: 50, padding: '10px 24px', whiteSpace: 'nowrap',
-          color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
-          fontSize: 14, cursor: 'pointer', transition: 'all 0.3s',
-          boxShadow: '0 4px 16px rgba(62,207,191,0.18)'
-        }}
-          onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 24px rgba(62,207,191,0.28)' }}
-          onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 16px rgba(62,207,191,0.18)' }}
-        >Get a Quote</button>
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(62,207,191,0.28)' }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(62,207,191,0.18)' }}
+        >
+          <DownloadIcon />
+          <span className="nav-brochure-label">Brochure</span>
+        </a>
       </div>
     </nav>
   )
@@ -1710,28 +1826,68 @@ function ProductCard({ product, delay, scrollTo, marquee, trackable = true }) {
 /**
  * The brochure link, defined once.
  *
+ * Two variants because it appears in two competitive contexts: `solid` for the
+ * pricing section, where it is the only call to action and should carry the
+ * weight, and `ghost` for the contact block, where the enquiry form is the
+ * primary and this must not out-shout it.
+ *
  * `data-evt` is all the instrumentation this needs — the delegated listener in
  * analytics/delegate.ts resolves it on any click, and an explicit data-evt beats
  * its href sniffing, so this doesn't get miscounted as a generic outbound click.
  */
-function BrochureLink({ style }) {
+function BrochureLink({ style, variant = 'ghost' }) {
+  const solid = variant === 'solid'
+  const rest = solid
+    ? '0 8px 24px rgba(62,207,191,0.20)'
+    : '0 4px 16px rgba(4,26,43,0.25)'
+  const lift = solid
+    ? '0 16px 38px rgba(62,207,191,0.34)'
+    : '0 10px 26px rgba(62,207,191,0.16)'
   return (
     <a
+      className={`dl-btn dl-btn-${variant}`}
       href={BROCHURE_URL}
       download
       target="_blank"
       rel="noopener"
       data-evt="pricing_brochure_downloaded"
       style={{
-        display:'inline-block', padding:'14px 28px', borderRadius:50,
-        border:'1px solid var(--aqua)', color:'var(--aqua)', background:'transparent',
-        fontFamily:'DM Sans, sans-serif', fontWeight:600, fontSize:15,
-        textDecoration:'none', transition:'all 0.3s', whiteSpace:'nowrap', ...style
+        display:'inline-flex', alignItems:'center', gap:14,
+        padding: solid ? '12px 26px 12px 14px' : '11px 24px 11px 13px',
+        borderRadius:50, textDecoration:'none', whiteSpace:'nowrap',
+        fontFamily:'DM Sans, sans-serif',
+        background: solid ? 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))' : 'transparent',
+        border: solid ? '1px solid transparent' : '1px solid rgba(62,207,191,0.45)',
+        color: solid ? 'var(--navy)' : 'var(--aqua)',
+        boxShadow: rest,
+        transition:'transform 0.3s, box-shadow 0.3s, border-color 0.3s',
+        ...style
       }}
-      onMouseEnter={e => { e.currentTarget.style.background='rgba(62,207,191,0.1)'; e.currentTarget.style.transform='translateY(-2px)' }}
-      onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.transform='translateY(0)' }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-3px)'
+        e.currentTarget.style.boxShadow = lift
+        if (!solid) e.currentTarget.style.borderColor = 'var(--aqua)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = rest
+        if (!solid) e.currentTarget.style.borderColor = 'rgba(62,207,191,0.45)'
+      }}
     >
-      ↓ Download pricing brochure (PDF)
+      <span className="dl-chip"><DownloadIcon size={17} /></span>
+      {/* Two lines: the action, then what actually lands in the downloads
+          folder. The format and size are the questions a PDF link raises. */}
+      <span style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:1, lineHeight:1.25 }}>
+        <span style={{ fontWeight:700, fontSize:15, letterSpacing:'-0.01em' }}>
+          Download pricing brochure
+        </span>
+        <span style={{
+          fontSize:11.5, fontWeight:500, letterSpacing:'0.06em', textTransform:'uppercase',
+          opacity: solid ? 0.62 : 0.7,
+        }}>
+          PDF · Corporate rate card
+        </span>
+      </span>
     </a>
   )
 }
@@ -1739,7 +1895,6 @@ function BrochureLink({ style }) {
 function PricingSection() {
   const titleRef = useReveal()
   const footRef = useReveal()
-  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   return (
     <section id="pricing" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
@@ -1773,19 +1928,7 @@ function PricingSection() {
           <p style={{ textAlign:'center', color:'var(--muted)', fontSize:13, marginTop:20 }}>{PRICING_FOOTNOTE}</p>
 
           <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:16, marginTop:36 }}>
-            <button
-              onClick={() => scrollTo('contact')}
-              data-evt="product_cta_clicked"
-              data-sku="pricing-get-quote"
-              style={{
-                background:'linear-gradient(135deg, var(--aqua), var(--aqua-dim))', border:'none',
-                borderRadius:50, padding:'14px 32px', color:'var(--navy)',
-                fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:15, cursor:'pointer', transition:'all 0.3s'
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'}
-              onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}
-            >Get a Quote →</button>
-            <BrochureLink />
+            <BrochureLink variant="solid" />
           </div>
         </div>
       </div>
@@ -2090,73 +2233,105 @@ function TestimonialsSection({ content }) {
 }
 
 // ─── Contact ──────────────────────────────────────────────────────────────────
+/**
+ * Channel glyphs. The WhatsApp mark is the brand glyph because a generic speech
+ * bubble would not be recognised as WhatsApp at 20px; phone and mail are drawn
+ * as strokes so they read as UI affordances rather than second logos.
+ */
+function ChannelGlyph({ kind }) {
+  if (kind === 'whatsapp') {
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12.05 21.785h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413" />
+      </svg>
+    )
+  }
+  if (kind === 'call') {
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M6.6 2.8h2.9l1.5 3.9-2 1.2a12.6 12.6 0 0 0 5.4 5.4l1.2-2 3.9 1.5v2.9a2.1 2.1 0 0 1-2.3 2.1A17.6 17.6 0 0 1 4.5 5.1a2.1 2.1 0 0 1 2.1-2.3Z" />
+      </svg>
+    )
+  }
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2.6" y="4.8" width="18.8" height="14.4" rx="2.6" />
+      <path d="m3.4 6.9 7.7 5.6a1.5 1.5 0 0 0 1.8 0l7.7-5.6" />
+    </svg>
+  )
+}
+
+/**
+ * One line of contact. An <a> and nothing else — no onClick, no handler. The
+ * delegated listener resolves the href to contact_intent_clicked with the right
+ * channel, so a fourth channel added here is instrumented without touching
+ * analytics code.
+ */
+function ChannelRow({ channel }) {
+  const external = channel.kind === 'whatsapp'
+  return (
+    <a
+      href={channel.href}
+      className={`ch-row${channel.primary ? ' ch-row-primary' : ''}`}
+      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    >
+      <span className="ch-disc"><ChannelGlyph kind={channel.kind} /></span>
+      <span>
+        <span className="ch-title">{channel.title}</span>
+        <span className="ch-note">{channel.note}</span>
+        <span className="ch-value">{channel.value}</span>
+      </span>
+      <span className="ch-arrow" aria-hidden="true">→</span>
+    </a>
+  )
+}
+
+/**
+ * The enquiry form was removed here on purpose.
+ *
+ * It asked six fields of a buyer who had already decided to talk to us, then
+ * routed the answer through a server hop and an email forward before anyone saw
+ * it. These buyers are on WhatsApp all day. The panel below replaces the form
+ * with the three lines they would have used anyway, ranked, each one tappable.
+ *
+ * Consequence worth knowing: nothing on this page creates a Lead row any more.
+ * The funnel's terminal step is contact_intent_clicked, not lead_submitted.
+ */
 function ContactSection({ content }) {
-  const [form, setForm] = useState({ name:'', company:'', email:'', phone:'', quantity:'', message:'' })
-  const [submitted, setSubmitted] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState(null)
   const leftRef = useReveal()
   const rightRef = useReveal()
   const phone = content?.phone || '+91 76248 03460'
   const deliveryNote = content?.deliveryNote || 'Currently serving Delhi NCR.'
+  const tel = `tel:${phone.replace(/\s/g, '')}`
 
-  // Funnel instrumentation. Each step fires at most once per mount — the funnel
-  // is counted in sessions, so a visitor who refills a field twice is still one
-  // person who reached that step.
-  const startedRef = useRef(false)
-  const completedFields = useRef(new Set())
+  const waMsg = encodeURIComponent(
+    content?.whatsappMsg || "Hi! I'm interested in customized water bottles for my business.",
+  )
 
-  const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
-
-  const handleFocus = () => {
-    if (startedRef.current) return
-    startedRef.current = true
-    track('contact_form_started')
-  }
-
-  const handleBlur = (e) => {
-    const { name, value } = e.target
-    if (!value.trim() || completedFields.current.has(name)) return
-    completedFields.current.add(name)
-    // The field NAME only. What the visitor typed is customer data and belongs in
-    // the Lead row, never in the event stream.
-    track('contact_form_field_completed', { props: { field: name } })
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    const missing = [!form.name && 'name', !form.email && 'email'].filter(Boolean)
-    if (missing.length) {
-      track('contact_form_validation_failed', { props: { fields: missing } })
-      setError('Please fill in your name and email.')
-      return
-    }
-
-    setError(null)
-    setIsSubmitting(true)
-    try {
-      // Posts to our own server, which writes the Lead row, emits `lead_submitted`
-      // as server truth, stitches this visitor's prior anonymous events to the new
-      // leadId, and only then forwards to Web3Forms.
-      const res = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(form),
-      })
-      if (res.ok) {
-        setSubmitted(true)
-      } else {
-        const data = await res.json().catch(() => ({}))
-        setError(data?.message || 'Submission failed. Please contact us via WhatsApp or email.')
-      }
-    } catch {
-      setError('Network error. Please contact us via WhatsApp or email directly.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+  const CHANNELS = [
+    {
+      kind: 'whatsapp',
+      primary: true,
+      title: 'WhatsApp',
+      note: 'Fastest route. Send your logo and quantity, get a quote back the same day.',
+      value: phone,
+      href: `https://wa.me/917624803460?text=${waMsg}`,
+    },
+    {
+      kind: 'call',
+      title: 'Call the sales desk',
+      note: 'Monday to Saturday, 9am to 7pm IST.',
+      value: phone,
+      href: tel,
+    },
+    {
+      kind: 'email',
+      title: 'Email us',
+      note: 'Best for detailed specs, tenders, and PO paperwork.',
+      value: 'info@aquaviaworld.com',
+      href: 'mailto:info@aquaviaworld.com',
+    },
+  ]
 
   const SOCIAL = [
     { label:'Instagram', href:'https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0', color:'#e1306c', path:'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z' },
@@ -2173,33 +2348,35 @@ function ContactSection({ content }) {
             <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,48px)', color:'var(--white)', lineHeight:1.1, marginBottom:20 }}>
               Let's Build Something Together
             </h2>
-            <p style={{ color:'var(--muted)', lineHeight:1.75, marginBottom:36 }}>
-              Ready to put your brand on every bottle? Tell us about your requirements and we'll craft a solution tailored to your needs and timeline.
+            <p style={{ color:'var(--muted)', lineHeight:1.75, marginBottom:40, maxWidth:'56ch' }}>
+              No forms, no ticket queue. Reach the people who quote your order directly, and bring your logo, sizes, and quantity when you do.
             </p>
-            {/* The phone and email were plain <span>s — unclickable on mobile and
-                invisible to intent tracking. As real tel:/mailto: links they are
-                both usable and picked up automatically by the delegated click
-                listener, which sniffs hrefs. */}
+
+            {/* What a form's "we'll be in touch within 24 hours" used to promise,
+                said specifically instead. A procurement manager decides whether to
+                message us on the strength of what happens next. */}
+            <div style={{ marginBottom:36 }}>
+              {[
+                { step:'01', text:'Rate card and MOQ confirmed against your quantity.' },
+                { step:'02', text:'Label proof back within 48 hours of receiving artwork.' },
+                { step:'03', text:'Approved orders dispatched in 7 to 10 working days.' },
+              ].map(item => (
+                <div key={item.step} style={{ display:'flex', gap:16, alignItems:'baseline', padding:'14px 0', borderTop:'1px solid var(--glass-border)' }}>
+                  <span style={{ color:'var(--aqua)', fontSize:12, fontWeight:600, letterSpacing:'0.12em', flexShrink:0 }}>{item.step}</span>
+                  <span style={{ color:'var(--white)', fontSize:14.5, lineHeight:1.6 }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+
             {[
               { icon:'📍', text:'Delhi, India' },
-              { icon:'📞', text:phone, href:`tel:${phone.replace(/\s/g, '')}` },
-              { icon:'📧', text:'info@aquaviaworld.com', href:'mailto:info@aquaviaworld.com' },
               { icon:'🚚', text:deliveryNote },
             ].map(item => (
               <div key={item.text} style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18 }}>
                 <span style={{ fontSize:20 }} aria-hidden="true">{item.icon}</span>
-                {item.href ? (
-                  <a href={item.href} style={{ color:'var(--white)', fontSize:15, textDecoration:'none' }}>
-                    {item.text}
-                  </a>
-                ) : (
-                  <span style={{ color:'var(--white)', fontSize:15 }}>{item.text}</span>
-                )}
+                <span style={{ color:'var(--white)', fontSize:15 }}>{item.text}</span>
               </div>
             ))}
-            {/* The price list, inside the quote block — a buyer who wants numbers
-                before filling in a form gets them here instead of bouncing. */}
-            <BrochureLink style={{ marginTop:14 }} />
 
             <div style={{ display:'flex', gap:12, marginTop:32 }}>
               {SOCIAL.map(s => (

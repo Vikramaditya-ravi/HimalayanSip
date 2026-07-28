@@ -1,9 +1,24 @@
 import { BROCHURE_URL } from './data'
 
 // ─── SVG Components ───────────────────────────────────────────────────────────
+/**
+ * The product bottle.
+ *
+ * SVG rather than a photographic render, because this same component draws the
+ * live preview in the Customizer, where `logo` is the visitor's own uploaded
+ * artwork composited onto the label. A raster mockup cannot do that.
+ *
+ * The hero does use a photographic render — it shows a fixed arrangement with
+ * nothing to customise, so it has no such constraint. The two never appear on
+ * the same screen. Callers here are Products and the Customizer only.
+ *
+ * The upgrade over the original flat drawing is all in how glass behaves: a
+ * bright rim where the cylinder turns away from the viewer, a vertical
+ * refraction band, a specular streak on the cap, and near-neutral water instead
+ * of a wash of the label colour.
+ */
 export function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200, animationClass = '' }) {
   const id = `grad-${color.replace('#', '')}-${size}`
-  const waterColor = color + 'aa'
   return (
     <svg
       viewBox="0 0 110 260"
@@ -12,13 +27,25 @@ export function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200
       style={{ filter: 'drop-shadow(0 20px 40px rgba(62,207,191,0.3))', animation: animationClass, overflow: 'visible' }}
     >
       <defs>
+        {/* Translucent, not opaque. The original solid fill made the bottle read
+            as moulded plastic — clear PET over a dark page has to let the page
+            through, and the rim highlights below are what give it its shape.
+            Every surface this renders on (hero, product cards, customizer) is
+            dark, so there is no background this fails against. */}
         <linearGradient id={`body-${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#d0f0f8" />
-          <stop offset="100%" stopColor="#a8dce8" />
+          <stop offset="0%" stopColor="#d0f0f8" stopOpacity="0.15" />
+          <stop offset="55%" stopColor="#bfe8f2" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="#a8dce8" stopOpacity="0.17" />
         </linearGradient>
+        {/* Water, not dye. This used to be a flat wash of the label colour at
+            0.6–0.85, which on the gold bottle produced an olive drink and on
+            the blue one an ink. The product is drinking water and has to look
+            like it, so the fill is a near-neutral cyan with only a hint of the
+            label colour pooling at the base. */}
         <linearGradient id={`water-${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.6" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.85" />
+          <stop offset="0%" stopColor="#dff6fb" stopOpacity="0.46" />
+          <stop offset="55%" stopColor="#cdeef7" stopOpacity="0.40" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.42" />
         </linearGradient>
         <linearGradient id={`shine-${id}`} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="white" stopOpacity="0.25" />
@@ -28,6 +55,23 @@ export function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200
           <stop offset="0%" stopColor={color} stopOpacity="0.9" />
           <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </linearGradient>
+        {/* Cross-section falloff. A cylinder reads as round only if its edges
+            are brighter than its middle — this is that, applied as an overlay
+            across the full width of the body. */}
+        <linearGradient id={`rim-${id}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="white" stopOpacity="0.34" />
+          <stop offset="11%" stopColor="white" stopOpacity="0.03" />
+          <stop offset="52%" stopColor="white" stopOpacity="0" />
+          <stop offset="88%" stopColor="white" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="white" stopOpacity="0.30" />
+        </linearGradient>
+        {/* The narrow bright streak where the light source is folded back
+            through the front wall of the bottle. */}
+        <linearGradient id={`refract-${id}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="white" stopOpacity="0" />
+          <stop offset="45%" stopColor="white" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="white" stopOpacity="0" />
+        </linearGradient>
         <clipPath id={`body-clip-${id}`}>
           <rect x="18" y="50" width="74" height="194" rx="10" />
         </clipPath>
@@ -36,9 +80,14 @@ export function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200
       {/* Cap */}
       <rect x="36" y="6" width="38" height="22" rx="6" fill={`url(#cap-${id})`} />
       <rect x="38" y="8" width="20" height="6" rx="3" fill="white" fillOpacity="0.3" />
+      {/* Specular streak — the cap is the glossiest thing on the bottle and was
+          the flattest. */}
+      <rect x="41" y="9" width="4" height="17" rx="2" fill="white" fillOpacity="0.5" />
+      <rect x="66" y="10" width="2.5" height="15" rx="1.25" fill="white" fillOpacity="0.22" />
 
       {/* Neck */}
       <path d="M36 26 L28 50 L82 50 L74 26 Z" fill={color} fillOpacity="0.5" />
+      <path d="M38 27 L32 49" stroke="white" strokeOpacity="0.35" strokeWidth="2" strokeLinecap="round" />
 
       {/* Body */}
       <rect x="18" y="50" width="74" height="194" rx="10" fill={`url(#body-${id})`} />
@@ -48,6 +97,8 @@ export function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200
         <rect x="18" y="145" width="74" height="99" fill={`url(#water-${id})`} />
         {/* Wave */}
         <path d="M18 148 Q37 138 55 148 Q73 158 92 148 L92 160 Q73 170 55 160 Q37 150 18 160 Z" fill={color} fillOpacity="0.4" />
+        {/* Meniscus: the waterline catches the light along its whole length. */}
+        <path d="M18 148 Q37 138 55 148 Q73 158 92 148" fill="none" stroke="white" strokeOpacity="0.45" strokeWidth="1.4" />
       </g>
 
       {/* Label area background */}
@@ -73,34 +124,17 @@ export function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200
       <rect x="24" y="162" width="62" height="12" rx="0" fill={color} />
       <rect x="24" y="168" width="62" height="6" rx="6" fill={color} />
 
-      {/* Shine overlay */}
-      <rect x="18" y="50" width="20" height="194" rx="10" fill={`url(#shine-${id})`} />
-    </svg>
-  )
-}
+      {/* ── Glass, drawn last so it sits over the label too ──────────────────
+          Everything below is non-interactive overlay: it must not intercept
+          pointer events aimed at the card underneath. */}
+      <g clipPath={`url(#body-clip-${id})`} style={{ pointerEvents: 'none' }}>
+        <rect x="18" y="50" width="74" height="194" fill={`url(#rim-${id})`} />
+        <rect x="33" y="50" width="9" height="194" fill={`url(#refract-${id})`} />
+      </g>
+      {/* Original left-edge shine, kept — it is what gives the top corner its
+          roundness where the rim gradient is still ramping up. */}
+      <rect x="18" y="50" width="20" height="194" rx="10" fill={`url(#shine-${id})`} style={{ pointerEvents: 'none' }} />
 
-export function MountainBg() {
-  return (
-    <svg viewBox="0 0 1440 300" width="100%" height="300"
-      style={{ position: 'absolute', bottom: 0, left: 0, opacity: 0.12, pointerEvents: 'none' }}
-      preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="mtn-grad1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3ecfbf" />
-          <stop offset="100%" stopColor="#3ecfbf" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="mtn-grad2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3ecfbf" stopOpacity="0.7" />
-          <stop offset="100%" stopColor="#3ecfbf" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="mtn-grad3" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3ecfbf" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#3ecfbf" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d="M0 300 L200 120 L400 220 L600 60 L800 180 L1000 40 L1200 160 L1440 80 L1440 300 Z" fill="url(#mtn-grad1)" />
-      <path d="M0 300 L300 160 L500 240 L700 100 L900 200 L1100 80 L1300 190 L1440 120 L1440 300 Z" fill="url(#mtn-grad2)" />
-      <path d="M0 300 L150 200 L350 260 L550 150 L750 230 L950 130 L1150 220 L1350 160 L1440 200 L1440 300 Z" fill="url(#mtn-grad3)" />
     </svg>
   )
 }
@@ -144,6 +178,36 @@ export function MoonMountainIllustration() {
       {/* River */}
       <path d="M0 240 Q80 220 160 235 Q240 250 320 230 L320 260 L0 260 Z" fill="url(#river)" />
       <path d="M20 242 Q80 228 140 238" stroke="#3ecfbf" strokeWidth="1.5" fill="none" strokeOpacity="0.5" />
+    </svg>
+  )
+}
+
+/* ── Line icons ───────────────────────────────────────────────────────────────
+   One stroke weight (1.5) and one size default across the set, drawn on a 24
+   grid, inheriting `currentColor` so the caller decides the colour. Kept as
+   outlines rather than filled glyphs to sit alongside the teal-outline language
+   the rest of the page already uses. */
+const ICON = {
+  fill: 'none', stroke: 'currentColor', strokeWidth: 1.5,
+  strokeLinecap: 'round', strokeLinejoin: 'round',
+  'aria-hidden': true, focusable: 'false',
+}
+
+export function BottleIcon({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...ICON}>
+      <path d="M10 2h4v3l1.6 2.4A5 5 0 0 1 16.5 10v9a3 3 0 0 1-3 3h-3a3 3 0 0 1-3-3v-9a5 5 0 0 1 .9-2.6L10 5V2Z" />
+      <path d="M7.5 13.5h9" />
+      <path d="M7.5 17h9" />
+    </svg>
+  )
+}
+
+export function SparkleIcon({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...ICON}>
+      <path d="M12 3.2 13.7 9 19.5 10.7 13.7 12.4 12 18.2 10.3 12.4 4.5 10.7 10.3 9 12 3.2Z" />
+      <path d="M18.6 16.2 19.4 18.6 21.8 19.4 19.4 20.2 18.6 22.6 17.8 20.2 15.4 19.4 17.8 18.6 18.6 16.2Z" />
     </svg>
   )
 }

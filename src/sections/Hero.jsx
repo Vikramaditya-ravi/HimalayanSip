@@ -1,127 +1,203 @@
+import * as m from 'motion/react-m'
+import { useEffect, useRef } from 'react'
+
 import { useGeo } from '../site/hooks'
-import { BottleSVG, MountainBg } from '../site/ui.jsx'
+import { BottleIcon, SparkleIcon } from '../site/ui.jsx'
+import { NAV_CLEAR } from '../site/styles'
+
+/**
+ * The hero artwork, and why it is a raster.
+ *
+ * This was three hand-drawn SVG bottles floating over a CSS ripple. Vector can
+ * be made to look expensive, but it cannot be made to look photographed —
+ * moulded PET ribbing, refraction through a curved wall, bubbles, a real splash
+ * with caustics — and photographed is what the brief is. So the hero alone uses
+ * an image, cut from the concept artwork by scripts/make-hero-bottles.mjs.
+ *
+ * BottleSVG is untouched and still draws the Products cards and the Customizer,
+ * where the label carries the visitor's own uploaded logo and therefore has to
+ * stay dynamic. The two never appear together.
+ *
+ * The file has a real alpha channel baked in, so it needs no blend mode and no
+ * @supports guard — see the script for why that beats mix-blend-mode:screen.
+ */
+const ART = { src: '/hero-bottles.webp', width: 836, height: 680 }
+
+/**
+ * Hero scroll parallax: the artwork drifts as the hero leaves.
+ *
+ * Same shape as the navbar's water gauge in site/Navbar.jsx — an rAF-throttled
+ * scroll listener writing straight to the node. That pattern is the reason this
+ * page carries no scroll-animation library; GSAP + ScrollTrigger was 46 KB
+ * gzipped to drive one property off one already-cheap scroll position.
+ *
+ * Nothing here is load-bearing for legibility. If the effect never runs, the
+ * artwork simply sits still. The copy column's entrance is CSS keyframes for
+ * the same reason, and the H1 — the LCP element — is never animated at all.
+ *
+ * The blanket prefers-reduced-motion rule in styles.js only zeroes CSS
+ * animation durations and has no effect on anything written from JS, so the
+ * preference is checked here explicitly.
+ */
+function useHeroParallax(artRef) {
+  useEffect(() => {
+    const hero = document.getElementById('hero')
+    const art = artRef.current
+    if (!hero || !art) return
+
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    const apply = () => {
+      if (still.matches) { art.style.transform = ''; return }
+      const p = Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight || 1)))
+      art.style.transform = `translate3d(0, ${(46 * p).toFixed(2)}px, 0)`
+    }
+
+    let frame = 0
+    const onScroll = () => {
+      if (frame) return
+      frame = requestAnimationFrame(() => { frame = 0; apply() })
+    }
+
+    // Direct, not through the throttle: the resting state has to be correct on
+    // the first paint even if no frame is ever served.
+    apply()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    still.addEventListener('change', apply)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      still.removeEventListener('change', apply)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [artRef])
+}
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 export function HeroSection() {
   const { geo, content } = useGeo()
-  return (
-    <section id="hero" style={{
-      minHeight: '100vh', paddingTop: 72, paddingBottom: 80, position: 'relative', overflow: 'hidden',
-      background: 'linear-gradient(135deg, #04101f 0%, #071428 40%, #061020 100%)',
-      display: 'flex', alignItems: 'center'
-    }}>
-      {/* Ambient orbs */}
-      <div style={{ position:'absolute', top:'-10%', left:'-5%', width:500, height:500, borderRadius:'50%',
-        background:'radial-gradient(circle, rgba(62,207,191,0.12) 0%, transparent 70%)', pointerEvents:'none' }} />
-      <div style={{ position:'absolute', bottom:'10%', right:'-5%', width:400, height:400, borderRadius:'50%',
-        background:'radial-gradient(circle, rgba(91,143,249,0.1) 0%, transparent 70%)', pointerEvents:'none' }} />
-      <MountainBg />
+  const artRef = useRef(null)
 
-      <div className="hero-grid" style={{
-        display:'grid', gridTemplateColumns:'1fr 1fr', gap:40, padding:'0 5%',
-        width:'100%', alignItems:'center', position:'relative', zIndex:1
-      }}>
-        {/* Left */}
-        <div style={{ animation:'fadeUp 0.9s ease forwards' }}>
-          {content?.badge && !geo?.loading && (
-            <div style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(62,207,191,0.1)', border:'1px solid rgba(62,207,191,0.3)', borderRadius:50, padding:'6px 16px', marginBottom:12, animation:'fadeUp 0.6s ease both' }}>
-              <span style={{ width:8, height:8, borderRadius:'50%', background:'#3ecfbf', display:'inline-block', boxShadow:'0 0 6px rgba(62,207,191,0.45)' }} />
-              <span style={{ fontSize:13, color:'var(--aqua)', fontWeight:500 }}>{content.badge}</span>
-            </div>
-          )}
-          <h1 className="hero-h1" id="main-heading" style={{
-            fontFamily:'Cormorant Garamond, serif', fontWeight:700,
-            fontSize:'clamp(44px, 5.5vw, 76px)', lineHeight:1.1, color:'var(--white)',
-            marginBottom:24
-          }}>
-            Pure Water.<br />
-            <span style={{ color:'var(--aqua)' }}>Your Brand.</span>
-          </h1>
-          {/* minHeight reserves two lines at this measure. The ipapi.co lookup
-              lands ~1.7s after first paint and swaps this copy for the regional
-              variant, which is a different length — without the reservation the
-              whole hero below it jumps, and this sits directly under the LCP
-              element. Three lines' worth (~95px) covers both variants at the
-              narrowest desktop width. */}
-          <p style={{ color:'var(--muted)', fontSize:18, lineHeight:1.75, maxWidth:480, marginBottom:36, minHeight:95 }}>
-            {content?.heroSubheading || 'Premium Himalayan water, bottled with your logo. Trusted by 500+ brands for corporate events, hotels, offices, and more.'}
+  useHeroParallax(artRef)
+
+  return (
+    <section id="hero" className="hero" style={{ paddingTop: NAV_CLEAR }}>
+      {/* Deliberately empty behind the art. This carried a teal Himalayan
+          mountain silhouette and two glow orbs; against them the artwork had
+          nothing to be brighter than, and the whole hero read flat. The only
+          light in here now comes off the water. */}
+      <div className="hero-vignette" aria-hidden="true" />
+
+      <div className="hero-copy">
+        {content?.badge && !geo?.loading && (
+          <div className="hero-enter hero-enter-1" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(62,207,191,0.1)', border:'1px solid rgba(62,207,191,0.3)', borderRadius:50, padding:'6px 16px', marginBottom:12 }}>
+            <span style={{ width:8, height:8, borderRadius:'50%', background:'#3ecfbf', display:'inline-block', boxShadow:'0 0 6px rgba(62,207,191,0.45)' }} />
+            <span style={{ fontSize:13, color:'var(--aqua)', fontWeight:500 }}>{content.badge}</span>
+          </div>
+        )}
+
+        {/* Never animated, by anything. It is the LCP element, so it paints at
+            full opacity on the first frame — see .hero-enter in styles.js. */}
+        <h1 className="hero-h1" id="main-heading">
+          Pure Water.<br />
+          <span style={{ color:'var(--aqua)' }}>Your Brand.</span>
+        </h1>
+
+        {/* The reservation lives in .hero-sub rather than an inline minHeight,
+            because it has to change with the measure. The ipapi.co lookup lands
+            ~1.7s after first paint and swaps this copy for the regional one,
+            which is a different length; without a reservation tall enough for
+            the LONGER of the two, everything below it jumps. Three lines (95px)
+            covers both across the desktop measures this paragraph actually gets
+            (405–470px), but a phone gives it ~350px and four lines, so the
+            stylesheet raises it there. Inline it could not. */}
+        <div className="hero-sub hero-enter hero-enter-2">
+          {/* No inline fallback string. useGeoContent always returns a
+              GEO_CONTENT entry, so this can never be empty — and the fallback
+              that used to sit here claimed "Trusted by 500+ brands", the same
+              invented number the stats row above was removed for. Dead code is
+              not a safe place to keep a claim nobody can stand behind. */}
+          <p style={{ color:'var(--muted)', fontSize:18, lineHeight:1.75, maxWidth:470 }}>
+            {content?.heroSubheading}
           </p>
-          <div style={{ display:'flex', gap:16, flexWrap:'wrap', marginBottom:48 }}>
-            <a href="/products#customizer" style={{
+        </div>
+
+        <SampleRequestBar />
+
+        <div className="hero-enter hero-enter-4" style={{ display:'flex', gap:16, flexWrap:'wrap' }}>
+          <m.a href="/products#customizer"
+            whileHover={{ y: -3, boxShadow: '0 14px 40px rgba(62,207,191,0.42)' }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            style={{
               display:'inline-block', textDecoration:'none',
               background:'linear-gradient(135deg, var(--aqua), var(--aqua-dim))', border:'none',
-              borderRadius:50, padding:'14px 32px', color:'var(--navy)', fontFamily:'DM Sans, sans-serif',
-              fontWeight:600, fontSize:15, cursor:'pointer', transition:'all 0.3s',
+              borderRadius:50, padding:'15px 34px', color:'var(--navy)', fontFamily:'DM Sans, sans-serif',
+              fontWeight:600, fontSize:15, cursor:'pointer',
               boxShadow:'0 8px 30px rgba(62,207,191,0.3)'
             }}
-              onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'}
-              onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}
-            >Design Your Bottle →</a>
-            <a href="/products" style={{
+          >Design Your Bottle →</m.a>
+          <m.a href="/products"
+            whileHover={{ y: -3, backgroundColor: 'rgba(62,207,191,0.09)', borderColor: 'rgba(62,207,191,0.75)' }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            style={{
               display:'inline-block', textDecoration:'none',
-              background:'transparent', border:'1px solid rgba(62,207,191,0.4)',
-              borderRadius:50, padding:'14px 32px', color:'var(--aqua)', fontFamily:'DM Sans, sans-serif',
-              fontWeight:500, fontSize:15, cursor:'pointer', transition:'all 0.3s'
+              backgroundColor:'rgba(62,207,191,0)', border:'1px solid rgba(62,207,191,0.4)',
+              borderRadius:50, padding:'15px 34px', color:'var(--aqua)', fontFamily:'DM Sans, sans-serif',
+              fontWeight:500, fontSize:15, cursor:'pointer'
             }}
-              onMouseEnter={e => { e.currentTarget.style.background='rgba(62,207,191,0.08)'; e.currentTarget.style.transform='translateY(-2px)' }}
-              onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.transform='translateY(0)' }}
-            >View Products</a>
-          </div>
-
-          {/* Stats */}
-          <div style={{ display:'flex', gap:36, flexWrap:'wrap' }}>
-            {[['500+','Brands Served'],['2Cr+','Bottles Delivered'],['48hr','Design Turnaround']].map(([num,label]) => (
-              <div key={label}>
-                <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:32, fontWeight:700, color:'var(--aqua)' }}>{num}</div>
-                <div style={{ fontSize:13, color:'var(--muted)', fontWeight:500 }}>{label}</div>
-              </div>
-            ))}
-          </div>
+          >View Products</m.a>
         </div>
 
-        {/* Right — bottle trio */}
-        <div className="hero-bottles" style={{ display:'flex', justifyContent:'center', alignItems:'flex-end', gap:16, paddingBottom:40 }}>
-          <div style={{ marginBottom: 40 }}>
-            <BottleSVG color="#3ecfbf" label="500ml" size={240} animationClass="floatA 3.5s ease-in-out infinite" />
-          </div>
-          <div style={{ marginBottom: 0 }}>
-            <BottleSVG color="#c8a44a" label="250ml" size={280} animationClass="floatB 4s ease-in-out infinite" />
-          </div>
-          <div style={{ marginBottom: 60 }}>
-            <BottleSVG color="#5b8ff9" label="1L" size={220} animationClass="floatC 3.8s ease-in-out infinite" />
-          </div>
-        </div>
-
-        {/* Mobile single bottle */}
-        <div className="hero-bottle-single" style={{ display:'none', justifyContent:'center' }}>
-          <BottleSVG color="#3ecfbf" label="500ml" size={260} animationClass="floatB 4s ease-in-out infinite" />
-        </div>
       </div>
 
-      {/* Sample request bar */}
-      <SampleRequestBar />
+      {/* After the copy in the DOM so it stacks below on a phone, where it stops
+          being absolutely positioned. fetchpriority high because this is almost
+          certainly the LCP element at desktop widths and there is no point
+          discovering it late. */}
+      <img
+        ref={artRef}
+        className="hero-art"
+        src={ART.src}
+        width={ART.width}
+        height={ART.height}
+        alt="Three AquaVia bottles — 250ml, 500ml and 1 litre — with custom-branded labels, standing in water."
+        fetchPriority="high"
+        decoding="async"
+      />
     </section>
   )
 }
 
+/**
+ * The low-commitment ask.
+ *
+ * Sits above the two CTAs rather than closing the hero. The sample request is
+ * the smallest thing anyone here can say yes to, so it reads better as the
+ * option offered before the commitment than as a footnote after it — and it no
+ * longer has to be positioned against the hero's own height, which is what kept
+ * pushing it below the fold.
+ */
 function SampleRequestBar() {
   return (
-    <div style={{
-      position:'absolute', bottom:0, left:0, right:0,
-      background:'linear-gradient(90deg, rgba(200,164,74,0.12), rgba(200,164,74,0.05))',
-      borderTop:'1px solid rgba(200,164,74,0.25)', borderBottom:'1px solid rgba(200,164,74,0.25)',
-      padding:'14px 5%', display:'flex', alignItems:'center', gap:16, zIndex:2, flexWrap:'wrap'
-    }}>
-      <span style={{ color:'var(--gold)', fontSize:14 }}>✦ Try before you commit —</span>
-      <a href="/contact" style={{
-        display:'inline-block', textDecoration:'none',
-        background:'transparent', border:'1px solid rgba(200,164,74,0.5)', borderRadius:50,
-        padding:'7px 20px', color:'var(--gold)', fontFamily:'DM Sans, sans-serif',
-        fontSize:13, fontWeight:600, cursor:'pointer', transition:'all 0.3s'
-      }}
-        onMouseEnter={e => e.currentTarget.style.background='rgba(200,164,74,0.12)'}
-        onMouseLeave={e => e.currentTarget.style.background='transparent'}
-      >Request a Sample Bottle →</a>
+    <div className="sample-card glass hero-enter hero-enter-3">
+      <div className="sample-cell">
+        <span className="sample-icon"><SparkleIcon size={24} /></span>
+        <span>
+          <span className="sample-title">Try before you commit</span>
+          <span className="sample-note">Quality you can trust.</span>
+        </span>
+      </div>
+      <div className="sample-cell">
+        <span className="sample-icon"><BottleIcon size={24} /></span>
+        <span>
+          <a className="sample-title" href="/contact">Request a Sample Bottle →</a>
+          <span className="sample-note">Experience the Aquavia difference.</span>
+        </span>
+      </div>
     </div>
   )
 }

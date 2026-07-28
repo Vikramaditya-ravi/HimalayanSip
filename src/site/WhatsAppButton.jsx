@@ -1,41 +1,56 @@
+import * as m from 'motion/react-m'
+
 import { useGeo } from './hooks'
 
-// ─── WhatsApp Button ──────────────────────────────────────────────────────────
+/**
+ * Floating WhatsApp entry point.
+ *
+ * WhatsApp green, not the site's teal. It was briefly teal to sit inside the
+ * palette, and that is exactly what was wrong with it: the glyph plus the brand
+ * green is the whole reason this button is recognised without being read, and a
+ * teal circle with a speech bubble in it is just a chat widget.
+ *
+ * No text label either — the mark carries the meaning, and the label was only
+ * ever restating it.
+ */
 export function WhatsAppButton() {
   const { content } = useGeo()
   const msg = encodeURIComponent(content?.whatsappMsg || "Hi! I'm interested in customized water bottles for my business.")
   const handleClick = () => window.open(`https://wa.me/917624803460?text=${msg}`)
   return (
-    <>
-      {/* Ripple ring */}
-      <div style={{
-        position:'fixed', bottom:28, right:28, zIndex:9998,
-        width:58, height:58, borderRadius:'50%',
-        border:'2px solid rgba(37,211,102,0.5)',
-        animation:'ripple 2s ease-out infinite', pointerEvents:'none'
-      }} />
-      {/* Button */}
-      <button
-        onClick={handleClick}
-        // window.open() means there is no href for the delegated listener to
-        // sniff, so the intent is declared explicitly.
-        data-evt="contact_intent_clicked"
-        data-evt-props={JSON.stringify({ channel: 'whatsapp', placement: 'floating' })}
-        aria-label="Contact via WhatsApp"
-        style={{
-          position:'fixed', bottom:28, right:28, zIndex:9999,
-          width:58, height:58, borderRadius:'50%',
-          background:'linear-gradient(135deg, #25d366, #1aad52)',
-          boxShadow:'0 6px 24px rgba(37,211,102,0.25)',
-          display:'flex', alignItems:'center', justifyContent:'center',
-          cursor:'pointer', animation:'waBounce 2.5s ease-in-out infinite',
-          border:'none', padding:0
-        }}
-      >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-      </button>
-    </>
+    <div style={{ position:'fixed', bottom:26, right:26, zIndex:9999 }}>
+      <div style={{ position:'relative', width:58, height:58 }}>
+        {/* Ripple ring */}
+        <div style={{
+          position:'absolute', inset:0,
+          borderRadius:'50%', border:'2px solid rgba(37,211,102,0.5)',
+          animation:'ripple 2s ease-out infinite', pointerEvents:'none'
+        }} />
+        {/* Button */}
+        <m.button
+          onClick={handleClick}
+          // window.open() means there is no href for the delegated listener to
+          // sniff, so the intent is declared explicitly.
+          data-evt="contact_intent_clicked"
+          data-evt-props={JSON.stringify({ channel: 'whatsapp', placement: 'floating' })}
+          aria-label="Contact via WhatsApp"
+          whileHover={{ scale: 1.08, boxShadow: '0 10px 34px rgba(37,211,102,0.42)' }}
+          whileTap={{ scale: 0.94 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+          style={{
+            position:'absolute', inset:0,
+            width:58, height:58, borderRadius:'50%',
+            background:'linear-gradient(135deg, #25d366, #1aad52)',
+            boxShadow:'0 6px 24px rgba(37,211,102,0.3)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            cursor:'pointer', border:'none', padding:0
+          }}
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true" focusable="false">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+        </m.button>
+      </div>
+    </div>
   )
 }

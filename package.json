@@ -21,6 +21,7 @@
     "@anthropic-ai/sdk": "^0.112.3",
     "@prisma/client": "^5.22.0",
     "@vercel/edge": "^1.2.1",
+    "motion": "^12.43.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -31,6 +32,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "embedded-postgres": "^18.4.0-beta.17",
     "prisma": "^5.22.0",
+    "sharp": "^0.35.3",
     "typescript": "^5.6.3",
     "vite": "^5.4.2",
     "vitest": "^2.1.5"

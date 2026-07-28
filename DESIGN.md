@@ -2,7 +2,8 @@
 name: AquaVia
 description: Premium Himalayan-sourced branded water for India's leading businesses
 colors:
-  abyssal-navy: "#04101f"
+  abyssal-navy: "#080D16"
+  abyssal-navy-grad-end: "#0B1A23"
   navy-mid: "#081b35"
   navy-card: "#0b2244"
   glacial-melt: "#3ecfbf"
@@ -39,9 +40,19 @@ typography:
 rounded:
   sm: "8px"
   md: "12px"
+  glass: "16px"
   lg: "20px"
   xl: "24px"
   pill: "50px"
+glass:
+  fill: "rgba(255,255,255,0.05)"
+  border: "rgba(255,255,255,0.10)"
+  blur: "12px"
+  # Stated opaque first, upgraded to the translucent fill inside an @supports
+  # block. Without backdrop-filter, a 5%-white pane over live page content has
+  # no contrast at all — the degrade has to cost depth, never legibility.
+  fallback: "rgba(11,26,35,0.86)"
+navClearance: "92px"   # 14px inset + 64px pill + 14px breathing room
 spacing:
   xs: "8px"
   sm: "16px"
@@ -148,7 +159,16 @@ Note: both families appear on common font reflex-reject lists. They are preserve
 
 **The Floor Rule.** Cormorant Garamond is never used below 18px in any context. Below that size, the stroke contrast collapses and the letterforms look damaged against a dark field.
 
-**The Stat Rule.** Hero metric numbers (500+, 2Cr+, 48hr) are always Cormorant Garamond 700 at 32px or larger with Glacial Melt as the color. The supporting label is DM Sans 13px Arctic Haze. This is the one place where a number-plus-label structure is permitted; it reads as editorial data, not SaaS metrics dashboard.
+**The Stat Rule.** *(No stat row currently ships.)* The hero previously carried a
+500+ / 2Cr+ / 48hr metric row. It was removed on 2026-07-29 because the numbers
+were placeholders that had never been substantiated, and a metric nobody can
+stand behind is worse than no metric.
+
+If a stat row returns, every number in it must be one the business can evidence,
+and the treatment is: Cormorant Garamond 700 at 32px or larger in Glacial Melt,
+label in DM Sans 13px Arctic Haze. This is the one place a number-plus-label
+structure is permitted; it should read as editorial data, not a SaaS metrics
+dashboard.
 
 ## 4. Elevation
 

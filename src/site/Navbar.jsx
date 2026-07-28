@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence } from 'motion/react'
+import * as m from 'motion/react-m'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SiteSearch } from '../SiteSearch.jsx'
 import { BROCHURE_URL, NAV_LINKS, SEARCH_INDEX, SECTION_ROUTES, currentPath } from './data'
@@ -37,42 +39,155 @@ const WATERLINE = (fill) => (64 - fill * 125).toFixed(2)
  * transform attribute by the scroll handler, so scrolling never re-renders
  * React.
  */
+/** Ring the droplet sits inside, centred on the droplet's own visual centre. */
+const RING_CY = 5
+const RING_R = 70
+
+/**
+ * Light points around the emblem: angle in degrees, distance from the ring
+ * centre, radius, and the delay that staggers each across the shared 3.2s
+ * `twinkle` cycle so they never pulse in unison.
+ *
+ * These live in SVG user units rather than as absolutely-positioned spans, so
+ * they scale with the mark instead of needing their pixel offsets retuned every
+ * time its rendered height changes.
+ */
+const RAYS = [
+  { a: -90, r: RING_R, s: 3.4, d: 0 },
+  { a: -34, r: RING_R, s: 2.4, d: 0.5 },
+  { a: 22, r: RING_R, s: 2.9, d: 1.0 },
+  { a: 92, r: RING_R, s: 2.4, d: 1.5 },
+  { a: 150, r: RING_R, s: 2.9, d: 2.0 },
+  { a: -148, r: RING_R, s: 2.4, d: 2.6 },
+  { a: -62, r: 84, s: 2.6, d: 0.8 },
+  { a: 137, r: 83, s: 2.1, d: 1.8 },
+  { a: -118, r: 82, s: 2.1, d: 2.4 },
+]
+
+const polar = (a, r) => [
+  (r * Math.cos((a * Math.PI) / 180)).toFixed(2),
+  (RING_CY + r * Math.sin((a * Math.PI) / 180)).toFixed(2),
+]
+
 function BrandLockup({ waterRef }) {
   return (
     <>
-      <svg className="brand-drop" viewBox="-48 -61 96 131" aria-hidden="true" focusable="false">
-        <defs>
-          <linearGradient id="bm-water" x1="0" y1="0" x2="0.4" y2="1">
-            <stop offset="0%" stopColor="#5CE0CC" />
-            <stop offset="100%" stopColor="#13A89E" />
-          </linearGradient>
-          <clipPath id="bm-clip"><path d={DROPLET} /></clipPath>
-        </defs>
+      <span className="brand-mark">
+        <svg className="brand-drop" viewBox="-92 -87 184 184" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="bm-water" x1="0" y1="0" x2="0.4" y2="1">
+              <stop offset="0%" stopColor="#5CE0CC" />
+              <stop offset="100%" stopColor="#13A89E" />
+            </linearGradient>
+            <clipPath id="bm-clip"><path d={DROPLET} /></clipPath>
+            {/* Halo behind the droplet. A radial gradient rather than a
+                feGaussianBlur: same look, no filter region to manage, and no
+                per-frame blur cost on an element that sits on every page. */}
+            <radialGradient id="bm-halo">
+              <stop offset="0%" stopColor="#3ecfbf" stopOpacity="0.34" />
+              <stop offset="55%" stopColor="#3ecfbf" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="#3ecfbf" stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-        {/* the empty part of the vessel — faint, but never nothing */}
-        <path d={DROPLET} fill="rgba(62,207,191,0.10)" />
+          <circle cx="0" cy={RING_CY} r="86" fill="url(#bm-halo)" />
 
-        {/* the water. A slab far taller than the droplet, topped with a gentle
-            meniscus, clipped to the silhouette and slid down by (1 - fill). The
-            slab has to overshoot in both directions or the bottom edge lifts
-            into view once the level gets high. */}
-        <g clipPath="url(#bm-clip)">
-          <path ref={waterRef} className="brand-water" fill="url(#bm-water)"
-            transform={`translate(0 ${WATERLINE(0.35)})`}
-            d="M -48 0 Q -24 -7, 0 0 T 48 0 L 48 200 L -48 200 Z" />
-        </g>
+          {/* The ring, and a fainter one inside it. Two weights rather than one
+              heavy stroke — the emblem has to read at 54px, and a single thick
+              circle at that size closes up into a disc. */}
+          <circle className="brand-ring" cx="0" cy={RING_CY} r={RING_R}
+            fill="none" stroke="var(--aqua)" strokeWidth="2.6" strokeOpacity="0.82" />
+          <circle cx="0" cy={RING_CY} r={RING_R - 9}
+            fill="none" stroke="var(--aqua)" strokeWidth="1" strokeOpacity="0.2" />
 
-        <path d={DROPLET} fill="none" stroke="var(--aqua)" strokeWidth="4" strokeOpacity="0.85" />
-      </svg>
-      <span className="brand-word">AQUAVIA</span>
+          {RAYS.map((p, i) => {
+            const [cx, cy] = polar(p.a, p.r)
+            // svg-anim supplies transform-box: fill-box, without which the
+            // twinkle scale would pivot on the viewBox origin and fling each
+            // point across the mark instead of pulsing it in place.
+            return (
+              <circle key={i} className="brand-ray svg-anim" cx={cx} cy={cy} r={p.s}
+                fill="var(--aqua)" style={{ animationDelay: `${p.d}s` }} />
+            )
+          })}
+
+          {/* the empty part of the vessel — faint, but never nothing */}
+          <path d={DROPLET} fill="rgba(62,207,191,0.10)" />
+
+          {/* the water. A slab far taller than the droplet, topped with a gentle
+              meniscus, clipped to the silhouette and slid down by (1 - fill). The
+              slab has to overshoot in both directions or the bottom edge lifts
+              into view once the level gets high. */}
+          <g clipPath="url(#bm-clip)">
+            <path ref={waterRef} className="brand-water" fill="url(#bm-water)"
+              transform={`translate(0 ${WATERLINE(0.35)})`}
+              d="M -48 0 Q -24 -7, 0 0 T 48 0 L 48 200 L -48 200 Z" />
+          </g>
+
+          <path d={DROPLET} fill="none" stroke="var(--aqua)" strokeWidth="4" strokeOpacity="0.85" />
+        </svg>
+
+        {/* The emblem's reflection, sitting below the pill. Three arcs rather
+            than full ellipses, masked to fade at both ends, so it reads as a
+            disturbance on a surface and not as a stack of rings. */}
+        <svg className="brand-ripple" viewBox="0 0 120 30" aria-hidden="true" focusable="false">
+          <ellipse cx="60" cy="9" rx="26" ry="5" fill="none" stroke="var(--aqua)" strokeWidth="1.1" strokeOpacity="0.5" />
+          <ellipse cx="60" cy="14" rx="42" ry="8" fill="none" stroke="var(--aqua)" strokeWidth="1" strokeOpacity="0.3" />
+          <ellipse cx="60" cy="19" rx="57" ry="10" fill="none" stroke="var(--aqua)" strokeWidth="0.9" strokeOpacity="0.16" />
+        </svg>
+      </span>
+      <span className="brand-text">
+        <span className="brand-word">AQUAVIA</span>
+        <span className="brand-sub">Premium Packaged Drinking Water</span>
+      </span>
     </>
   )
+}
+
+const COMPACT_QUERY = '(max-width: 900px)'
+
+/**
+ * Whether the bar is too narrow to hold the six links inline.
+ *
+ * This decides which of the two layouts is *rendered*, rather than rendering
+ * both and hiding one in CSS — which is what the bar used to do, via
+ * `.nav-links { display: none }`. Two reasons it has to work this way now:
+ * SiteSearch renders `id="site-search"` with a matching <label for>, so a
+ * second hidden copy would put a duplicate id in the document and break the
+ * association for whichever the browser resolved first; and a display:none
+ * drawer is still in the tab order's DOM, so keyboard users would tab into
+ * invisible links.
+ *
+ * Defaults to `false` when there is no window. The pages ARE rendered without
+ * one — src/analytics/__tests__/render.test.tsx runs every route through
+ * renderToString — and `false` is the right answer there rather than merely the
+ * safe one: it emits all six nav links as real anchors. Defaulting to compact
+ * would render a burger button and no links at all, which is exactly the
+ * "rendered page with zero internal links" problem the anchors were introduced
+ * to fix. The effect below corrects the value on a real client.
+ */
+function useCompact() {
+  const [compact, setCompact] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(COMPACT_QUERY).matches,
+  )
+  useEffect(() => {
+    const mq = window.matchMedia(COMPACT_QUERY)
+    const onChange = (e) => setCompact(e.matches)
+    mq.addEventListener('change', onChange)
+    setCompact(mq.matches)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return compact
 }
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
   const waterRef = useRef(null)
+  const drawerRef = useRef(null)
+  const burgerRef = useRef(null)
+  const compact = useCompact()
 
   useEffect(() => {
     // The gauge is the only thing in the bar that moves. If motion is unwelcome,
@@ -111,6 +226,63 @@ export function Navbar() {
     }
   }, [])
 
+  // Widening the viewport past the breakpoint has to close the drawer, or it
+  // stays mounted and floating over a bar that has already grown its inline
+  // links back.
+  useEffect(() => { if (!compact) setOpen(false) }, [compact])
+
+  const close = useCallback((refocus) => {
+    setOpen(false)
+    if (refocus) burgerRef.current?.focus()
+  }, [])
+
+  /**
+   * Drawer keyboard and pointer behaviour, mounted only while it is open.
+   *
+   * The trap is a plain wrap-around over the drawer's own focusables plus the
+   * burger — the burger is included deliberately, so Shift+Tab from the first
+   * link lands on the control that opened the panel rather than jumping behind
+   * it into the page.
+   */
+  useEffect(() => {
+    if (!open) return
+
+    const focusables = () => {
+      const inDrawer = drawerRef.current
+        ? Array.from(drawerRef.current.querySelectorAll('a[href], button:not([disabled]), input:not([disabled])'))
+        : []
+      return burgerRef.current ? [burgerRef.current, ...inDrawer] : inDrawer
+    }
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') { close(true); return }
+      if (e.key !== 'Tab') return
+      const items = focusables()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+
+    const onPointerDown = (e) => {
+      if (drawerRef.current?.contains(e.target)) return
+      if (burgerRef.current?.contains(e.target)) return
+      close(false)
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('mousedown', onPointerDown)
+    // Focus the first link rather than the panel itself, so a screen reader
+    // announces a destination instead of an empty group.
+    drawerRef.current?.querySelector('a[href]')?.focus()
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('mousedown', onPointerDown)
+    }
+  }, [open, close])
+
   // Read once: this is a multi-page app, so the path cannot change without a
   // full document load, and there is no history event to subscribe to.
   const here = currentPath()
@@ -138,77 +310,138 @@ export function Navbar() {
     window.location.href = `${route}#${sectionId}`
   }
 
-  return (
-    <nav className={scrolled ? 'nav-scrolled' : ''} style={{
-      position: 'fixed', top: 0, width: '100%', zIndex: 1000, height: 72,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 5%', transition: 'all 0.4s ease', background: 'transparent'
-    }}>
-      {/* Logo */}
-      <a className="brand-lockup" href="/" aria-label="AquaVia — home">
-        <BrandLockup waterRef={waterRef} />
+  /* Real anchors pointing at real routes. These were <button onClick={scrollTo}>,
+     which left the rendered page with zero internal links — Google could see
+     none of the site's structure and the page could not earn sitelinks. Now
+     every one of them is a crawlable edge in the site graph, and middle-click /
+     "open in new tab" work the way they should. */
+  const links = NAV_LINKS.map(({ href, label }) => {
+    const active = href === here
+    return (
+      <a key={href} className="nav-link" href={href}
+        aria-current={active ? 'page' : undefined}
+        onClick={() => close(false)}
+      >
+        {label}
+        {active && !compact && <span className="nav-link-dot" aria-hidden="true" />}
       </a>
+    )
+  })
 
-      {/* Nav links
-          Real anchors pointing at real routes. These were <button onClick={scrollTo}>,
-          which left the rendered page with zero internal links — Google could
-          see none of the site's structure and the page could not earn
-          sitelinks. Now every one of them is a crawlable edge in the site graph,
-          and middle-click / "open in new tab" work the way they should. */}
-      <div className="nav-links" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-        {NAV_LINKS.map(({ href, label }) => {
-          const active = href === here
-          // The active link borrows the existing hover colour rather than
-          // introducing a new treatment, so nothing about the bar looks new.
-          const restColor = active ? 'var(--white)' : 'var(--muted)'
-          return (
-            <a key={href} href={href}
-              aria-current={active ? 'page' : undefined}
-              style={{
-                background: 'none', border: 'none', color: restColor, fontSize: 14,
-                fontFamily: 'DM Sans, sans-serif', fontWeight: 500, cursor: 'pointer',
-                transition: 'color 0.2s',
-                padding: '4px 0', textDecoration: 'none'
-              }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'}
-              // Resets to the resting colour for THIS link, not unconditionally
-              // to muted — otherwise hovering the active link demotes it.
-              onMouseLeave={e => e.currentTarget.style.color = restColor}
-            >{label}</a>
-          )
-        })}
-        <SiteSearch index={SEARCH_INDEX} onNavigate={navigate} />
-      </div>
-
-      {/* One CTA. The brochure is now the single primary action in the bar, so it
-          takes the solid gradient pill and survives on mobile (the label collapses
-          to the icon below 768px — see .nav-brochure). The contact path is still
-          one tap away via the nav links and the footer. */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <a
-          className="nav-brochure dl-btn"
-          href={BROCHURE_URL}
-          download
-          target="_blank"
-          rel="noopener"
-          aria-label="Download the pricing brochure (PDF)"
-          data-evt="pricing_brochure_downloaded"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap',
-            background: 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
-            border: 'none', borderRadius: 50, padding: '10px 22px',
-            color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
-            fontSize: 14, cursor: 'pointer', textDecoration: 'none',
-            boxShadow: '0 4px 16px rgba(62,207,191,0.18)',
-            transition: 'transform 0.3s, box-shadow 0.3s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(62,207,191,0.28)' }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(62,207,191,0.18)' }}
-        >
-          <DownloadIcon />
-          <span className="nav-brochure-label">Brochure</span>
+  return (
+    <>
+      <nav className={`nav-bar glass${scrolled ? ' nav-scrolled' : ''}`}>
+        {/* Logo */}
+        <a className="brand-lockup" href="/" aria-label="AquaVia — home">
+          <BrandLockup waterRef={waterRef} />
         </a>
-      </div>
-    </nav>
+
+        {!compact && (
+          <div className="nav-links" style={{ display: 'flex', gap: 30, alignItems: 'center' }}>
+            {links}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Search lives in the bar on desktop and inside the drawer on
+              mobile — one instance either way, never both. */}
+          {!compact && <SiteSearch index={SEARCH_INDEX} onNavigate={navigate} />}
+
+          {/* One CTA. The brochure is the single primary action in the bar, so
+              it takes the solid gradient pill and survives on mobile (the label
+              collapses to the icon below 768px — see .nav-brochure). The
+              contact path is still one tap away via the nav links and footer. */}
+          <m.a
+            className="nav-brochure dl-btn"
+            href={BROCHURE_URL}
+            download
+            target="_blank"
+            rel="noopener"
+            aria-label="Download the pricing brochure (PDF)"
+            data-evt="pricing_brochure_downloaded"
+            whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(62,207,191,0.28)' }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap',
+              background: 'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
+              border: 'none', borderRadius: 50, padding: '10px 22px',
+              color: 'var(--navy)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600,
+              fontSize: 14, cursor: 'pointer', textDecoration: 'none',
+              boxShadow: '0 4px 16px rgba(62,207,191,0.18)',
+            }}
+          >
+            <DownloadIcon />
+            <span className="nav-brochure-label">Brochure</span>
+          </m.a>
+
+          {compact && (
+            <button
+              ref={burgerRef}
+              type="button"
+              className="nav-burger"
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              aria-expanded={open}
+              aria-controls="nav-drawer"
+              onClick={() => (open ? close(false) : setOpen(true))}
+            >
+              <BurgerIcon open={open} />
+            </button>
+          )}
+        </div>
+      </nav>
+
+      <AnimatePresence>
+        {compact && open && (
+          <m.div
+            id="nav-drawer"
+            ref={drawerRef}
+            className="nav-drawer glass"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="nav-drawer-inner">
+              {links}
+              <div style={{ padding: '10px 14px 4px' }}>
+                <SiteSearch index={SEARCH_INDEX} onNavigate={navigate} />
+              </div>
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
+/**
+ * Burger / close glyph. Two bars that cross, rather than three that collapse —
+ * with only two strokes both states are the same two elements at different
+ * angles, so nothing has to fade in or out of nowhere.
+ *
+ * Plain spans rather than SVG paths on purpose. Morphing a path's `d` needs the
+ * two strings to share a command structure and is not something the
+ * domAnimation feature bundle guarantees, and SVG transform-origin resolves
+ * against the viewBox rather than the element unless transform-box is set.
+ * A div rotates about its own centre with no such caveats.
+ */
+const BURGER_BAR = {
+  position: 'absolute', left: '50%', top: '50%',
+  width: 16, height: 1.8, marginLeft: -8, marginTop: -0.9,
+  borderRadius: 2, background: 'currentColor',
+}
+
+function BurgerIcon({ open }) {
+  const spring = { type: 'spring', stiffness: 500, damping: 34 }
+  return (
+    <span style={{ position: 'relative', display: 'block', width: 20, height: 20 }} aria-hidden="true">
+      <m.span style={{ ...BURGER_BAR }}
+        animate={open ? { rotate: 45, y: 0 } : { rotate: 0, y: -4 }}
+        transition={spring} />
+      <m.span style={{ ...BURGER_BAR }}
+        animate={open ? { rotate: -45, y: 0 } : { rotate: 0, y: 4 }}
+        transition={spring} />
+    </span>
   )
 }

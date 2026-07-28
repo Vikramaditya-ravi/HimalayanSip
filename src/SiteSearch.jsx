@@ -95,12 +95,16 @@ export function SiteSearch({ index, onNavigate }) {
         onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false) }}
         aria-expanded={showPanel}
         aria-controls="site-search-results"
-        style={{
-          background: 'rgba(11,34,68,0.7)', border: '1px solid var(--glass-border)',
-          borderRadius: 50, padding: '8px 16px', color: 'var(--white)',
-          fontFamily: 'DM Sans, sans-serif', fontSize: 14, width: 150, outline: 'none',
-        }}
+        className="site-search-input"
       />
+      {/* Decorative: the input already has a visible label association and a
+          placeholder, so the glyph is not carrying any meaning of its own. */}
+      <svg className="site-search-icon" width="15" height="15" viewBox="0 0 20 20" fill="none"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+        aria-hidden="true" focusable="false">
+        <circle cx="9" cy="9" r="6" />
+        <path d="M13.5 13.5 L17 17" />
+      </svg>
 
       {showPanel && (
         <div

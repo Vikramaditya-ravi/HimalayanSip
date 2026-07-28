@@ -1,3 +1,4 @@
+import { LazyMotion, MotionConfig, domAnimation } from 'motion/react'
 import { useEffect } from 'react'
 
 import { ConsentBanner } from '../analytics/consent.jsx'
@@ -8,7 +9,7 @@ import { Navbar } from './Navbar.jsx'
 import { WhatsAppButton } from './WhatsAppButton.jsx'
 import { ROUTES, SITE_URL } from './data'
 import { GeoContext, useGeoContent, useGeoTarget, useSEO } from './hooks'
-import { useGlobalStyles } from './styles'
+import { NAV_CLEAR, useGlobalStyles } from './styles'
 
 /**
  * Everything every route shares.
@@ -70,7 +71,7 @@ export function PageShell({ route, padTop = true, children }) {
     // 'instant' because the deep link IS the destination — animating a scroll
     // the visitor did not initiate, under html { scroll-behavior: smooth }, would
     // sweep them through the whole page to get there.
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 96, behavior: 'instant' })
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - NAV_CLEAR, behavior: 'instant' })
   }, [])
 
   useEffect(() => {
@@ -91,16 +92,28 @@ export function PageShell({ route, padTop = true, children }) {
   }, [])
 
   return (
-    <GeoContext.Provider value={{ geo, content }}>
-      <div role="main" style={{ fontFamily:'DM Sans, sans-serif' }}>
-        <Navbar />
-        <div style={padTop ? { paddingTop: 72 } : undefined}>
-          {children}
-        </div>
-        <Footer />
-        <WhatsAppButton />
-        <ConsentBanner />
-      </div>
-    </GeoContext.Provider>
+    /* `strict` makes any `motion.*` import throw and forces the `m.*` form, so
+       the LazyMotion feature bundle stays the thing that decides what ships.
+       One careless `import { motion }` would otherwise pull the full feature
+       set back into every route's chunk without any visible symptom.
+
+       reducedMotion="user" is not optional here: the blanket
+       prefers-reduced-motion rule in styles.js only zeroes CSS animation
+       durations, and has no effect whatsoever on JS-driven transforms. */
+    <LazyMotion features={domAnimation} strict>
+      <MotionConfig reducedMotion="user">
+        <GeoContext.Provider value={{ geo, content }}>
+          <div role="main" style={{ fontFamily:'DM Sans, sans-serif' }}>
+            <Navbar />
+            <div style={padTop ? { paddingTop: NAV_CLEAR } : undefined}>
+              {children}
+            </div>
+            <Footer />
+            <WhatsAppButton />
+            <ConsentBanner />
+          </div>
+        </GeoContext.Provider>
+      </MotionConfig>
+    </LazyMotion>
   )
 }

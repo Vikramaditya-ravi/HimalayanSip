@@ -33,7 +33,7 @@
     <meta name="keywords" content="custom water bottles Delhi, branded water bottles Delhi NCR, corporate water bottle Gurugram, bulk water bottle Noida" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="AquaVia" />
-    <meta name="theme-color" content="#04101f" />
+    <meta name="theme-color" content="#080D16" />
     <link rel="canonical" href="https://www.aquaviaworld.com/" />
 
     <meta property="og:title" content="Custom Branded Water Bottles Delhi NCR | AquaVia" />
@@ -60,11 +60,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" />
 
+    <!--
+      The hero artwork is the LCP element at desktop widths — it is a larger
+      painted area than the H1, and no amount of tuning changes that without
+      shrinking it out of the design.
+
+      So the goal is not to avoid being LCP, it is to be LCP early. This page is
+      client-rendered: the <img> does not exist until the bundle has parsed and
+      React has committed, around 1.7s, and only then does the browser start
+      fetching it. This tag moves that discovery to the first byte, exactly as
+      the font tags above do and for the same measured reason.
+
+      Home only. The other five routes do not render this image, and preloading
+      it there would download 190 KB nobody looks at.
+    -->
+    <link rel="preload" as="image" href="/hero-bottles.webp" type="image/webp" fetchpriority="high" />
+
     <script type="application/ld+json" id="hs-schema">
 [{"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.aquaviaworld.com/#business","name":"AquaVia","description":"Premium customized branded bottled water solutions for businesses in Delhi NCR","url":"https://www.aquaviaworld.com/","image":"https://www.aquaviaworld.com/og-cover.jpg","logo":"https://www.aquaviaworld.com/aquavia-logo.png","telephone":"+91-76248-03460","email":"info@aquaviaworld.com","priceRange":"₹₹","currenciesAccepted":"INR","paymentAccepted":"Cash, Credit Card, UPI, Bank Transfer","areaServed":{"@type":"City","name":"Delhi NCR"},"address":{"@type":"PostalAddress","addressLocality":"New Delhi","addressRegion":"Delhi","postalCode":"110001","addressCountry":"IN"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:00","closes":"18:00"}],"sameAs":["https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0","https://www.linkedin.com/company/aquavia"]}]
     </script>
   </head>
-  <body style="margin:0;padding:0;background:#04101f;">
+  <body style="margin:0;padding:0;background:#080D16;">
     <div id="root">
       <!--
         Static fallback for crawlers that never run the bundle. React replaces

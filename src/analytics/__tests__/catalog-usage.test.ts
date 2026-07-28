@@ -8,9 +8,10 @@ import { CLIENT_EMITTABLE, EVENTS, PRODUCT_SKUS, isEventName, normalizeProductSk
  * The compile-error guarantee, reconstructed for plain JS.
  *
  * `EventName` is derived from the catalog, so TypeScript call sites are checked by
- * the compiler. src/App.jsx is 1734 lines of plain JS and is not. This test closes
- * that gap: any tracking call or data-evt attribute naming an event that isn't in
- * the catalog fails CI.
+ * the compiler. The marketing site (src/sections, src/site, src/pages) is plain
+ * JS and is not. This test closes that gap: any tracking call or data-evt
+ * attribute naming an event that isn't in the catalog fails CI. The walker is
+ * path-agnostic, so it picked up the multi-page split with no change.
  *
  * Without this, a typo like track('contact_form_submited') would silently emit
  * nothing forever, and the dashboard would show a funnel that simply stops.

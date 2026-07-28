@@ -3,7 +3,8 @@
  *
  * Adding an event here is the ONLY way to add an event. `EventName` is derived
  * from these keys, so a typo in a tracking call from TypeScript is a compile
- * error. Calls from App.jsx (plain JS) are covered by the catalog-scan test in
+ * error. Calls from the plain-JS marketing code (src/sections, src/site) are
+ * covered by the catalog-scan test in
  * src/analytics/__tests__/catalog-usage.test.ts plus a dev-mode console error.
  *
  * `status: "planned"` reserves a name for a feature that doesn't exist yet, so

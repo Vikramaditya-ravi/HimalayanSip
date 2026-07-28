@@ -13,10 +13,11 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
 
-    // App.jsx is 1734 lines of plain JS and stays that way. `allowJs` lets TS
-    // resolve imports from it; `checkJs: false` means we do not type-check it.
-    // The compile-error guarantee for tracking calls therefore covers TS call
-    // sites only — calls from App.jsx are covered by the catalog-scan test in
+    // The marketing site (src/sections, src/site, src/pages) is plain JS and
+    // stays that way. `allowJs` lets TS resolve imports from it; `checkJs: false`
+    // means we do not type-check it. The compile-error guarantee for tracking
+    // calls therefore covers TS call sites only — calls from the JS side are
+    // covered by the catalog-scan test in
     // src/analytics/__tests__/catalog-usage.test.ts.
     "allowJs": true,
     "checkJs": false,

@@ -24,10 +24,10 @@ Deployed to production and verified on **https://www.aquaviaworld.com**.
 
 Note the live domain is `www.aquaviaworld.com`, *not* `himalayan-sip.vercel.app`
 — that hostname returns `DEPLOYMENT_NOT_FOUND` and is not attached to this
-project. `src/App.jsx` still hardcodes it as the canonical/OG URL and in the
-JSON-LD schema; **that is an SEO bug worth fixing** (canonical pointing at a dead
-host). The `*.vercel.app` deployment URLs are behind Vercel SSO protection, so
-only the custom domain is publicly reachable.
+project. The dead host is no longer referenced anywhere: `SITE_URL` in
+`src/site/data.js` is the single source for the canonical, OG and JSON-LD URLs
+on every route. The `*.vercel.app` deployment URLs are behind Vercel SSO
+protection, so only the custom domain is publicly reachable.
 
 Functions execute in `iad1` (confirmed via `X-Vercel-Id: bom1::iad1`), which is
 why the database is in `aws-us-east-1` — co-located with the functions rather
@@ -107,14 +107,41 @@ table**. It refuses to run against any non-local host, so a mis-set
 3. Emit it: `track('name', {...})` in the browser, or `track(name, {...}, ctx)`
    on the server.
 
-A typo is a compile error from TypeScript call sites, and a test failure from
-`App.jsx` (see `src/analytics/__tests__/catalog-usage.test.ts`).
+A typo is a compile error from TypeScript call sites, and a test failure from the
+plain-JS marketing code in `src/sections` and `src/site`
+(see `src/analytics/__tests__/catalog-usage.test.ts`).
 
 ### Changing a metric definition
 
 Change it in `lib/metrics.ts` **and** `lib/rollup.ts` in the same commit. If they
 drift, dashboard numbers will change when a date range crosses the retention
 boundary — the hardest class of analytics bug to notice.
+
+---
+
+## Discontinuity: the multi-page split (2026-07-28)
+
+The marketing site went from one route to six (`/`, `/products`, `/pricing`,
+`/process`, `/about`, `/contact`). **Trend lines that cross this date are not
+comparable**, and nothing is wrong with the data — the definitions simply now
+describe a different site.
+
+What moved, and why:
+
+- **Page views per session jump.** `page_viewed` fires once per document load.
+  Before, a visitor who read everything produced one page view; now the same
+  visitor produces up to six.
+- **Bounce rate falls, mechanically.** The definition in
+  `src/analytics/catalog.ts` is "≤ 1 page view **and** none of
+  `ENGAGEMENT_EVENTS`". A visitor who lands on `/` and clicks through to
+  `/pricing` is no longer a bounce even if they touch nothing — because they
+  genuinely did navigate. The number got more meaningful, not just smaller.
+- **`pageUrl` changes shape.** It was `/` plus a fragment (`/#pricing`); it is
+  now a real path plus an optional fragment (`/pricing`, `/process#filtration`).
+  Any saved query grouping on `pageUrl` needs re-checking.
+- **`section_viewed` is unchanged.** Sections kept their ids and their
+  `TrackInView` wrappers, so per-section funnels stay continuous across the cut.
+  These are the safest series to compare against pre-split data.
 
 ---
 

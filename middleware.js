@@ -23,7 +23,22 @@ const SESSION = 60 * 30;
 
 export const config = {
   // Document requests only. Assets must stay cacheable and must not mint identity.
-  matcher: ['/', '/index.html', '/admin', '/admin.html'],
+  //
+  // Every route must be listed. This matcher is a literal path list, not a
+  // prefix — a route missing from it is served without ever minting `vid`, so a
+  // visitor who lands directly on /pricing from search has no identity and every
+  // event they generate is attributed to nobody. Both spellings are covered
+  // because the extensionless path is what vercel.json rewrites from, and the
+  // .html file stays directly reachable.
+  matcher: [
+    '/', '/index.html',
+    '/products', '/products.html',
+    '/pricing', '/pricing.html',
+    '/process', '/process.html',
+    '/about', '/about.html',
+    '/contact', '/contact.html',
+    '/admin', '/admin.html',
+  ],
 };
 
 function readCookie(request, name) {

@@ -1,0 +1,16 @@
+# AquaVia — https://www.aquaviaworld.com
+# Files in public/ are copied to the deploy root verbatim by Vite.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# /admin is deliberately NOT disallowed. It already serves
+# <meta name="robots" content="noindex, nofollow">, and a crawler has to be
+# allowed to fetch a page in order to see that tag — blocking it here would
+# leave Google free to index the bare URL with no way to learn it is noindex.
+# Its data is gated behind /api/admin/login regardless.
+#
+# /api/ has no such tag and returns no-store JSON, so it is blocked outright.
+
+Sitemap: https://www.aquaviaworld.com/sitemap.xml

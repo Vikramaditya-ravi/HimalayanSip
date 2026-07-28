@@ -1,26 +1,97 @@
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import App from '../../App.jsx';
+
+import { AboutPage } from '../../pages/About.jsx';
+import { ContactPage } from '../../pages/Contact.jsx';
+import { HomePage } from '../../pages/Home.jsx';
+import { PricingPage } from '../../pages/Pricing.jsx';
+import { ProcessPage } from '../../pages/Process.jsx';
+import { ProductsPage } from '../../pages/Products.jsx';
 
 /**
- * Smoke test for the marketing page.
+ * Smoke test for the marketing site.
  *
  * Instrumentation restructured ProductCard and wrapped every section in
  * TrackInView. Those are JSX-structure changes to a live business page — the
  * build catches syntax errors but not a component that renders nothing, so this
- * asserts the page still produces its actual content.
+ * asserts the pages still produce their actual content.
+ *
+ * This used to render one <App /> holding every section. The site is now six
+ * routes, so each page is rendered on its own and the section anchors are
+ * asserted per page — a section that silently lands on the wrong route is
+ * exactly the regression this split could introduce. Content assertions run
+ * against all six concatenated, since a price is equally wrong wherever it
+ * appears.
  */
 
-describe('marketing page renders after instrumentation', () => {
-  const html = renderToString(<App />);
+const PAGES = {
+  '/': renderToString(<HomePage />),
+  '/products': renderToString(<ProductsPage />),
+  '/pricing': renderToString(<PricingPage />),
+  '/process': renderToString(<ProcessPage />),
+  '/about': renderToString(<AboutPage />),
+  '/contact': renderToString(<ContactPage />),
+};
 
-  it('renders the page shell', () => {
-    expect(html.length).toBeGreaterThan(5000);
+const html = Object.values(PAGES).join('');
+
+/**
+ * Which anchors each route must render.
+ *
+ * #testimonials and #customizer are the lazy wrappers — the sections behind them
+ * mount only once an IntersectionObserver fires, which never happens in
+ * renderToString, but the anchor itself has to exist or /products#customizer
+ * lands nowhere.
+ */
+const SECTIONS: Record<string, string[]> = {
+  '/': ['hero', 'services', 'industries', 'testimonials'],
+  '/products': ['products', 'customizer'],
+  '/pricing': ['pricing', 'faq'],
+  '/process': ['how', 'journey', 'filtration'],
+  '/about': ['about'],
+  '/contact': ['contact'],
+};
+
+describe('marketing site renders after the multi-page split', () => {
+  it('renders every page shell', () => {
+    for (const [route, page] of Object.entries(PAGES)) {
+      expect(page.length, `${route} rendered almost nothing`).toBeGreaterThan(2000);
+    }
   });
 
-  it('renders every section anchor', () => {
-    for (const id of ['hero', 'about', 'services', 'journey', 'products', 'pricing', 'industries', 'faq', 'contact']) {
-      expect(html, `missing section #${id}`).toContain(`id="${id}"`);
+  it('renders each section anchor on its own route, and nowhere else', () => {
+    for (const [route, ids] of Object.entries(SECTIONS)) {
+      for (const id of ids) {
+        expect(PAGES[route as keyof typeof PAGES], `${route} is missing #${id}`).toContain(`id="${id}"`);
+      }
+    }
+    // A section appearing on two routes means two URLs compete for the same
+    // content, which is the duplicate-content problem the split exists to avoid.
+    for (const [route, ids] of Object.entries(SECTIONS)) {
+      for (const [otherRoute, otherPage] of Object.entries(PAGES)) {
+        if (otherRoute === route) continue;
+        for (const id of ids) {
+          expect(otherPage, `#${id} leaked onto ${otherRoute}`).not.toContain(`id="${id}"`);
+        }
+      }
+    }
+  });
+
+  it('puts the navbar, footer and WhatsApp button on every route', () => {
+    for (const [route, page] of Object.entries(PAGES)) {
+      expect(page, `${route} lost the site search`).toContain('id="site-search"');
+      expect(page, `${route} lost the brochure CTA`).toContain('data-evt="pricing_brochure_downloaded"');
+      expect(page, `${route} lost the WhatsApp button`).toContain('data-evt="contact_intent_clicked"');
+      expect(page, `${route} lost the footer`).toContain('All rights reserved');
+    }
+  });
+
+  it('links every route from the nav on every route', () => {
+    // The whole point of the split: real internal links a crawler can follow.
+    for (const [route, page] of Object.entries(PAGES)) {
+      for (const href of ['/products', '/pricing', '/process', '/about', '/contact']) {
+        expect(page, `${route} does not link to ${href}`).toContain(`href="${href}"`);
+      }
     }
   });
 

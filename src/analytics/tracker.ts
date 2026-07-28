@@ -37,7 +37,9 @@ let started = false;
 let prevPage: string | null = null;
 
 function currentPage(): string {
-  // One-page site: the hash is what distinguishes "pages", so it's part of the URL.
+  // Six routes, each a real document. The hash still matters — sections are
+  // deep-linkable (/pricing#faq, /process#filtration) and SiteSearch navigates
+  // by fragment — so it stays part of the identity of a "page".
   return window.location.pathname + window.location.hash;
 }
 
@@ -85,7 +87,8 @@ export function track(name: EventName, extra: TrackProps = {}): void {
   try {
     if (!isClientEmittable(name)) {
       // Compile-time checked from TS call sites; this catches JS call sites in
-      // App.jsx and anything trying to emit a server-truth event from a browser.
+      // the marketing sections and anything trying to emit a server-truth event
+      // from a browser.
       if (import.meta.env?.DEV) {
         console.error(
           `[analytics] "${name}" is not a client-emittable event. ` +
@@ -143,7 +146,9 @@ export function initTracker(): void {
     // pagehide covers bfcache navigations, which never fire unload.
     window.addEventListener('pagehide', () => flush(true));
 
-    // Hash navigation is this site's equivalent of a route change.
+    // Route changes are full document loads, so they arrive as a fresh
+    // trackPageView() above. This covers in-page fragment jumps, which are what
+    // SiteSearch and the #filtration link still do.
     window.addEventListener('hashchange', () => trackPageView());
   } catch {
     /* no-op */

@@ -1,5 +1,8 @@
+import { CopyButton } from './CopyButton.jsx'
 import { NAV_LINKS, SERVICES, currentPath } from './data'
 import { useGeo } from './hooks'
+
+const EMAIL = 'info@aquaviaworld.com'
 
 // The footer's quick links are the site's routes. NAV_LINKS now leads with Home
 // itself, so this is a straight alias — prepending Home here as well would list
@@ -10,6 +13,7 @@ const FOOTER_LINKS = NAV_LINKS
 export function Footer() {
   const { content } = useGeo()
   const here = currentPath()
+  const phone = content?.phone || '+91 76248 03460'
   return (
     <footer style={{ background:'#03090f', padding:'60px 5% 30px' }}>
       <div className="footer-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:40, maxWidth:1200, margin:'0 auto', marginBottom:40 }}>
@@ -52,9 +56,16 @@ export function Footer() {
         {/* Contact */}
         <div>
           <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Contact</div>
-          {[`📍 Delhi, India`, `📞 ${content?.phone || '+91 76248 03460'}`, '📧 info@aquaviaworld.com', `🚚 ${content?.deliveryNote || 'Serving Delhi NCR'}`].map(item => (
-            <div key={item} style={{ color:'var(--muted)', fontSize:13, marginBottom:10, lineHeight:1.5 }}>{item}</div>
-          ))}
+          <div className="footer-row">📍 Delhi, India</div>
+          <div className="footer-row">
+            📞 <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
+            <CopyButton value={phone} label="phone number" placement="footer" className="footer-copy" />
+          </div>
+          <div className="footer-row">
+            📧 <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+            <CopyButton value={EMAIL} label="email address" placement="footer" className="footer-copy" />
+          </div>
+          <div className="footer-row">🚚 {content?.deliveryNote || 'Serving Delhi NCR'}</div>
         </div>
       </div>
 

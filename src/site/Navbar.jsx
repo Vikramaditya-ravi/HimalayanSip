@@ -195,7 +195,10 @@ export function Navbar() {
     const still = window.matchMedia('(prefers-reduced-motion: reduce)')
     let frame = 0
     const handler = () => {
-      setScrolled(window.scrollY > 60)
+      // 16px, not 60: between the two the bar is still a translucent detached
+      // pill with page content sliding through it, which is the exact thing the
+      // docked state exists to stop. Dock as soon as the page has moved at all.
+      setScrolled(window.scrollY > 16)
       if (frame) return
       frame = requestAnimationFrame(() => {
         frame = 0
@@ -396,7 +399,7 @@ export function Navbar() {
           <m.div
             id="nav-drawer"
             ref={drawerRef}
-            className="nav-drawer glass"
+            className={`nav-drawer glass${scrolled ? ' nav-drawer-docked' : ''}`}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}

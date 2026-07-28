@@ -147,19 +147,39 @@ export function useGlobalStyles() {
         display: flex; align-items: center; justify-content: space-between;
         gap: 20px; height: 64px; padding: 0 10px 0 18px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.35);
-        transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease,
+                    top 0.35s cubic-bezier(0.22,1,0.36,1), left 0.35s cubic-bezier(0.22,1,0.36,1),
+                    right 0.35s cubic-bezier(0.22,1,0.36,1), border-radius 0.35s ease,
+                    padding 0.35s cubic-bezier(0.22,1,0.36,1);
       }
-      /* Scrolled: the border warms toward teal and the pane tightens. Declared
-         after the .glass @supports block so it wins on equal specificity, and
-         the background is only overridden where blur exists — without it the
-         opaque fallback is already doing this job. */
+      .brand-ripple { transition: opacity 0.3s ease; }
+      /* Scrolled: the pill docks. It goes full-bleed to all three edges, drops
+         its radius and its side borders, and — the point of the exercise —
+         turns fully opaque. The resting state's translucency is a flourish that
+         only works over the hero; once the page is moving, section content
+         sliding visibly *through* the bar reads as a bug, not as depth. So the
+         blur upgrade is cancelled here too (backdrop-filter over an opaque
+         background is pure cost for no visible effect), and the transition is
+         on the geometry as well as the colour so the dock is a movement rather
+         than a jump. */
       .nav-scrolled {
-        border-color: rgba(62,207,191,0.28);
-        box-shadow: 0 14px 50px rgba(0,0,0,0.5), 0 0 40px rgba(62,207,191,0.07);
+        top: 0; left: 0; right: 0;
+        border-radius: 0;
+        border-color: transparent;
+        border-bottom-color: rgba(62,207,191,0.22);
+        background: var(--navy);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        box-shadow: 0 10px 34px rgba(0,0,0,0.55);
+        padding-left: 5%; padding-right: 5%;
       }
       @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-        .nav-scrolled { background: rgba(8,13,22,0.72); }
+        .nav-scrolled { background: var(--navy); }
       }
+      /* The reflection hangs 26px below the pill. Detached that is a nice
+         touch; docked it is three arcs floating over the page content the bar
+         is now sitting flush against. */
+      .nav-scrolled .brand-ripple { opacity: 0; }
 
       /* Resting/hover/active colour moved out of the inline onMouseEnter and
          onMouseLeave handlers this used to carry. Those had to recompute the
@@ -250,6 +270,15 @@ export function useGlobalStyles() {
       .nav-drawer {
         position: fixed; top: 86px; left: 5%; right: 5%; z-index: 999;
         overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+      }
+      /* Follows the bar down when it docks: flush under a full-bleed bar, and
+         opaque for the same reason the bar is. */
+      .nav-drawer.nav-drawer-docked {
+        top: 64px; left: 0; right: 0;
+        border-radius: 0; border-color: transparent;
+        border-bottom-color: rgba(62,207,191,0.22);
+        background: var(--navy);
+        -webkit-backdrop-filter: none; backdrop-filter: none;
       }
       .nav-drawer-inner { padding: 14px; display: flex; flex-direction: column; gap: 2px; }
       .nav-drawer a {
@@ -390,27 +419,30 @@ export function useGlobalStyles() {
         background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
         color: var(--muted); font-family: 'DM Sans', sans-serif;
         font-size: 12px; font-weight: 500; line-height: 1;
-        cursor: pointer; opacity: 0;
-        transition: opacity 0.25s, background-color 0.25s, color 0.25s, border-color 0.25s;
+        cursor: pointer;
+        transition: background-color 0.25s, color 0.25s, border-color 0.25s;
       }
-      /* Hidden until the row is engaged, so three rows do not carry three
-         competing buttons at rest — but never hidden from the keyboard, and
-         never once it has something to report. */
-      .ch-row-wrap:hover .ch-copy,
-      .ch-copy:focus-visible,
-      .ch-copy[data-state] { opacity: 1; }
       .ch-copy:hover { background: rgba(62,207,191,0.14); color: var(--aqua); border-color: rgba(62,207,191,0.4); }
       .ch-copy:focus-visible { outline: 2px solid var(--aqua); outline-offset: 2px; }
       .ch-copy[data-state="copied"] { color: var(--aqua); border-color: rgba(62,207,191,0.45); }
       .ch-copy[data-state="failed"] { color: var(--gold); border-color: rgba(200,164,74,0.45); }
-      /* Touch has no hover, so the control has to be permanently visible there
-         — and it is more useful on a phone, not less. */
-      @media (hover: none) {
-        .ch-copy { opacity: 1; }
-      }
       @media (max-width: 600px) {
         .ch-copy { right: 44px; padding: 6px 9px; font-size: 11px; }
       }
+
+      /* Footer variant. The footer contact rows are ordinary flex lines, not
+         an overlaid anchor, so the absolute positioning above is undone and the
+         control is sized down to sit on a 13px text row. */
+      .footer-copy {
+        position: static; transform: none;
+        padding: 4px 8px; font-size: 11px; border-radius: 6px;
+      }
+      .footer-row {
+        display: flex; align-items: center; gap: 8px;
+        color: var(--muted); font-size: 13px; margin-bottom: 10px; line-height: 1.5;
+      }
+      .footer-row a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+      .footer-row a:hover { color: var(--aqua); }
 
       /* The panel foot is the low-commitment exit: a buyer who is not ready to
          talk to anyone still leaves with the rate card. */
@@ -606,14 +638,18 @@ export function useGlobalStyles() {
 
          z-index 1 puts it above the vignette and below .hero-copy, so the
          bottles pass behind the stats row the way they do in the concept. */
+      /* Pulled in from the right edge rather than hugging it: the floating
+         WhatsApp button lives at the bottom-right corner, and at 4% the water
+         ran straight under it. Inset far enough that the two never share
+         space and the art has room around it. */
       .hero-art {
-        position: absolute; z-index: 1; right: 4%; bottom: 150px;
+        position: absolute; z-index: 1; right: 9%; bottom: 150px;
         /* Sized by HEIGHT, not width. The art has to clear the navbar above it
            and the sample card below it, and both of those are fixed pixel
            offsets — so the constraint is vertical. Sizing by width let the
            bottles grow until the gold cap collided with the navbar on any short
            viewport. Width follows from the aspect ratio. */
-        height: min(62vh, 570px); width: auto;
+        height: min(66vh, 600px); width: auto;
         pointer-events: none; user-select: none;
       }
       /* Short viewports have to satisfy both clearances at once — the navbar
@@ -623,7 +659,7 @@ export function useGlobalStyles() {
          buys room for both. The card occupies 131px of the bottom (28 padding +
          79 card + 24 gap), hence 132. */
       @media (max-height: 800px) {
-        .hero-art { height: min(54vh, 460px); bottom: 132px; }
+        .hero-art { height: min(60vh, 510px); bottom: 132px; }
       }
 
       /* ── Hero: sample-bottle card ──────────────────────────────────────────
@@ -662,7 +698,7 @@ export function useGlobalStyles() {
          .hero-copy in the DOM. The sample card comes out of the absolute layer
          with it, otherwise it would overlap the artwork it is now beneath. */
       @media (max-width: 1100px) {
-        .hero-art { height: min(56vh, 500px); bottom: 118px; }
+        .hero-art { height: min(60vh, 540px); bottom: 118px; right: 7%; }
         .hero-copy { max-width: 50%; }
       }
       @media (max-width: 900px) {

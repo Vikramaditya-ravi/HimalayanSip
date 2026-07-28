@@ -111,6 +111,17 @@ function useGlobalStyles() {
         border-bottom: 1px solid var(--glass-border) !important;
       }
 
+      /* One vertical rhythm for every heading-plus-content section.
+         The ceiling is 64px, not the 100px this page used to carry, because a
+         section is only doing its job if its heading and the thing it
+         introduces land in the same view: on a 1080p laptop that is roughly
+         850px, and a pricing heading block plus a full tier card has to clear
+         it. Below ~1160px viewport width the clamp tightens further on its
+         own, which is where the grids start stacking anyway. */
+      :root { --sec-pad: clamp(44px, 5.5vw, 64px); --head-gap: 32px; }
+      .sec { padding: var(--sec-pad) 5%; }
+      .sec-head { text-align: center; margin-bottom: var(--head-gap); }
+
       /* Direct-lines panel. One opaque Navy Card surface holding three rows
          divided by hairlines — deliberately not three separate cards, which
          would flatten WhatsApp, phone, and email into equal weight when they
@@ -280,6 +291,7 @@ function useGlobalStyles() {
       .products-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
 
       @media (max-width: 768px) {
+        :root { --sec-pad: 40px; --head-gap: 26px; }
         .hero-grid { grid-template-columns: 1fr !important; }
         .about-grid { grid-template-columns: 1fr !important; }
         .products-grid { grid-template-columns: 1fr !important; }
@@ -482,9 +494,9 @@ function FAQSection() {
   const ref = useReveal()
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   return (
-    <section id="faq" style={{ padding:'100px 5%', background:'var(--navy)' }}>
+    <section id="faq" className="sec" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:800, margin:'0 auto' }}>
-        <div ref={ref} className="reveal" style={{ textAlign:'center', marginBottom:60 }}>
+        <div ref={ref} className="reveal sec-head">
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Frequently Asked Questions
           </h2>
@@ -683,7 +695,7 @@ function SectionTag({ children }) {
     <div style={{
       display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.12em',
       textTransform: 'uppercase', color: 'var(--aqua)', border: '1px solid rgba(62,207,191,0.3)',
-      borderRadius: 50, padding: '5px 16px', marginBottom: 16
+      borderRadius: 50, padding: '5px 16px', marginBottom: 12
     }}>{children}</div>
   )
 }
@@ -1068,7 +1080,7 @@ function AboutSection() {
     { icon:'⚡', label:'48-hour proofing' },
   ]
   return (
-    <section id="about" style={{ padding:'100px 5%', background:'var(--navy-mid)', position:'relative' }}>
+    <section id="about" className="sec" style={{ background:'var(--navy-mid)', position:'relative' }}>
       <div className="about-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, alignItems:'center', maxWidth:1200, margin:'0 auto' }}>
         <div ref={leftRef} className="reveal-left">
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', lineHeight:1.1, color:'var(--white)', marginBottom:24 }}>
@@ -1106,7 +1118,7 @@ function AboutSection() {
 function ServicesSection() {
   const ref = useReveal()
   return (
-    <section id="services" style={{ padding:'68px 5%', background:'var(--navy)' }}>
+    <section id="services" className="sec" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ marginBottom:36 }} ref={ref} className="reveal">
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(26px,3.2vw,44px)', color:'var(--white)', lineHeight:1.1, whiteSpace:'nowrap' }}>
@@ -1146,9 +1158,9 @@ function ServiceItem({ service, index }) {
 function HowItWorksSection() {
   const titleRef = useReveal()
   return (
-    <section id="how" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
+    <section id="how" className="sec" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
+        <div ref={titleRef} className="reveal sec-head">
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             From Logo to Doorstep in 4 Steps
           </h2>
@@ -1695,7 +1707,7 @@ function JourneySection() {
   const titleRef = useReveal()
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior:'smooth' })
   return (
-    <section id="journey" style={{ padding:'100px 5%', background:'var(--navy)', position:'relative', overflow:'hidden' }}>
+    <section id="journey" className="sec" style={{ background:'var(--navy)', position:'relative', overflow:'hidden' }}>
       <div style={{ position:'absolute', top:'30%', left:'50%', transform:'translateX(-50%)', width:700, height:700, background:'radial-gradient(circle,rgba(62,207,191,0.035) 0%,transparent 70%)', borderRadius:'50%', pointerEvents:'none' }}/>
       <div style={{ maxWidth:1200, margin:'0 auto', position:'relative' }}>
         <div ref={titleRef} className="reveal" style={{ textAlign:'center', marginBottom:88 }}>
@@ -1733,9 +1745,9 @@ function ProductsSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   const doubled = [...PRODUCTS, ...PRODUCTS]
   return (
-    <section id="products" style={{ padding:'100px 5%', background:'var(--navy)' }}>
+    <section id="products" className="sec" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
+        <div ref={titleRef} className="reveal sec-head">
           <SectionTag>Our Range</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Choose Your Perfect Size
@@ -1768,9 +1780,9 @@ function ProductCard({ product, delay, scrollTo, marquee, trackable = true }) {
   const card = (
     <div ref={marquee ? null : ref} className={`bottle-card${marquee ? '' : ' reveal'}${product.featured ? ' featured-card' : ''}`} style={{
       background:'var(--navy-card)', border:`1px solid ${product.featured ? 'rgba(62,207,191,0.4)' : 'var(--glass-border)'}`,
-      borderRadius:24, padding:'32px 28px', textAlign:'center', position:'relative',
+      borderRadius:24, padding:'24px 22px', textAlign:'center', position:'relative',
       transitionDelay:marquee ? '0s' : `${delay}s`, display:'flex', flexDirection:'column', alignItems:'center', gap:0,
-      flex:'0 0 270px', minWidth:270, marginRight:22,
+      flex:'0 0 252px', minWidth:252, marginRight:20,
     }}>
       {product.featured && (
         <div className="featured-badge" style={{
@@ -1780,25 +1792,25 @@ function ProductCard({ product, delay, scrollTo, marquee, trackable = true }) {
           color:'var(--navy)', textTransform:'uppercase', zIndex:10, whiteSpace:'nowrap'
         }}>Most Popular</div>
       )}
-      <BottleSVG color={product.color} label={product.size} size={210} />
-      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:42, fontWeight:700, color:product.color, marginTop:8, lineHeight:1 }}>{product.size}</div>
-      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:20, color:'var(--white)', marginBottom:8 }}>{product.name}</div>
-      <p style={{ color:'var(--muted)', fontSize:14, lineHeight:1.6, marginBottom:20 }}>{product.desc}</p>
-      <div style={{ width:'100%', height:1, background:'var(--glass-border)', margin:'4px 0 20px' }} />
-      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:28, fontWeight:700, color:'var(--white)', marginBottom:4 }}>{product.price}</div>
+      <BottleSVG color={product.color} label={product.size} size={132} />
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:32, fontWeight:700, color:product.color, marginTop:8, lineHeight:1 }}>{product.size}</div>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, color:'var(--white)', marginBottom:6 }}>{product.name}</div>
+      <p style={{ color:'var(--muted)', fontSize:13, lineHeight:1.55, marginBottom:14 }}>{product.desc}</p>
+      <div style={{ width:'100%', height:1, background:'var(--glass-border)', margin:'2px 0 14px' }} />
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:24, fontWeight:700, color:'var(--white)', marginBottom:4 }}>{product.price}</div>
       {/* Always rendered, blank when absent: the sizes quoted on request would
           otherwise sit a line higher and knock the row of buttons out of line. */}
       <div style={{ fontSize:12, color:'var(--muted)', marginBottom:4 }}>
         {product.caseNote ? `${product.caseNote} · lower at volume` : ' '}
       </div>
-      <div style={{ fontSize:13, color:'var(--muted)', marginBottom:24 }}>Min. {product.minOrder}</div>
+      <div style={{ fontSize:13, color:'var(--muted)', marginBottom:16 }}>Min. {product.minOrder}</div>
       <button
         onClick={() => scrollTo('contact')}
         data-evt="product_cta_clicked"
         data-sku={product.sku}
         style={{
         width:'100%', background:`linear-gradient(135deg, ${product.color}, ${product.color}aa)`,
-        border:'none', borderRadius:12, padding:'12px', color:'var(--navy)',
+        border:'none', borderRadius:12, padding:'11px', color:'var(--navy)',
         fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:15, cursor:'pointer', transition:'all 0.3s'
       }}
         onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'}
@@ -1896,14 +1908,14 @@ function PricingSection() {
   const titleRef = useReveal()
   const footRef = useReveal()
   return (
-    <section id="pricing" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
+    <section id="pricing" className="sec" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
+        <div ref={titleRef} className="reveal sec-head">
           <SectionTag>Corporate Programme</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Pricing, <span style={{ color:'var(--aqua)' }}>refined.</span>
           </h2>
-          <p style={{ color:'var(--muted)', maxWidth:560, margin:'18px auto 0', lineHeight:1.75 }}>
+          <p style={{ color:'var(--muted)', maxWidth:560, margin:'10px auto 0', lineHeight:1.6 }}>
             Three tiers of partnership, each engineered around volume, presentation, and the standard your guests expect.
           </p>
         </div>
@@ -1917,17 +1929,17 @@ function PricingSection() {
           ))}
         </div>
 
-        <div ref={footRef} className="reveal" style={{ marginTop:48 }}>
-          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'12px 28px', paddingTop:32, borderTop:'1px solid var(--glass-border)' }}>
+        <div ref={footRef} className="reveal" style={{ marginTop:28 }}>
+          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'12px 28px', paddingTop:22, borderTop:'1px solid var(--glass-border)' }}>
             {PRICING_INCLUDES.map(item => (
               <span key={item} style={{ display:'flex', alignItems:'center', gap:8, color:'var(--white)', fontSize:14 }}>
                 <span style={{ color:'var(--aqua)' }} aria-hidden="true">✓</span>{item}
               </span>
             ))}
           </div>
-          <p style={{ textAlign:'center', color:'var(--muted)', fontSize:13, marginTop:20 }}>{PRICING_FOOTNOTE}</p>
+          <p style={{ textAlign:'center', color:'var(--muted)', fontSize:13, marginTop:14 }}>{PRICING_FOOTNOTE}</p>
 
-          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:16, marginTop:36 }}>
+          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:16, marginTop:22 }}>
             <BrochureLink variant="solid" />
           </div>
         </div>
@@ -1945,7 +1957,7 @@ function TierCard({ tier, delay }) {
       style={{
         background:'var(--navy-card)',
         border:`1px solid ${tier.featured ? 'rgba(62,207,191,0.4)' : 'var(--glass-border)'}`,
-        borderRadius:24, padding:'36px 30px', position:'relative', transitionDelay:`${delay}s`,
+        borderRadius:24, padding:'26px 24px', position:'relative', transitionDelay:`${delay}s`,
         display:'flex', flexDirection:'column'
       }}
     >
@@ -1961,21 +1973,21 @@ function TierCard({ tier, delay }) {
       <div style={{
         width:34, height:34, borderRadius:'50%', border:'1px solid rgba(62,207,191,0.4)',
         display:'flex', alignItems:'center', justifyContent:'center',
-        color:'var(--aqua)', fontSize:11, letterSpacing:'0.06em', marginBottom:14
+        color:'var(--aqua)', fontSize:11, letterSpacing:'0.06em', marginBottom:10
       }}>{tier.num}</div>
 
-      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:32, fontWeight:700, color:'var(--white)', lineHeight:1.1 }}>{tier.name}</div>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:28, fontWeight:700, color:'var(--white)', lineHeight:1.1 }}>{tier.name}</div>
       <div style={{ color:'var(--gold)', fontSize:12, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', marginTop:6 }}>{tier.segment}</div>
-      <div style={{ color:'var(--muted)', fontSize:13, marginTop:10, marginBottom:26 }}>{tier.dispatches}</div>
+      <div style={{ color:'var(--muted)', fontSize:13, marginTop:8, marginBottom:18 }}>{tier.dispatches}</div>
 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:12, marginTop:'auto' }}>
         {PACK_SIZES.map(size => (
           <div key={size}>
-            <div style={{ color:'var(--muted)', fontSize:11, letterSpacing:'0.1em', marginBottom:6 }}>{size}</div>
-            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:30, fontWeight:700, color:'var(--white)', lineHeight:1 }}>
-              <span style={{ fontSize:16, color:'var(--aqua)', verticalAlign:'super' }}>₹</span>{tier.prices[size]}
+            <div style={{ color:'var(--muted)', fontSize:11, letterSpacing:'0.1em', marginBottom:4 }}>{size}</div>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:26, fontWeight:700, color:'var(--white)', lineHeight:1 }}>
+              <span style={{ fontSize:14, color:'var(--aqua)', verticalAlign:'super' }}>₹</span>{tier.prices[size]}
             </div>
-            <div style={{ color:'var(--muted)', fontSize:12, marginTop:6 }}>per case</div>
+            <div style={{ color:'var(--muted)', fontSize:12, marginTop:4 }}>per case</div>
             <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11, marginTop:2 }}>
               {`₹${perBottle(tier.prices[size], size)} / bottle`}
             </div>
@@ -1990,9 +2002,9 @@ function TierCard({ tier, delay }) {
 function IndustriesSection() {
   const titleRef = useReveal()
   return (
-    <section id="industries" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
+    <section id="industries" className="sec" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
+        <div ref={titleRef} className="reveal sec-head">
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Trusted Across Every Sector
           </h2>
@@ -2074,9 +2086,9 @@ function CustomizerSection() {
   }
 
   return (
-    <section id="customizer" style={{ padding:'100px 5%', background:'var(--navy)' }}>
+    <section id="customizer" className="sec" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ textAlign:'center', marginBottom:60 }}>
+        <div className="sec-head">
           <SectionTag>Live Customizer</SectionTag>
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Design Your Bottle, Live
@@ -2189,9 +2201,9 @@ function TestimonialsSection({ content }) {
   const doubled = [...allTestimonials, ...allTestimonials]
 
   return (
-    <section id="testimonials" style={{ padding:'100px 5%', background:'var(--navy-mid)' }}>
+    <section id="testimonials" className="sec" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        <div style={{ textAlign:'center', marginBottom:60 }} ref={titleRef} className="reveal">
+        <div ref={titleRef} className="reveal sec-head">
           <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Trusted by India's Leading Brands
           </h2>
@@ -2339,7 +2351,7 @@ function ContactSection({ content }) {
   ]
 
   return (
-    <section id="contact" style={{ padding:'100px 5%', background:'#04101f' }}>
+    <section id="contact" className="sec" style={{ background:'#04101f' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div className="contact-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, alignItems:'start' }}>
           {/* Left */}
@@ -2438,11 +2450,6 @@ function Footer({ content }) {
               onMouseLeave={e => e.currentTarget.style.color='var(--muted)'}
             >{id}</button>
           ))}
-          <a
-            href={BROCHURE_URL} download target="_blank" rel="noopener"
-            data-evt="pricing_brochure_downloaded"
-            style={{ display:'block', color:'var(--aqua)', fontSize:14, marginTop:4, textDecoration:'none' }}
-          >↓ Pricing brochure (PDF)</a>
         </div>
 
         {/* Services */}

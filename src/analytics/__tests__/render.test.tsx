@@ -69,10 +69,13 @@ describe('marketing page renders after instrumentation', () => {
     expect(html).toContain('id="filtration"');
   });
 
-  it('renders the contact form fields', () => {
-    for (const field of ['name', 'company', 'email', 'phone', 'quantity', 'message']) {
-      expect(html, `missing field ${field}`).toContain(`name="${field}"`);
+  it('renders the three contact channels instead of an enquiry form', () => {
+    // The enquiry form was deliberately removed; the panel replaces it. If a
+    // form comes back here, the funnel's terminal step assumptions break too.
+    for (const channel of ['WhatsApp', 'Call the sales desk', 'Email us']) {
+      expect(html, `missing channel ${channel}`).toContain(channel);
     }
+    expect(html).not.toContain('<form');
   });
 
   it('renders the new search input', () => {

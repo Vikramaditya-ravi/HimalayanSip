@@ -2391,53 +2391,22 @@ function ContactSection({ content }) {
             </div>
           </div>
 
-          {/* Right — Form */}
+          {/* Right — the three channels, ranked */}
           <TrackInView event="contact_form_viewed" sectionId="contact">
-          <div ref={rightRef} className="glass-card reveal-right" style={{ padding:'40px 36px' }}>
-            {submitted ? (
-              <div style={{ textAlign:'center', padding:'40px 0' }}>
-                <div style={{ fontSize:56, marginBottom:16 }}>✅</div>
-                <h3 style={{ fontFamily:'Cormorant Garamond, serif', fontSize:26, color:'var(--white)', marginBottom:12 }}>Enquiry Received!</h3>
-                <p style={{ color:'var(--muted)' }}>We'll be in touch within 24 hours!</p>
-              </div>
-            ) : (
-              // React's onFocus/onBlur bubble, so one pair of handlers on the form
-              // instruments every field — new fields are tracked by default.
-              <form onSubmit={handleSubmit} onFocus={handleFocus} onBlur={handleBlur} noValidate style={{ display:'flex', flexDirection:'column', gap:16 }}>
-                <input name="name" placeholder="Your Name *" value={form.name} onChange={handleChange} className="form-input" required />
-                <input name="company" placeholder="Company Name" value={form.company} onChange={handleChange} className="form-input" />
-                <div className="contact-form-row" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                  <input name="email" type="email" placeholder="Email Address *" value={form.email} onChange={handleChange} className="form-input" required />
-                  <input name="phone" type="tel" placeholder="Phone Number" value={form.phone} onChange={handleChange} className="form-input" />
-                </div>
-                <select name="quantity" value={form.quantity} onChange={handleChange} className="form-input">
-                  <option value="">Order Quantity</option>
-                  <option value="100-500">100 – 500 bottles</option>
-                  <option value="500-2000">500 – 2,000 bottles</option>
-                  <option value="2000-10000">2,000 – 10,000 bottles</option>
-                  <option value="10000+">10,000+ bottles</option>
-                </select>
-                <textarea name="message" placeholder="Tell us about your requirements..." value={form.message} onChange={handleChange} rows={4} className="form-input" style={{ resize:'vertical' }} />
-                {error && (
-                  <p role="alert" style={{ color:'#e85d75', fontSize:14, margin:0 }}>{error}</p>
-                )}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  style={{
-                    background:'linear-gradient(135deg, var(--aqua), var(--aqua-dim))',
-                    border:'none', borderRadius:50, padding:'16px', textAlign:'center',
-                    color:'var(--navy)', fontFamily:'DM Sans, sans-serif', fontWeight:700,
-                    fontSize:16, cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                    transition:'all 0.3s', opacity: isSubmitting ? 0.7 : 1
-                  }}
-                  onMouseEnter={e => { if (!isSubmitting) { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 12px 40px rgba(62,207,191,0.4)' } }}
-                  onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='none' }}
-                >
-                  {isSubmitting ? 'Sending…' : 'Send Enquiry →'}
-                </button>
-              </form>
-            )}
+          <div ref={rightRef} className="ch-panel reveal-right">
+            {CHANNELS.map(channel => (
+              <ChannelRow key={channel.kind} channel={channel} />
+            ))}
+            <div className="ch-foot">
+              <span style={{ color:'var(--muted)', fontSize:13.5, lineHeight:1.5 }}>
+                Not ready to talk yet?
+              </span>
+              <a
+                href={BROCHURE_URL} download target="_blank" rel="noopener"
+                data-evt="pricing_brochure_downloaded"
+                style={{ color:'var(--aqua)', fontSize:13.5, fontWeight:500, textDecoration:'none' }}
+              >↓ Take the rate card (PDF)</a>
+            </div>
           </div>
           </TrackInView>
         </div>

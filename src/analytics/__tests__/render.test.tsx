@@ -42,9 +42,14 @@ const html = Object.values(PAGES).join('');
  * mount only once an IntersectionObserver fires, which never happens in
  * renderToString, but the anchor itself has to exist or /products#customizer
  * lands nowhere.
+ *
+ * Home lists fewer anchors than it renders in a browser, for that same reason:
+ * Journey and Contact are lazy there and carry their ids on the section rather
+ * than on the wrapper, so neither id is in the server-rendered string. What is
+ * asserted here is what a non-executing crawler actually receives.
  */
 const SECTIONS: Record<string, string[]> = {
-  '/': ['hero', 'services', 'industries', 'testimonials'],
+  '/': ['hero', 'about', 'services', 'how', 'products', 'pricing', 'industries', 'customizer', 'testimonials', 'faq'],
   '/products': ['products', 'customizer'],
   '/pricing': ['pricing', 'faq'],
   '/process': ['how', 'journey', 'filtration'],
@@ -59,17 +64,34 @@ describe('marketing site renders after the multi-page split', () => {
     }
   });
 
-  it('renders each section anchor on its own route, and nowhere else', () => {
+  it('renders each section anchor on home and on its own route', () => {
     for (const [route, ids] of Object.entries(SECTIONS)) {
       for (const id of ids) {
         expect(PAGES[route as keyof typeof PAGES], `${route} is missing #${id}`).toContain(`id="${id}"`);
       }
     }
-    // A section appearing on two routes means two URLs compete for the same
-    // content, which is the duplicate-content problem the split exists to avoid.
-    for (const [route, ids] of Object.entries(SECTIONS)) {
+  });
+
+  it('keeps sections off every route but home and their own', () => {
+    /**
+     * This assertion used to be "on its own route, and nowhere else" — a section
+     * on two URLs was treated as duplicate content by definition.
+     *
+     * Home is now a deliberate exception: it renders all twelve sections as one
+     * scroll, the same components the dedicated routes mount. The duplication is
+     * handled where it actually matters instead — each route declares its own
+     * canonical, title and description (ROUTES in src/site/data.js), and the
+     * Product and FAQPage schemas stay attached only to /products and /pricing
+     * so no two URLs compete for the same rich result.
+     *
+     * What still has to hold is that the dedicated routes stay focused: /about
+     * must not sprout a pricing table, or its canonical is describing a page
+     * that is really the whole site again.
+     */
+    const dedicated = Object.entries(SECTIONS).filter(([route]) => route !== '/');
+    for (const [route, ids] of dedicated) {
       for (const [otherRoute, otherPage] of Object.entries(PAGES)) {
-        if (otherRoute === route) continue;
+        if (otherRoute === route || otherRoute === '/') continue;
         for (const id of ids) {
           expect(otherPage, `#${id} leaked onto ${otherRoute}`).not.toContain(`id="${id}"`);
         }

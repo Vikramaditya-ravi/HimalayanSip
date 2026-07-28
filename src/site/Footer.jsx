@@ -1,9 +1,10 @@
 import { NAV_LINKS, SERVICES, currentPath } from './data'
 import { useGeo } from './hooks'
 
-// The footer's quick links are the site's routes. Home was previously reachable
-// only by scrolling, so it gains an entry here.
-const FOOTER_LINKS = [{ href: '/', label: 'Home' }, ...NAV_LINKS]
+// The footer's quick links are the site's routes. NAV_LINKS now leads with Home
+// itself, so this is a straight alias — prepending Home here as well would list
+// it twice.
+const FOOTER_LINKS = NAV_LINKS
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 export function Footer() {
@@ -15,7 +16,7 @@ export function Footer() {
         {/* Brand */}
         <div>
           <div style={{ marginBottom:14 }}>
-            <img src="/aquavia-logo.jpeg" alt="AquaVia" style={{ height: 64, borderRadius: 8, display: 'block' }} />
+            <img src="/aquavia-logo.svg" alt="AquaVia" style={{ height: 64, borderRadius: 8, display: 'block' }} />
           </div>
           <p style={{ color:'var(--muted)', fontSize:14, lineHeight:1.7 }}>Pure Himalayan hydration for brands that care.</p>
         </div>

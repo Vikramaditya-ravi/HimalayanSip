@@ -19,13 +19,22 @@ export function Navbar() {
 
   /**
    * SiteSearch indexes by section, not by route. A hit on a section that lives
-   * on this page still scrolls; a hit on one that has moved elsewhere navigates
-   * and lets the browser resolve the fragment.
+   * on this page still scrolls; a hit on one that lives elsewhere navigates and
+   * lets the browser resolve the fragment.
+   *
+   * Home renders every section, so from / the answer is always "it is on this
+   * page" — sending someone to /pricing when the pricing table is a scroll away
+   * would throw away their position in a page they are still reading.
    */
   const navigate = (sectionId) => {
-    const route = SECTION_ROUTES[sectionId] || '/'
+    const route = here === '/' ? '/' : (SECTION_ROUTES[sectionId] || '/')
     if (route === here) {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
+      const el = document.getElementById(sectionId)
+      if (el) { el.scrollIntoView({ behavior: 'smooth' }); return }
+      // Home's heavy sections are lazy, so the target may not be mounted yet.
+      // Reloading with the fragment is what useLazySection(anchorId) reads to
+      // mount it up front.
+      window.location.href = `${route}#${sectionId}`
       return
     }
     window.location.href = `${route}#${sectionId}`
@@ -39,7 +48,7 @@ export function Navbar() {
     }}>
       {/* Logo */}
       <a href="/" aria-label="AquaVia — home" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-        <img src="/aquavia-logo.jpeg" alt="AquaVia" style={{ height: 48, borderRadius: 8, display: 'block' }} />
+        <img src="/aquavia-mark.svg" alt="AquaVia" style={{ height: 48, borderRadius: 8, display: 'block' }} />
       </a>
 
       {/* Nav links

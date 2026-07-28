@@ -221,7 +221,7 @@ export const BUSINESS_SCHEMA = {
   description: 'Premium customized branded bottled water solutions for businesses in Delhi NCR',
   url: `${SITE_URL}/`,
   image: OG_IMAGE,
-  logo: `${SITE_URL}/aquavia-logo.jpeg`,
+  logo: `${SITE_URL}/aquavia-logo.png`,
   telephone: '+91-76248-03460', email: 'info@aquaviaworld.com',
   priceRange: '₹₹', currenciesAccepted: 'INR', paymentAccepted: 'Cash, Credit Card, UPI, Bank Transfer',
   areaServed: { '@type': 'City', name: 'Delhi NCR' },
@@ -331,11 +331,15 @@ export const ROUTES = {
 }
 
 /**
- * Which route each section anchor now lives on.
+ * The dedicated route for each section anchor.
  *
  * SiteSearch indexes by sectionId and predates routing, so this is what turns a
  * result into a destination: same page and it scrolls, different page and it
  * navigates to `${path}#${sectionId}`.
+ *
+ * Note these are the *dedicated* routes, not the only place a section renders.
+ * Home carries all twelve, so a search hit from / never needs this table — see
+ * the home check in Navbar's navigate().
  */
 export const SECTION_ROUTES = {
   hero: '/',
@@ -366,8 +370,15 @@ export function currentPath() {
   return path === '' || path === '/index' ? '/' : path
 }
 
-/** The nav bar, in order. Home is reached via the logo, as it always was. */
+/**
+ * The nav bar, in order.
+ *
+ * Home leads. The logo has always pointed at / and still does, but that is a
+ * convention people have to know rather than a labelled destination — and it is
+ * the one route with no link of its own in the bar.
+ */
 export const NAV_LINKS = [
+  { href: '/', label: 'Home' },
   { href: '/products', label: 'Products' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/process', label: 'Process' },

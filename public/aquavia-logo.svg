@@ -1,0 +1,189 @@
+<!-- AquaVia primary lockup. viewBox is cropped to 500 tall rather than the
+     artboard's 580: the aura tops out at y=65 and the tagline bottoms out at
+     y=441, so 580 left ~140px of dead plate under the tagline that shrank the
+     mark in every fixed-height slot it renders in. The background rects are
+     still 480x580 and simply clip. -->
+<svg viewBox="0 0 480 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="36%" r="40%">
+      <stop offset="0%" stop-color="#132E3E"/>
+      <stop offset="100%" stop-color="#080D16"/>
+    </radialGradient>
+
+    <radialGradient id="dropGrad" cx="40%" cy="28%" r="68%">
+      <stop offset="0%" stop-color="#C6F7EF"/>
+      <stop offset="30%" stop-color="#5CE0CC"/>
+      <stop offset="70%" stop-color="#13A89E"/>
+      <stop offset="100%" stop-color="#07706E"/>
+    </radialGradient>
+
+    <radialGradient id="glossHL" cx="38%" cy="32%" r="40%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3EC9BC" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#3EC9BC" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#3EC9BC" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0D48A"/>
+      <stop offset="100%" stop-color="#C4932E"/>
+    </linearGradient>
+
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8CF5E6"/>
+      <stop offset="100%" stop-color="#3EC9BC"/>
+    </linearGradient>
+
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A8B8F0"/>
+      <stop offset="100%" stop-color="#6B7FD7"/>
+    </linearGradient>
+
+    <filter id="particleGlow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="sparkle" x="-300%" y="-300%" width="700%" height="700%">
+      <feGaussianBlur stdDeviation="1.8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- background -->
+  <rect width="480" height="580" fill="#080D16"/>
+  <rect width="480" height="580" fill="url(#bgGlow)"/>
+
+  <g transform="translate(240,195)">
+
+    <!-- outer orbit ring -->
+    <circle cx="0" cy="0" r="130" fill="none" stroke="#2A5A63" stroke-width="0.5" stroke-opacity="0.3"/>
+
+    <!-- tilted electron-style orbit paths -->
+    <ellipse cx="0" cy="0" rx="105" ry="42" fill="none" stroke="#2A5A63" stroke-width="0.4" stroke-opacity="0.25" transform="rotate(-25)"/>
+    <ellipse cx="0" cy="0" rx="105" ry="42" fill="none" stroke="#2A5A63" stroke-width="0.4" stroke-opacity="0.25" transform="rotate(35)"/>
+    <ellipse cx="0" cy="0" rx="105" ry="42" fill="none" stroke="#2A5A63" stroke-width="0.4" stroke-opacity="0.25" transform="rotate(90)"/>
+
+    <!-- inner orbit ring -->
+    <circle cx="0" cy="0" r="88" fill="none" stroke="#3E7A82" stroke-width="0.5" stroke-opacity="0.3"/>
+
+    <!-- ambient glow -->
+    <circle cx="0" cy="0" r="60" fill="url(#ambientGlow)"/>
+
+    <!-- the droplet -->
+    <g filter="url(#dropShadow)">
+      <path d="M 0 -55
+               C 22 -26, 42 -2, 42 20
+               C 42 46, 24 64, 0 64
+               C -24 64, -42 46, -42 20
+               C -42 -2, -22 -26, 0 -55 Z"
+            fill="url(#dropGrad)"/>
+    </g>
+    <ellipse cx="-12" cy="4" rx="14" ry="20" fill="url(#glossHL)"/>
+
+    <!-- ===== MINERAL ATOMS on orbit paths ===== -->
+
+    <!-- gold mineral, top-right orbit -->
+    <g filter="url(#particleGlow)">
+      <circle cx="72" cy="-62" r="6" fill="url(#goldGrad)"/>
+      <circle cx="72" cy="-62" r="6" fill="none" stroke="#F0D48A" stroke-width="0.5" stroke-opacity="0.5"/>
+      <!-- electron ring around atom -->
+      <ellipse cx="72" cy="-62" rx="11" ry="5" fill="none" stroke="#F0D48A" stroke-width="0.5" stroke-opacity="0.4" transform="rotate(-20 72 -62)"/>
+    </g>
+
+    <!-- teal mineral, left orbit -->
+    <g filter="url(#particleGlow)">
+      <circle cx="-88" cy="-18" r="5" fill="url(#tealGrad)"/>
+      <circle cx="-88" cy="-18" r="5" fill="none" stroke="#8CF5E6" stroke-width="0.4" stroke-opacity="0.5"/>
+      <ellipse cx="-88" cy="-18" rx="9" ry="4" fill="none" stroke="#8CF5E6" stroke-width="0.4" stroke-opacity="0.35" transform="rotate(30 -88 -18)"/>
+    </g>
+
+    <!-- blue mineral, bottom-right -->
+    <g filter="url(#particleGlow)">
+      <circle cx="80" cy="50" r="5.5" fill="url(#blueGrad)"/>
+      <circle cx="80" cy="50" r="5.5" fill="none" stroke="#A8B8F0" stroke-width="0.4" stroke-opacity="0.5"/>
+      <ellipse cx="80" cy="50" rx="10" ry="4.5" fill="none" stroke="#A8B8F0" stroke-width="0.4" stroke-opacity="0.35" transform="rotate(-40 80 50)"/>
+    </g>
+
+    <!-- gold mineral, bottom-left -->
+    <g filter="url(#particleGlow)">
+      <circle cx="-68" cy="72" r="4.5" fill="url(#goldGrad)"/>
+      <ellipse cx="-68" cy="72" rx="8" ry="3.5" fill="none" stroke="#F0D48A" stroke-width="0.4" stroke-opacity="0.35" transform="rotate(15 -68 72)"/>
+    </g>
+
+    <!-- tiny teal molecule, top-left -->
+    <g filter="url(#sparkle)">
+      <circle cx="-42" cy="-90" r="3" fill="url(#tealGrad)"/>
+      <ellipse cx="-42" cy="-90" rx="6" ry="2.5" fill="none" stroke="#8CF5E6" stroke-width="0.35" stroke-opacity="0.3" transform="rotate(-10 -42 -90)"/>
+    </g>
+
+    <!-- ===== SPARKLE STARS (4-point crosses) ===== -->
+
+    <!-- sparkle near top-right mineral -->
+    <g filter="url(#sparkle)" opacity="0.7">
+      <line x1="98" y1="-88" x2="98" y2="-80" stroke="#F0D48A" stroke-width="0.8"/>
+      <line x1="94" y1="-84" x2="102" y2="-84" stroke="#F0D48A" stroke-width="0.8"/>
+    </g>
+
+    <!-- sparkle near left -->
+    <g filter="url(#sparkle)" opacity="0.55">
+      <line x1="-118" y1="10" x2="-118" y2="18" stroke="#8CF5E6" stroke-width="0.7"/>
+      <line x1="-122" y1="14" x2="-114" y2="14" stroke="#8CF5E6" stroke-width="0.7"/>
+    </g>
+
+    <!-- sparkle near bottom-right mineral -->
+    <g filter="url(#sparkle)" opacity="0.6">
+      <line x1="110" y1="28" x2="110" y2="34" stroke="#A8B8F0" stroke-width="0.7"/>
+      <line x1="107" y1="31" x2="113" y2="31" stroke="#A8B8F0" stroke-width="0.7"/>
+    </g>
+
+    <!-- sparkle top center -->
+    <g filter="url(#sparkle)" opacity="0.45">
+      <line x1="18" y1="-120" x2="18" y2="-114" stroke="#F0D48A" stroke-width="0.6"/>
+      <line x1="15" y1="-117" x2="21" y2="-117" stroke="#F0D48A" stroke-width="0.6"/>
+    </g>
+
+    <!-- sparkle bottom-left -->
+    <g filter="url(#sparkle)" opacity="0.5">
+      <line x1="-100" y1="92" x2="-100" y2="98" stroke="#8CF5E6" stroke-width="0.6"/>
+      <line x1="-103" y1="95" x2="-97" y2="95" stroke="#8CF5E6" stroke-width="0.6"/>
+    </g>
+
+  </g>
+
+  <!-- ===== WORDMARK ===== -->
+  <text x="240" y="386" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="48" letter-spacing="12"
+        fill="#EDE8DF">AQUAVIA</text>
+
+  <!-- divider -->
+  <line x1="142" y1="410" x2="195" y2="410" stroke="#EDE8DF" stroke-width="0.5" stroke-opacity="0.35"/>
+  <circle cx="240" cy="410" r="2.5" fill="none" stroke="#3EC9BC" stroke-width="0.8" stroke-opacity="0.6"/>
+  <line x1="285" y1="410" x2="338" y2="410" stroke="#EDE8DF" stroke-width="0.5" stroke-opacity="0.35"/>
+
+  <!-- tagline -->
+  <text x="240" y="438" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="12" letter-spacing="3.5"
+        fill="#3EC9BC" fill-opacity="0.85">PURE WATER, GRACEFULLY PRESENTED</text>
+
+</svg>

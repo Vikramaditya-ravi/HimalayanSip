@@ -94,8 +94,25 @@ export function useGeo() {
 }
 
 // ─── useLazySection ───────────────────────────────────────────────────────────
-export function useLazySection() {
-  const [visible, setVisible] = useState(false)
+/**
+ * Defer a section until it is nearly on screen.
+ *
+ * `anchorId` is optional and exists for the home page, where the heavy sections
+ * are lazy but are also deep-link targets. PageShell resolves the URL fragment
+ * in an effect after commit; a section still waiting on its observer is not in
+ * the DOM at that moment, so /#journey would find nothing and never scroll.
+ * Seeding `visible` from the hash mounts it synchronously on the first render
+ * instead, before that effect runs.
+ *
+ * Guarded for `window` because the pages are rendered with renderToString in
+ * src/analytics/__tests__/render.test.tsx, which runs in Vitest's node
+ * environment where no DOM global exists.
+ */
+export function useLazySection(anchorId) {
+  const [visible, setVisible] = useState(
+    () => !!anchorId && typeof window !== 'undefined' &&
+      decodeURIComponent(window.location.hash.slice(1)) === anchorId
+  )
   const ref = useRef(null)
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } }, { rootMargin: '200px' })

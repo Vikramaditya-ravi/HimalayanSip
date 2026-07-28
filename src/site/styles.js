@@ -102,6 +102,42 @@ export function useGlobalStyles() {
         border-bottom: 1px solid var(--glass-border) !important;
       }
 
+      /* ── Brand lockup ──────────────────────────────────────────────────────
+         The droplet is the page's scroll gauge: --fill runs 0.35 -> 1 and the
+         water slab slides to match. See BrandLockup in Navbar.jsx for why the
+         mark is inline SVG rather than the <img> it used to be. */
+      .brand-lockup {
+        display: flex; align-items: center; gap: 11px; text-decoration: none;
+        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .brand-lockup:hover { transform: translateY(-1px); }
+      .brand-lockup:focus-visible { outline: 2px solid var(--aqua); outline-offset: 6px; border-radius: 4px; }
+
+      .brand-drop { height: 40px; width: auto; display: block; overflow: visible; transition: filter 0.3s; }
+      /* Flat at rest, per the depth system — the glow is hover feedback, not
+         decoration baked into the mark. */
+      .brand-lockup:hover .brand-drop { filter: drop-shadow(0 4px 14px rgba(62,207,191,0.45)); }
+
+      /* The waterline is positioned by the SVG transform attribute, set from the
+         scroll handler — not by a CSS transform. A CSS transform on this path is
+         silently dropped (it computes to the identity matrix even when set
+         inline and left to settle), and the attribute has no such problem.
+         Tracking scroll 1:1 also suits a gauge better than easing toward the
+         target would: no lag between the scrollbar and the level. */
+
+      .brand-word {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 21px; font-weight: 600; letter-spacing: 0.22em;
+        color: var(--white); line-height: 1; white-space: nowrap;
+      }
+
+      /* Below this the bar is carrying search and the brochure CTA too; the
+         droplet alone still identifies the site. */
+      @media (max-width: 600px) {
+        .brand-word { display: none; }
+        .brand-drop { height: 36px; }
+      }
+
       /* One vertical rhythm for every heading-plus-content section.
          The ceiling is 64px, not the 100px this page used to carry, because a
          section is only doing its job if its heading and the thing it

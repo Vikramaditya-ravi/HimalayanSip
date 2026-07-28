@@ -1,16 +1,114 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { SiteSearch } from '../SiteSearch.jsx'
 import { BROCHURE_URL, NAV_LINKS, SEARCH_INDEX, SECTION_ROUTES, currentPath } from './data'
 import { DownloadIcon } from './ui.jsx'
 
+// The droplet silhouette, lifted verbatim from the master logo artwork so the
+// nav mark and the favicon are the same shape. Local coords, centred on (0,0):
+// spans x -42..42, y -55..64.
+const DROPLET = 'M 0 -55 C 22 -26, 42 -2, 42 20 C 42 46, 24 64, 0 64 C -24 64, -42 46, -42 20 C -42 -2, -22 -26, 0 -55 Z'
+
+// Where to park the top of the water slab for a given 0..1 fill. 64 is the
+// droplet's bottom edge and 125 a shade more than its 119 height, so fill=0
+// leaves the waterline just below the silhouette and fill=1 carries it just
+// above — neither end shows a seam.
+const WATERLINE = (fill) => (64 - fill * 125).toFixed(2)
+
+/**
+ * The navbar lockup.
+ *
+ * Three things were burying the previous one, and only one of them was colour.
+ * It was an <img> of aquavia-mark.svg, which carries the artwork's own opaque
+ * #080D16 plate, so it read as a dark box rather than a mark — and a box reads
+ * as chrome, not identity. That file's viewBox also runs out to the r=130 orbit
+ * ring to keep the ring closed, which is the right call for a favicon and the
+ * wrong one here: the ring is invisible at this size, so over half the logo's
+ * area was rendering nothing and the droplet came out at ~20px. And the bar
+ * never said "AquaVia" anywhere, so there was nothing to read.
+ *
+ * Hence: inline SVG cropped to the droplet alone, no plate, at roughly twice
+ * the old size, with the wordmark set beside it.
+ *
+ * The droplet then doubles as the page's scroll gauge — its water level rises
+ * from 35% at the top of the page to full at the footer. It is the only motion
+ * in the bar, it is user-driven rather than ambient, and a vessel filling with
+ * water is the product itself. The level is written straight to the node's SVG
+ * transform attribute by the scroll handler, so scrolling never re-renders
+ * React.
+ */
+function BrandLockup({ waterRef }) {
+  return (
+    <>
+      <svg className="brand-drop" viewBox="-48 -61 96 131" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="bm-water" x1="0" y1="0" x2="0.4" y2="1">
+            <stop offset="0%" stopColor="#5CE0CC" />
+            <stop offset="100%" stopColor="#13A89E" />
+          </linearGradient>
+          <clipPath id="bm-clip"><path d={DROPLET} /></clipPath>
+        </defs>
+
+        {/* the empty part of the vessel — faint, but never nothing */}
+        <path d={DROPLET} fill="rgba(62,207,191,0.10)" />
+
+        {/* the water. A slab far taller than the droplet, topped with a gentle
+            meniscus, clipped to the silhouette and slid down by (1 - fill). The
+            slab has to overshoot in both directions or the bottom edge lifts
+            into view once the level gets high. */}
+        <g clipPath="url(#bm-clip)">
+          <path ref={waterRef} className="brand-water" fill="url(#bm-water)"
+            transform={`translate(0 ${WATERLINE(0.35)})`}
+            d="M -48 0 Q -24 -7, 0 0 T 48 0 L 48 200 L -48 200 Z" />
+        </g>
+
+        <path d={DROPLET} fill="none" stroke="var(--aqua)" strokeWidth="4" strokeOpacity="0.85" />
+      </svg>
+      <span className="brand-word">AQUAVIA</span>
+    </>
+  )
+}
+
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const waterRef = useRef(null)
+
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 60)
-    window.addEventListener('scroll', handler)
-    return () => window.removeEventListener('scroll', handler)
+    // The gauge is the only thing in the bar that moves. If motion is unwelcome,
+    // the droplet just sits full.
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let frame = 0
+    const handler = () => {
+      setScrolled(window.scrollY > 60)
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        const span = document.documentElement.scrollHeight - window.innerHeight
+        const progress = span > 0 ? Math.min(1, Math.max(0, window.scrollY / span)) : 1
+        // Floored at 0.35: the gauge is the flourish, legibility is the job, and
+        // a droplet drawn as an empty outline at the top of every page would
+        // trade the second for the first.
+        const fill = still.matches ? 1 : 0.35 + 0.65 * progress
+        waterRef.current?.setAttribute('transform', `translate(0 ${WATERLINE(fill)})`)
+      })
+    }
+    handler()
+    window.addEventListener('scroll', handler, { passive: true })
+    window.addEventListener('resize', handler)
+
+    // Home's heavy sections mount lazily, so the document keeps growing after
+    // the first paint. Without this the level is computed against a scrollHeight
+    // that is about to change and reads high until the next scroll event.
+    const grew = new ResizeObserver(handler)
+    grew.observe(document.documentElement)
+
+    return () => {
+      window.removeEventListener('scroll', handler)
+      window.removeEventListener('resize', handler)
+      grew.disconnect()
+      if (frame) cancelAnimationFrame(frame)
+    }
   }, [])
 
   // Read once: this is a multi-page app, so the path cannot change without a
@@ -47,8 +145,8 @@ export function Navbar() {
       padding: '0 5%', transition: 'all 0.4s ease', background: 'transparent'
     }}>
       {/* Logo */}
-      <a href="/" aria-label="AquaVia — home" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-        <img src="/aquavia-mark.svg" alt="AquaVia" style={{ height: 48, borderRadius: 8, display: 'block' }} />
+      <a className="brand-lockup" href="/" aria-label="AquaVia — home">
+        <BrandLockup waterRef={waterRef} />
       </a>
 
       {/* Nav links

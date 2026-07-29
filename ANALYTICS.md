@@ -48,9 +48,10 @@ than with the Delhi NCR users, since every query is function→DB.
 
 ### Still to do
 
-1. **Rotate the Web3Forms key.** `WEB3FORMS_KEY` is deliberately empty; the old
-   key is in git history. Leads still persist to the database while it's blank —
-   only the email forward is skipped.
+1. **Revoke the old Web3Forms key.** The integration is gone from the code and
+   `WEB3FORMS_KEY` is no longer read anywhere, but the key `1f5d2cae…` is still
+   in git history and still live until it is deleted in the Web3Forms dashboard.
+   Delete it there, and drop the variable from Vercel's production environment.
 2. **Vercel.** No project exists under the logged-in scope
    (`ravi-prakashs-projects-2d3a609c`), so the live `himalayan-sip.vercel.app`
    is on a different account. Once linked:
@@ -266,5 +267,4 @@ to match the other.
   02:00/02:30 UTC)
 - The browser tracker in a real browser — batching, `sendBeacon` on unload, the
   delegated click listener. **Load the site and check the Live tab.**
-- The Web3Forms email forward — submit one real enquiry to confirm it arrives
 - LLM narration against a live Anthropic API key (only the fallback is tested)

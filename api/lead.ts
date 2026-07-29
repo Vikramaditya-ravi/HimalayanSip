@@ -9,10 +9,15 @@ import { contextFromRequest, track } from '../lib/track.js';
 /**
  * Lead submission — the conversion.
  *
- * The form used to POST straight to Web3Forms from the browser, with the API key
- * committed in the bundle. Now it lands here first: we persist the lead, emit the
- * conversion event as SERVER TRUTH, stitch the visitor's history, and only then
- * forward to Web3Forms with a key that never leaves the server.
+ * The form used to POST straight to a third-party email forwarder from the
+ * browser, with the API key committed in the bundle. Now it lands here: we
+ * persist the lead, emit the conversion event as SERVER TRUTH, and stitch the
+ * visitor's history.
+ *
+ * There is no email forward any more. The database row IS the enquiry — it is
+ * read from the Leads tab of /admin, and that is the only place a new enquiry
+ * appears. Nothing else is watching, so a write that fails is an enquiry lost;
+ * see the catch at the bottom, which tells the visitor rather than pretending.
  *
  * `lead_submitted` is emitted after the row is written, and is not in
  * CLIENT_EMITTABLE — a browser cannot fake a conversion.
@@ -69,17 +74,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     message: field(body?.message, LIMITS.message),
   };
 
-  // Forwarded FIRST, and deliberately not awaited or wrapped in the try below.
-  //
-  // Before this endpoint existed the form posted straight to Web3Forms, so a
-  // lead never depended on a database being reachable. Notifying inside the try
-  // would quietly reintroduce that dependency: a Neon outage would turn a real
-  // enquiry into a 500 and an email that never arrives. Losing the analytics row
-  // is recoverable; losing the customer is not.
-  void forwardToWeb3Forms(lead).catch((err) =>
-    console.error('[lead] web3forms forward failed', err),
-  );
-
   try {
     // First touch comes from the visitor's own event history, not from the form
     // payload — the client could say anything, and by submit time the landing
@@ -125,19 +119,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
   } catch (err) {
     console.error('[lead] failed to persist', err);
     await track('lead_submit_failed', { props: { reason: 'persist_error' } }, ctx);
-    // The notification is already in flight, so the enquiry is not lost — only
-    // its analytics row is. Tell the visitor it worked, because for them it did:
-    // showing an error would make them submit again or give up.
-    res.status(200).json({ ok: true, degraded: true });
+    // This used to answer `ok: true` because an email was already in flight, so
+    // the enquiry survived a database outage. With the forward gone that is no
+    // longer true: if the write failed, nobody will ever see this enquiry.
+    // Saying "thanks, we'll be in touch" would be a lie that costs a customer,
+    // so the visitor is told, and given a channel that does not depend on us.
+    res.status(503).json({
+      error: 'unavailable',
+      message: "We couldn't record your enquiry. Please email info@aquaviaworld.com and we'll pick it up from there.",
+    });
   }
-}
-
-async function forwardToWeb3Forms(lead: Record<string, string | null>): Promise<void> {
-  const key = process.env.WEB3FORMS_KEY;
-  if (!key) return;
-  await fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ access_key: key, subject: 'New AquaVia enquiry', ...lead }),
-  });
 }

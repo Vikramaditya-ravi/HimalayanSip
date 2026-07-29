@@ -160,7 +160,17 @@ function bootShimmer() {
     name: 'aq-boot-shimmer',
     transformIndexHtml: {
       order: 'pre',
-      handler(html) {
+      handler(html, ctx) {
+        // The admin dashboard is deliberately excluded. Both exits from the
+        // shimmer belong to the marketing app: it is never prerendered (it is
+        // noindex and entirely data-driven, so there is nothing to snapshot),
+        // and src/admin/main.jsx does not call useGlobalStyles(). Injected here
+        // it would be a fixed, z-index 2000 overlay that nothing ever removes —
+        // /admin renders correctly underneath it and looks permanently stuck
+        // loading. It is also a marketing-page skeleton (nav, hero, three
+        // cards), which is not the shape of the dashboard anyway.
+        if ((ctx?.path || ctx?.filename || '').includes('admin.html')) return html
+
         return html
           .replace('</head>', `  <style id="aq-boot-css">${css}</style>\n  </head>`)
           .replace('</body>', `${markup}\n  </body>`)

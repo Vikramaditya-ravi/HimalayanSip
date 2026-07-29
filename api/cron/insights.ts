@@ -17,9 +17,6 @@ import { systemContext, track } from '../../lib/track.js';
 // A normal nightly rollup over this data volume finishes in well under a second.
 export const config = { runtime: 'nodejs', maxDuration: 60 };
 
-/** Critical findings are pushed at most once per detector per week. */
-const NOTIFY_COOLDOWN_DAYS = 7;
-
 export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
   const auth = authorizeCron(req);
   if (!auth.ok) {
@@ -57,79 +54,21 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
       });
     }
 
-    const notified = await notifyCritical(narrated);
-
     await track(
       'insights_generated',
       {
         props: {
           findings: narrated.length,
           critical: narrated.filter((f) => f.severity === 'critical').length,
-          notified,
           narrated: Boolean(process.env.ANTHROPIC_API_KEY),
         },
       },
       systemContext(),
     );
 
-    res.status(200).json({ ok: true, findings: narrated.length, notified });
+    res.status(200).json({ ok: true, findings: narrated.length });
   } catch (err) {
     console.error('[cron/insights] failed', err);
     res.status(500).json({ error: 'insights_failed' });
-  }
-}
-
-/**
- * Push critical findings, deduped to once per detector per week.
- *
- * Without the cooldown a persistent problem would send the same alert every
- * night until it was fixed, which is the fastest way to teach someone to ignore
- * their own alerts.
- */
-async function notifyCritical(findings: Array<{ detector: string; severity: string; title: string; narrative: string }>): Promise<number> {
-  const critical = findings.filter((f) => f.severity === 'critical');
-  if (critical.length === 0) return 0;
-
-  const cutoff = new Date(Date.now() - NOTIFY_COOLDOWN_DAYS * 24 * 60 * 60 * 1000);
-  let sent = 0;
-
-  for (const f of critical) {
-    const recent = await prisma.insight.findFirst({
-      where: { detector: f.detector, notifiedAt: { gte: cutoff } },
-      select: { id: true },
-    });
-    if (recent) continue;
-
-    const ok = await send(f.title, f.narrative);
-    if (!ok) continue;
-
-    await prisma.insight.updateMany({
-      where: { detector: f.detector, notifiedAt: null },
-      data: { notifiedAt: new Date() },
-    });
-    sent += 1;
-  }
-
-  return sent;
-}
-
-/** Delivery via Web3Forms, reusing the key the lead endpoint already needs. */
-async function send(title: string, body: string): Promise<boolean> {
-  const key = process.env.WEB3FORMS_KEY;
-  if (!key) return false;
-  try {
-    const res = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        access_key: key,
-        subject: `AquaVia analytics: ${title}`,
-        message: body,
-      }),
-    });
-    return res.ok;
-  } catch (err) {
-    console.error('[insights] notification failed', err);
-    return false;
   }
 }

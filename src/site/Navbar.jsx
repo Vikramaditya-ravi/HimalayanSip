@@ -3,7 +3,8 @@ import * as m from 'motion/react-m'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SiteSearch } from '../SiteSearch.jsx'
-import { BROCHURE_URL, NAV_LINKS, SEARCH_INDEX, SECTION_ROUTES, currentPath } from './data'
+import { BROCHURE_URL, NAV_LINKS, SEARCH_INDEX, SECTION_ROUTES } from './data'
+import { useCurrentPath, useIsomorphicLayoutEffect } from './hooks'
 import { DownloadIcon } from './ui.jsx'
 
 // The droplet silhouette, lifted verbatim from the master logo artwork so the
@@ -158,19 +159,29 @@ const COMPACT_QUERY = '(max-width: 900px)'
  * drawer is still in the tab order's DOM, so keyboard users would tab into
  * invisible links.
  *
- * Defaults to `false` when there is no window. The pages ARE rendered without
- * one — src/analytics/__tests__/render.test.tsx runs every route through
- * renderToString — and `false` is the right answer there rather than merely the
- * safe one: it emits all six nav links as real anchors. Defaulting to compact
- * would render a burger button and no links at all, which is exactly the
- * "rendered page with zero internal links" problem the anchors were introduced
- * to fix. The effect below corrects the value on a real client.
+ * Starts `false` ALWAYS — including in a browser that is plainly narrow enough
+ * to want the burger. That is not an oversight, and it is not the same as the
+ * old lazy `window.matchMedia()` read that used to sit here.
+ *
+ * The served HTML is now prerendered at build time, where there is no viewport
+ * to measure, so it necessarily contains the wide layout. If the first client
+ * render consulted matchMedia it would ask for the burger on a phone, disagree
+ * with the markup React was handed, and hydration would fail — React discards
+ * the mismatched subtree, re-renders the whole navbar, and logs a warning.
+ * Rendering `false` first and correcting immediately is the contract hydration
+ * asks for.
+ *
+ * The correction runs in a layout effect, so on a narrow screen it lands in the
+ * same frame as hydration, before the browser paints. Nobody sees the wide bar.
+ *
+ * `false` is also the right answer for a non-executing crawler, not merely the
+ * safe one: it emits all six nav links as real anchors. Compact would render a
+ * burger button and no links at all — the "page with zero internal links"
+ * problem the anchors were introduced to fix.
  */
 function useCompact() {
-  const [compact, setCompact] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia(COMPACT_QUERY).matches,
-  )
-  useEffect(() => {
+  const [compact, setCompact] = useState(false)
+  useIsomorphicLayoutEffect(() => {
     const mq = window.matchMedia(COMPACT_QUERY)
     const onChange = (e) => setCompact(e.matches)
     mq.addEventListener('change', onChange)
@@ -288,7 +299,7 @@ export function Navbar() {
 
   // Read once: this is a multi-page app, so the path cannot change without a
   // full document load, and there is no history event to subscribe to.
-  const here = currentPath()
+  const here = useCurrentPath()
 
   /**
    * SiteSearch indexes by section, not by route. A hit on a section that lives

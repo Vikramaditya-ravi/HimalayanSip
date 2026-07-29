@@ -3,6 +3,9 @@ node_modules/
 
 # Build output
 dist/
+# SSR bundle, built by `vite build --ssr` purely so scripts/prerender.mjs can
+# import the pages in node. Never deployed.
+dist-ssr/
 build/
 
 # Python

@@ -246,6 +246,16 @@ export const EVENTS = {
     status: 'live',
     description: 'Detectors ran and insights were written. props.findings = count.',
   },
+  crawler_fetch: {
+    subjects: [],
+    status: 'live',
+    description:
+      'A bot fetched a document. Emitted from the edge middleware via /api/crawl, ' +
+      'because crawlers never execute the client tracker — which is precisely why ' +
+      'AI crawler traffic was previously invisible. props.agent carries the ' +
+      'normalised bot name (gptbot, claudebot, perplexitybot, ccbot, googlebot…). ' +
+      'device is always "bot", so every existing metric already excludes it.',
+  },
 } as const satisfies Record<string, EventDef>;
 
 export type EventName = keyof typeof EVENTS;

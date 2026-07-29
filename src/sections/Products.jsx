@@ -8,11 +8,11 @@ export function ProductsSection() {
   const titleRef = useReveal()
   const doubled = [...PRODUCTS, ...PRODUCTS]
   return (
-    <section id="products" className="sec" style={{ background:'var(--navy)' }}>
+    <section id="products" className="sec" aria-labelledby="products-heading" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div ref={titleRef} className="reveal sec-head">
           <SectionTag>Our Range</SectionTag>
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+          <h2 id="products-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Choose Your Perfect Size
           </h2>
         </div>

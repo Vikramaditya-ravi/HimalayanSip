@@ -5,10 +5,10 @@ import { useReveal } from '../site/hooks'
 export function IndustriesSection() {
   const titleRef = useReveal()
   return (
-    <section id="industries" className="sec" style={{ background:'var(--navy-mid)' }}>
+    <section id="industries" className="sec" aria-labelledby="industries-heading" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div ref={titleRef} className="reveal sec-head">
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+          <h2 id="industries-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Trusted Across Every Sector
           </h2>
         </div>

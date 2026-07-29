@@ -1,3 +1,5 @@
+import { CLAIMS, attributedClaim, claim } from './claims'
+
 // ─── Site identity ────────────────────────────────────────────────────────────
 // One source of truth for the live origin. These used to be five hardcoded
 // copies of the old preview host (himalayan-sip.vercel.app), which has since
@@ -100,20 +102,34 @@ export const JOURNEY_STEPS = [
   { num:'01', title:'The Ancient Source', color:'#3ecfbf',
     body:'Deep beneath the earth, ancient groundwater lies pristine and untouched — patient for centuries, waiting to become something extraordinary.' },
   { num:'02', title:'Precision Extraction', color:'#5b8ff9',
-    body:'Our precision-engineered wells reach into protected aquifers, drawing water upward gently, without disturbance to the surrounding ecosystem.' },
+    body:"Our bottling partner's precision-engineered wells reach into protected aquifers, drawing water upward gently, without disturbance to the surrounding ecosystem." },
   { num:'03', title:'7-Stage Filtration', color:'#7c4dff',
-    body:'Every drop enters our fortress of purity — seven sequential stages stripping out sediment, bacteria, dissolved solids, and invisible contaminants.',
+    body:"Every drop enters our bottling partner's filtration hall — seven sequential stages stripping out sediment, bacteria, dissolved solids, and invisible contaminants.",
     stages: FILTRATION_STAGES },
   { num:'04', title:'Mineral Alchemy', color:'#c8a44a',
-    body:'Stripped of impurities but not of life. Essential minerals — calcium, magnesium, potassium — are woven back in, perfectly balanced for the human body.' },
+    body:"Stripped of impurities but not of life. At our bottling partner's plant, essential minerals — calcium, magnesium, potassium — are woven back in after reverse osmosis." },
   { num:'05', title:'Custom Bottling', color:'#3ecfbf',
     body:"Your brand. Your label. Your identity. Each bottle is filled, sealed, and dressed in your livery — a product that's unmistakably yours." },
   { num:'06', title:'Cold-Chain Delivery', color:'#5b8ff9',
-    body:"Temperature never rises above 4°C from the moment it's sealed. Our refrigerated fleet ensures every bottle arrives as cold as it was born." },
+    body:`Dispatch runs cold from the moment the bottle is sealed — ${attributedClaim('coldChain')}. The refrigerated fleet is our bottling partner's, and every bottle arrives as cold as it was born.` },
   { num:'07', title:'Your Water', color:'#c8a44a',
     body:'Cold. Crisp. Crafted for you. Not mass-produced. Not generic. Your water — made to your specification, delivered to your door.' },
 ]
 
+/**
+ * Illustrative client feedback.
+ *
+ * These are NOT verified, attributable quotes from named clients who have
+ * consented to be published, and TestimonialsSection labels them as
+ * illustrative on the page for exactly that reason.
+ *
+ * The consequence that matters for search: no `Review` or `AggregateRating`
+ * schema is emitted anywhere on this site — see src/site/schema.js. Review
+ * markup describing quotes we cannot stand behind is a manual-action risk that
+ * would undo every other gain, and a five-star rating no buyer can trace is
+ * worth less than no rating at all. Replace these with consented, named clients
+ * and the schema becomes safe to add.
+ */
 export const TESTIMONIALS = [
   { name: 'Priya Sharma', title: 'Marketing Head, Nexus Realty', initials: 'PS', text: 'AquaVia transformed our site visits. Handing branded water to potential buyers elevated our brand perception instantly. Orders arrived ahead of schedule — flawless execution.', rating: 5 },
   { name: 'Arjun Mehta', title: 'Director of Operations, Transcend Hotels', initials: 'AM', text: 'As a luxury hotel group, presentation is everything. AquaVia bottles sit on every dining table. Guests always comment on them. Exceptional quality, beautiful labels, reliable supply.', rating: 5 },
@@ -124,9 +140,12 @@ export const FAQS = [
   { q: 'What is the minimum order quantity?', a: '500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' },
   { q: 'How is your pricing structured?', a: 'Pricing is per case across three partnership tiers set by weekly dispatch volume — Signature (1–10 / week), Preferred (11–50) and Enterprise (51+). A case is 12 × 1L, 24 × 500ml or 36 × 250ml. Rates start at ₹100 / ₹136 / ₹176 per case and fall with volume. GST and transportation are quoted separately.' },
   { q: 'Which areas do you currently serve?', a: 'We currently serve Delhi and Delhi NCR — including Gurugram, Noida, Faridabad, and Ghaziabad.' },
-  { q: 'How long does production and delivery take?', a: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days. Rush orders available.' },
+  { q: 'How long does production and delivery take?', a: `Design proof in ${claim('proofTime')}. Production + delivery in ${claim('leadTime')}. Rush orders available.` },
   { q: 'What file format should I send my logo in?', a: 'We accept PNG, SVG, PDF, and AI files. Vector formats (SVG, AI) yield the sharpest print results.' },
-  { q: 'Can I get a sample before placing a bulk order?', a: 'Absolutely — request a free sample bottle through our contact form.' },
+  // There is no contact form on this site — ContactSection deliberately replaced
+  // it with three direct channels. An answer that sends people to a form that
+  // does not exist is a dead end for a buyer and a contradiction for a crawler.
+  { q: 'Can I get a sample before placing a bulk order?', a: 'Yes. Message the sales desk on WhatsApp at +91 76248 03460 or email info@aquaviaworld.com with your logo and rough quantity, and we will arrange a sample bottle.' },
   { q: 'What label materials do you offer?', a: 'BOPP (waterproof), matte paper, glossy paper, and premium metallic foil labels.' },
 ]
 
@@ -204,66 +223,14 @@ export const SEARCH_INDEX = [
     body: 'contact enquiry quote sample pricing order delivery brochure rate card' },
 ]
 
-// ─── JSON-LD Schemas ──────────────────────────────────────────────────────────
-// Split by route rather than shipped as one block on every page. The business
-// node is the site's identity and belongs everywhere; the Product and FAQPage
-// nodes describe specific pages and are attached only to those, so a crawler is
-// never told that the About page is also an offer.
-export const BUSINESS_SCHEMA = {
-  // Service-area business, not a storefront: we deliver across Delhi NCR and
-  // have no address customers visit. `areaServed` carries the geography and
-  // the PostalAddress is region-level only, so no fake streetAddress is
-  // asserted. The @id makes this the canonical entity node that the Product
-  // block below points its `seller` at.
-  '@context': 'https://schema.org', '@type': 'LocalBusiness',
-  '@id': `${SITE_URL}/#business`,
-  name: 'AquaVia',
-  description: 'Premium customized branded bottled water solutions for businesses in Delhi NCR',
-  url: `${SITE_URL}/`,
-  image: OG_IMAGE,
-  logo: `${SITE_URL}/aquavia-logo.png`,
-  telephone: '+91-76248-03460', email: 'info@aquaviaworld.com',
-  priceRange: '₹₹', currenciesAccepted: 'INR', paymentAccepted: 'Cash, Credit Card, UPI, Bank Transfer',
-  areaServed: { '@type': 'City', name: 'Delhi NCR' },
-  address: { '@type': 'PostalAddress', addressLocality: 'New Delhi', addressRegion: 'Delhi', postalCode: '110001', addressCountry: 'IN' },
-  openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:00', closes: '18:00' }],
-  sameAs: ['https://www.instagram.com/aquavia.official?igsh=eHVmM3F3MnI2OTl0','https://www.linkedin.com/company/aquavia'],
-}
-
-export const PRODUCT_SCHEMA = {
-  '@context': 'https://schema.org', '@type': 'Product',
-  '@id': `${SITE_URL}/#product`,
-  name: 'Custom Branded Water Bottles',
-  description: 'Personalized bottled water with your company logo, sold by the case across three corporate pricing tiers. Available in 250ml, 500ml, and 1L sizes.',
-  brand: { '@type': 'Brand', name: 'AquaVia' },
-  image: OG_IMAGE,
-  // One offer per size we actually sell, priced from the brochure.
-  // lowPrice/highPrice must bracket the enumerated offers exactly — lowPrice
-  // was 4.61, a volume-tier rate that appears in no offer below, and Google
-  // invalidates the whole AggregateOffer when the bounds disagree.
-  offers: {
-    '@type': 'AggregateOffer',
-    priceCurrency: 'INR', lowPrice: '4.89', highPrice: '8.33', offerCount: 3,
-    availability: 'https://schema.org/InStock',
-    offers: [
-      { '@type': 'Offer', name: '250ml Custom Bottle', price: '4.89', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: '500ml Custom Bottle', price: '5.67', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: '1L Custom Bottle',    price: '8.33', priceCurrency: 'INR', availability: 'https://schema.org/InStock' },
-    ],
-    seller: { '@id': `${SITE_URL}/#business` },
-  },
-}
-
-export const FAQ_SCHEMA = {
-  '@context': 'https://schema.org', '@type': 'FAQPage',
-  mainEntity: [
-    { '@type': 'Question', name: 'What is the minimum order quantity for custom water bottles?', acceptedAnswer: { '@type': 'Answer', text: 'Minimum order is 500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' } },
-    { '@type': 'Question', name: 'How is your pricing structured?', acceptedAnswer: { '@type': 'Answer', text: 'Pricing is per case across three partnership tiers based on weekly dispatch volume: Signature (1–10 dispatches/week), Preferred (11–50) and Enterprise (51+). A case is 12 × 1L, 24 × 500ml or 36 × 250ml. Rates start at ₹100, ₹136 and ₹176 per case respectively and fall with volume. GST and transportation are quoted separately.' } },
-    { '@type': 'Question', name: 'Which areas do you currently serve?', acceptedAnswer: { '@type': 'Answer', text: 'We currently serve Delhi and Delhi NCR including Gurugram, Noida, Faridabad and Ghaziabad.' } },
-    { '@type': 'Question', name: 'How long does production and delivery take?', acceptedAnswer: { '@type': 'Answer', text: 'Design proof in 24–48 hours. Production + delivery in 5–10 business days.' } },
-    { '@type': 'Question', name: 'Can I get a sample bottle before placing a bulk order?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, we offer sample bottles so you can verify quality and design before committing to a bulk order.' } },
-  ],
-}
+// ─── JSON-LD ──────────────────────────────────────────────────────────────────
+// The three hand-written schema constants that used to live here — a
+// LocalBusiness, a Product and an FAQPage, each a standalone object with its own
+// @context and no reference to the others — are now built as one connected
+// @graph per page in ./schema.js. Three disconnected blobs describe three
+// unrelated things; one graph describes a business. The split-by-route rule they
+// documented is preserved there: identity nodes on every page, offer and FAQ
+// nodes only on the pages that are an offer or an FAQ.
 
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
 /**
@@ -288,45 +255,56 @@ export const FAQ_SCHEMA = {
 export const ROUTES = {
   home: {
     path: '/',
+    // The visible <h1> lives in HeroSection, which is home-only. Every other
+    // route gets its heading from PageShell, from the `h1` field below.
     title: 'Custom Branded Water Bottles Delhi NCR | AquaVia',
     description: 'Premium customized water bottles with your logo for Delhi NCR businesses. Serving Connaught Place, Gurugram, Noida, Greater Noida. Bulk orders available.',
     keywords: 'custom water bottles Delhi, branded water bottles Delhi NCR, corporate water bottle Gurugram, bulk water bottle Noida',
-    schema: [BUSINESS_SCHEMA],
   },
   products: {
     path: '/products',
     title: 'Custom Water Bottle Sizes & MOQs — 250ml, 500ml, 1L | AquaVia',
     description: 'Branded water bottles in 250ml, 500ml and 1 litre. Minimum orders from 150 units. Upload your logo and preview your label before you order.',
     keywords: 'custom water bottle sizes, 250ml branded bottle, 500ml corporate water bottle, 1 litre custom bottle, water bottle MOQ',
-    schema: [BUSINESS_SCHEMA, PRODUCT_SCHEMA],
+    h1: 'Custom Branded Water Bottle Sizes & Minimum Order Quantities',
+    lede: 'AquaVia prints your branding on three bottle sizes — 250ml, 500ml and 1 litre — sold by the case to businesses across Delhi NCR. Minimum orders start at 150 units for 1 litre, 250 for 500ml and 500 for 250ml. Upload artwork below to preview your label before you commit.',
+    breadcrumb: 'Products',
   },
   pricing: {
     path: '/pricing',
     title: 'Bulk Water Bottle Pricing & Corporate Tiers | AquaVia',
     description: 'Per-case rates across three partnership tiers from ₹100 per case. Download the full rate card. GST and transportation quoted separately.',
     keywords: 'bulk water bottle price, corporate water bottle pricing Delhi, branded water rate card, water bottle price per case',
-    schema: [BUSINESS_SCHEMA, FAQ_SCHEMA],
+    h1: 'Bulk Water Bottle Pricing for Delhi NCR Businesses',
+    lede: 'Branded bottled water is priced per case across three partnership tiers set by weekly dispatch volume, starting at ₹100 per case of 12 × 1 litre. GST and transportation are quoted separately. The full rate card is downloadable below.',
+    breadcrumb: 'Pricing',
   },
   process: {
     path: '/process',
     title: 'How We Make It — 7-Stage Filtration & Delivery | AquaVia',
     description: 'Seven-stage filtration, mineral balancing, bottling and Delhi NCR dispatch in 5–10 business days.',
     keywords: '7 stage filtration water, RO membrane ozonation, packaged drinking water process, cold chain water delivery Delhi',
-    schema: [BUSINESS_SCHEMA],
+    h1: 'How Your Branded Water Is Filtered, Bottled and Delivered',
+    lede: 'Every litre passes through seven filtration stages at our bottling partner\u2019s plant — sand filtration, straining, carbon, sediment, reverse osmosis, activated carbon and ozonation — before it is bottled under your label and dispatched across Delhi NCR.',
+    breadcrumb: 'Process',
   },
   about: {
     path: '/about',
     title: 'About AquaVia — Branded Bottled Water, Delhi NCR',
     description: 'Who we are, and why businesses across Delhi, Gurugram and Noida put their logo on our bottles.',
     keywords: 'about AquaVia, branded water company Delhi, private label water supplier NCR',
-    schema: [BUSINESS_SCHEMA],
+    h1: 'About AquaVia — Private-Label Bottled Water in Delhi NCR',
+    lede: 'AquaVia is a private-label bottled water supplier working with a licensed bottling partner to put client branding on packaged drinking water, delivered in bulk to hotels, offices, events and healthcare across Delhi NCR.',
+    breadcrumb: 'About'
   },
   contact: {
     path: '/contact',
     title: 'Contact AquaVia — Get a Bulk Water Bottle Quote',
     description: 'WhatsApp, call or email the sales desk. Send your logo and quantity, get a quote back the same day. Serving Delhi NCR.',
     keywords: 'contact AquaVia, custom water bottle quote Delhi, bulk water bottle enquiry, branded water sample',
-    schema: [BUSINESS_SCHEMA],
+    h1: 'Contact AquaVia for a Bulk Water Bottle Quote',
+    lede: 'Send your logo and rough quantity by WhatsApp, phone or email and the sales desk quotes the same day. There is no contact form — these three channels reach the people who price the order.',
+    breadcrumb: 'Contact'
   },
 }
 
@@ -357,18 +335,19 @@ export const SECTION_ROUTES = {
 }
 
 /**
- * The current route, normalised.
+ * The current route used to be read from window.location here.
  *
- * Production serves /products out of products.html via a rewrite, but the
- * underlying /products.html is still reachable and `vite preview` serves those
- * paths directly. Both spellings have to resolve to one route or the active nav
- * state and the same-page check in SiteSearch silently disagree with each other.
+ * It now comes from RouteContext in ./hooks — see useCurrentPath. Reading the
+ * URL was correct only because the first render always happened in a browser;
+ * once pages are prerendered at build time there is no location to read, and a
+ * hook that answers '/' for every page would mark Home as the current page in
+ * every built document and then mismatch on hydration.
+ *
+ * PageShell knows its own route, so it supplies the answer instead of the
+ * environment being asked for it. Production serves /products out of
+ * products.html via a rewrite and the .html spelling stays reachable, so the
+ * value published is always the normalised path.
  */
-export function currentPath() {
-  if (typeof window === 'undefined') return '/'
-  const path = window.location.pathname.replace(/\.html$/, '')
-  return path === '' || path === '/index' ? '/' : path
-}
 
 /**
  * The nav bar, in order.

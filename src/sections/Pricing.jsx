@@ -7,11 +7,11 @@ export function PricingSection() {
   const titleRef = useReveal()
   const footRef = useReveal()
   return (
-    <section id="pricing" className="sec" style={{ background:'var(--navy-mid)' }}>
+    <section id="pricing" className="sec" aria-labelledby="pricing-heading" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div ref={titleRef} className="reveal sec-head">
           <SectionTag>Corporate Programme</SectionTag>
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+          <h2 id="pricing-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Pricing, <span style={{ color:'var(--aqua)' }}>refined.</span>
           </h2>
           <p style={{ color:'var(--muted)', maxWidth:560, margin:'10px auto 0', lineHeight:1.6 }}>

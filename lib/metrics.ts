@@ -789,3 +789,89 @@ export async function infraHealth(): Promise<MetricResult<{
     },
   };
 }
+
+// ---------------------------------------------------------------------------
+// AI crawlers
+//
+// Everything above this line measures people. These two measure machines, and
+// they exist because the entire generative-search programme is aimed at a class
+// of traffic the rest of this file deliberately excludes: `NOT_BOT` is in
+// PUBLIC_TRAFFIC precisely so a crawler never inflates a visitor number.
+//
+// So these query the bot rows directly — `crawler_fetch` events written by
+// api/crawl.ts from the edge middleware, because crawlers never execute the
+// client tracker and were therefore invisible to every other metric here.
+//
+// Being able to answer "did ChatGPT's crawler read our pricing page this week"
+// is unusual for a business this size, and it is only possible because the
+// first-party pipeline already exists.
+// ---------------------------------------------------------------------------
+
+/** Crawler hits per agent, with how many distinct URLs each one reached. */
+export async function crawlerAgents(days: number, limit = 20): Promise<MetricResult<Array<{
+  agent: string;
+  hits: number;
+  pages: number;
+  lastSeen: string | null;
+}>>> {
+  const since = rangeStart(days);
+  const rows = await prisma.$queryRaw<Array<{
+    agent: string | null; hits: bigint; pages: bigint; last: Date | null;
+  }>>`
+    SELECT e."browser" AS agent,
+           COUNT(*)::bigint AS hits,
+           COUNT(DISTINCT e."pageUrl")::bigint AS pages,
+           MAX(e."occurredAt") AS last
+    FROM "Event" e
+    WHERE e."occurredAt" >= ${since} AND e."name" = 'crawler_fetch'
+    GROUP BY 1 ORDER BY hits DESC LIMIT ${limit}
+  `;
+  return {
+    // Never rolled up: the daily rollup tables are built from PUBLIC_TRAFFIC,
+    // which excludes bots by design, so these numbers are always exact and are
+    // always bounded by the raw retention window.
+    rolledUp: false,
+    data: rows.map((r) => ({
+      agent: r.agent ?? 'unknown',
+      hits: Number(r.hits),
+      pages: Number(r.pages),
+      lastSeen: r.last?.toISOString() ?? null,
+    })),
+  };
+}
+
+/**
+ * Which URLs crawlers are fetching, and which agents reached each one.
+ *
+ * The actionable column is `agents`. A page that Googlebot reads weekly and
+ * GPTBot has never touched is a page that can rank and cannot be cited, and that
+ * distinction is invisible in any conventional analytics product.
+ */
+export async function crawlerPages(days: number, limit = 40): Promise<MetricResult<Array<{
+  page: string;
+  hits: number;
+  agents: string;
+  lastSeen: string | null;
+}>>> {
+  const since = rangeStart(days);
+  const rows = await prisma.$queryRaw<Array<{
+    page: string | null; hits: bigint; agents: string | null; last: Date | null;
+  }>>`
+    SELECT e."pageUrl" AS page,
+           COUNT(*)::bigint AS hits,
+           STRING_AGG(DISTINCT e."browser", ', ' ORDER BY e."browser") AS agents,
+           MAX(e."occurredAt") AS last
+    FROM "Event" e
+    WHERE e."occurredAt" >= ${since} AND e."name" = 'crawler_fetch' AND e."pageUrl" IS NOT NULL
+    GROUP BY 1 ORDER BY hits DESC LIMIT ${limit}
+  `;
+  return {
+    rolledUp: false,
+    data: rows.map((r) => ({
+      page: r.page ?? '—',
+      hits: Number(r.hits),
+      agents: r.agents ?? '—',
+      lastSeen: r.last?.toISOString() ?? null,
+    })),
+  };
+}

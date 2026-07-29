@@ -5,14 +5,14 @@ import { useReveal } from '../site/hooks'
 export function ServicesSection() {
   const ref = useReveal()
   return (
-    <section id="services" className="sec" style={{ background:'var(--navy)' }}>
+    <section id="services" className="sec" aria-labelledby="services-heading" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ marginBottom:36 }} ref={ref} className="reveal">
           {/* The one-line treatment is a wide-viewport flourish only. Left as an
               unconditional inline `nowrap` it made this heading 404px wide inside a
               390px viewport — the single cause of horizontal overflow on the home
               page. .services-h2 releases it below 1100px. */}
-          <h2 className="services-h2" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(26px,3.2vw,44px)', color:'var(--white)', lineHeight:1.1 }}>
+          <h2 id="services-heading" className="services-h2" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(26px,3.2vw,44px)', color:'var(--white)', lineHeight:1.1 }}>
             End-to-End Branded Water Solutions
           </h2>
         </div>

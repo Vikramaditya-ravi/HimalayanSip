@@ -23,9 +23,20 @@ export interface Attribution {
   fbclid: string | null;
   msclkid: string | null;
   referrer: string | null;
-  referrerType: 'search' | 'social' | 'referral' | 'direct';
+  referrerType: 'ai' | 'search' | 'social' | 'referral' | 'direct';
   landingPage: string | null;
 }
+
+/**
+ * Assistants that send referred traffic.
+ *
+ * These are the destinations a visitor arrives FROM after an assistant named
+ * AquaVia in an answer — the demand side of generative search. The crawler side
+ * (GPTBot and friends fetching pages) is measured separately in
+ * middleware.js + api/crawl.ts, because bots never run this code at all.
+ */
+const AI_HOSTS =
+  /(^|\.)(chat\.openai\.com|chatgpt\.com|openai\.com|perplexity\.ai|gemini\.google\.com|bard\.google\.com|claude\.ai|copilot\.microsoft\.com|you\.com|phind\.com)$/i;
 
 const SEARCH_HOSTS =
   /(^|\.)(google\.|bing\.|duckduckgo\.|yahoo\.|yandex\.|baidu\.|ecosia\.|brave\.|startpage\.|qwant\.)/i;
@@ -36,6 +47,11 @@ export function classifyReferrer(referrer: string | null): Attribution['referrer
   if (!referrer) return 'direct';
   try {
     const host = new URL(referrer).hostname;
+    // Checked BEFORE search. gemini.google.com would otherwise be counted as
+    // Google search traffic, which is the one channel we most need to be able to
+    // tell apart from it — a visitor an assistant sent is the whole point of the
+    // generative-search work, and folding them into 'search' hides the result.
+    if (AI_HOSTS.test(host)) return 'ai';
     if (SEARCH_HOSTS.test(host)) return 'search';
     if (SOCIAL_HOSTS.test(host)) return 'social';
     return 'referral';

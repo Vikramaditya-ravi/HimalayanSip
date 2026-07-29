@@ -510,12 +510,12 @@ function FiltrationShowcase() {
 export function JourneySection() {
   const titleRef = useReveal()
   return (
-    <section id="journey" className="sec" style={{ background:'var(--navy)', position:'relative', overflow:'hidden' }}>
+    <section id="journey" className="sec" aria-labelledby="journey-heading" style={{ background:'var(--navy)', position:'relative', overflow:'hidden' }}>
       <div style={{ position:'absolute', top:'30%', left:'50%', transform:'translateX(-50%)', width:700, height:700, background:'radial-gradient(circle,rgba(62,207,191,0.035) 0%,transparent 70%)', borderRadius:'50%', pointerEvents:'none' }}/>
       <div style={{ maxWidth:1200, margin:'0 auto', position:'relative' }}>
         <div ref={titleRef} className="reveal" style={{ textAlign:'center', marginBottom:88 }}>
           <p style={{ color:'var(--aqua)', fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, letterSpacing:4, textTransform:'uppercase', marginBottom:16 }}>THE JOURNEY</p>
-          <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontWeight:700, fontSize:'clamp(34px,5vw,64px)', color:'var(--white)', lineHeight:1.05, marginBottom:20 }}>
+          <h2 id="journey-heading" style={{ fontFamily:"'Cormorant Garamond',serif", fontWeight:700, fontSize:'clamp(34px,5vw,64px)', color:'var(--white)', lineHeight:1.05, marginBottom:20 }}>
             From Earth to <span style={{ color:'var(--gold)' }}>You</span>
           </h2>
           <p style={{ color:'var(--muted)', fontSize:16, lineHeight:1.75, maxWidth:560, margin:'0 auto' }}>

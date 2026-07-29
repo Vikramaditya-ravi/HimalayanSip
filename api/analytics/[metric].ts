@@ -33,6 +33,10 @@ const HANDLERS = {
   retention: (days: number) => m.retention(days),
   search: (days: number) => m.searchQueries(days),
   products: (days: number) => m.productPerformance(days),
+  // AI crawler visibility. Separate from every metric above because those all
+  // filter bots out by design — see the note in lib/metrics.ts.
+  crawlers: (days: number) => m.crawlerAgents(days),
+  crawlerPages: (days: number) => m.crawlerPages(days),
   live: () => m.liveVisitors(),
   recent: () => m.recentEvents(100),
   insights: () => m.latestInsights(),

@@ -24,21 +24,17 @@ const SESSION = 60 * 30;
 export const config = {
   // Document requests only. Assets must stay cacheable and must not mint identity.
   //
-  // Every route must be listed. This matcher is a literal path list, not a
-  // prefix — a route missing from it is served without ever minting `vid`, so a
-  // visitor who lands directly on /pricing from search has no identity and every
-  // event they generate is attributed to nobody. Both spellings are covered
-  // because the extensionless path is what vercel.json rewrites from, and the
-  // .html file stays directly reachable.
-  matcher: [
-    '/', '/index.html',
-    '/products', '/products.html',
-    '/pricing', '/pricing.html',
-    '/process', '/process.html',
-    '/about', '/about.html',
-    '/contact', '/contact.html',
-    '/admin', '/admin.html',
-  ],
+  // This used to be a literal list of every route, both spellings. That was
+  // workable for six pages and became a liability the moment the site grew a
+  // content directory: ~23 generated pages would each have needed two entries
+  // here, and a route missing from the list is served without ever minting
+  // `vid` — so a visitor landing on it from search has no identity and every
+  // event they generate is attributed to nobody. Silently.
+  //
+  // The pattern below matches any path that is not under /api and does not
+  // contain a dot, which is every document and no asset. New pages are covered
+  // the day they are added rather than the day somebody remembers this file.
+  matcher: ['/((?!api/)[^.]*)'],
 };
 
 function readCookie(request, name) {
@@ -88,8 +84,50 @@ function cookie(name, value, maxAge, httpOnly) {
  * lost: identity is resolved server-side on every event either way, and a
  * visitor who never fires an event has no events to attribute.
  */
-export default function middleware(request) {
+/**
+ * Bot user-agents, matched at the edge.
+ *
+ * A deliberately small copy of the pattern in lib/ua.ts rather than an import:
+ * this file runs on the edge runtime and must stay dependency-free and tiny, and
+ * the authoritative classification happens server-side in /api/crawl anyway —
+ * this is only a filter deciding whether the ping is worth making at all. A
+ * false positive here costs one discarded request; a false negative costs a
+ * crawler visit we never see.
+ */
+const BOT_UA =
+  /bot|crawler|spider|slurp|gptbot|claudebot|claude-web|perplexity|ccbot|anthropic|applebot|bytespider|meta-externalagent|amazonbot|google-extended|chatgpt/i;
+
+/**
+ * Records that a crawler fetched a document.
+ *
+ * Fire-and-forget through `waitUntil`, so the response is never held up by it —
+ * a slow analytics write must not slow down the page a crawler is measuring. If
+ * the ping fails the page is served exactly as before; we simply do not learn
+ * about that hit.
+ *
+ * This exists because crawlers never execute the client tracker, which meant AI
+ * crawler traffic — the entire target of the generative-search work — was the
+ * one thing the analytics pipeline could not see. See api/crawl.ts.
+ */
+function pingCrawlLog(request, context) {
+  const ua = request.headers.get('user-agent') || '';
+  if (!BOT_UA.test(ua)) return;
+  const { pathname } = new URL(request.url);
+  const body = JSON.stringify({ ua, path: pathname });
+  const done = fetch(new URL('/api/crawl', request.url), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body,
+  }).catch(() => {});
+  // context.waitUntil keeps the function alive for the request without blocking
+  // the response. Guarded because it is absent in some local runtimes.
+  if (typeof context?.waitUntil === 'function') context.waitUntil(done);
+}
+
+export default function middleware(request, context) {
   try {
+    pingCrawlLog(request, context);
+
     if (readCookie(request, 'vid')) return next();
 
     const response = next();

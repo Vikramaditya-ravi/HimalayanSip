@@ -8,8 +8,38 @@ import { Footer } from './Footer.jsx'
 import { Navbar } from './Navbar.jsx'
 import { WhatsAppButton } from './WhatsAppButton.jsx'
 import { ROUTES, SITE_URL } from './data'
-import { GeoContext, useGeoContent, useGeoTarget, useSEO } from './hooks'
+import { GeoContext, RouteContext, useGeoContent, useGeoTarget, useSEO } from './hooks'
+import { graphFor } from './schema'
 import { NAV_CLEAR, useGlobalStyles } from './styles'
+
+/**
+ * The trail of links above a page's heading.
+ *
+ * Rendered as an ordered list inside a labelled <nav>, which is what assistive
+ * technology and extraction alike expect — and mirrored exactly by the
+ * BreadcrumbList node in the page's JSON-LD, so the visible trail and the
+ * machine-readable one cannot describe different sites.
+ *
+ * Home is deliberately not given a breadcrumb: a trail with one entry that
+ * points at the page you are already on is noise.
+ */
+function Breadcrumbs({ trail }) {
+  return (
+    <nav aria-label="Breadcrumb" className="crumbs">
+      <ol>
+        <li><a href="/">Home</a></li>
+        {trail.map((crumb, i) => (
+          <li key={crumb.path}>
+            <span aria-hidden="true" className="crumb-sep">/</span>
+            {i === trail.length - 1
+              ? <span aria-current="page">{crumb.name}</span>
+              : <a href={crumb.path}>{crumb.name}</a>}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
 
 /**
  * Everything every route shares.
@@ -22,9 +52,24 @@ import { NAV_CLEAR, useGlobalStyles } from './styles'
  * `padTop` clears the 72px fixed navbar. Home passes false because HeroSection
  * carries its own paddingTop:72 (it always has — it was the only section that
  * ever sat directly under the bar).
+ *
+ * Three things it now owns that it did not before:
+ *
+ * 1. **The route**, published on RouteContext. The navbar and footer used to ask
+ *    window.location which page they were on, which is unanswerable at build
+ *    time — see the note on useCurrentPath.
+ * 2. **The page's `<h1>`**, from ROUTES[route].h1. Five of six routes had no h1
+ *    at all in the rendered DOM: their top heading was a section `<h2>`, so
+ *    Google saw five headless pages. Home is the exception — HeroSection carries
+ *    the site's h1 and passing `h1` there too would produce two.
+ * 3. **The breadcrumb trail**, visible and structured, on every non-home route.
  */
-export function PageShell({ route, padTop = true, children }) {
-  const meta = ROUTES[route]
+export function PageShell({ route, meta: metaProp, schema: schemaProp, padTop = true, children, trail }) {
+  // Generated content pages (src/content) are not in ROUTES — there are two
+  // dozen of them and they are data, not hand-registered routes — so they pass
+  // their own meta and their own graph instead of a key into the route table.
+  const meta = metaProp ?? ROUTES[route]
+  const crumbs = trail ?? meta.trail ?? (meta.breadcrumb ? [{ name: meta.breadcrumb, path: meta.path }] : null)
 
   useGlobalStyles()
   const geo = useGeoTarget()
@@ -44,24 +89,21 @@ export function PageShell({ route, padTop = true, children }) {
     keywords: meta.keywords,
     // Trailing slash on the root only, matching what the sitemap declares.
     canonical: meta.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${meta.path}`,
-    schema: meta.schema,
+    schema: schemaProp ?? graphFor(route, meta),
   })
 
   /**
    * Resolve the URL fragment ourselves, once.
    *
-   * The browser looks for #faq while parsing the served HTML — at which point
-   * the shell is an empty <div id="root"> and React has rendered nothing, so it
-   * finds no such element and the document never moves. On the single-page site
-   * this never came up: every anchor was already in the DOM and navigation went
-   * through scrollIntoView on a live node. Now that sections live on separate
-   * routes, /products#customizer, /pricing#faq and every cross-route SiteSearch
-   * hit depend on this running after the tree is committed.
+   * The browser looks for #faq while parsing the served HTML. On a prerendered
+   * page the target now exists at parse time and the browser gets there on its
+   * own; this still runs for `vite dev`, where #root is empty until React
+   * commits, and it corrects the offset in both cases.
    *
    * Deliberately not scrollIntoView, for the same reason scrollToFiltration
    * isn't: #filtration sits inside a section with overflow:hidden, which is its
    * own scrollport, and scrollIntoView stops there. Scrolling the window against
-   * the absolute offset skips the intervening scrollport. 96px clears the navbar.
+   * the absolute offset skips the intervening scrollport.
    */
   useEffect(() => {
     const id = decodeURIComponent(window.location.hash.slice(1))
@@ -102,17 +144,34 @@ export function PageShell({ route, padTop = true, children }) {
        durations, and has no effect whatsoever on JS-driven transforms. */
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
-        <GeoContext.Provider value={{ geo, content }}>
-          <div role="main" style={{ fontFamily:'DM Sans, sans-serif' }}>
-            <Navbar />
-            <div style={padTop ? { paddingTop: NAV_CLEAR } : undefined}>
-              {children}
+        <RouteContext.Provider value={meta.path}>
+          <GeoContext.Provider value={{ geo, content }}>
+            <div style={{ fontFamily:'DM Sans, sans-serif' }}>
+              <Navbar />
+              {/* A real <main>, not role="main" on a div. The ARIA role was
+                  correct as far as it went, but the element carries the same
+                  semantics natively and is what extraction heuristics look for
+                  when deciding which part of a document is the content. */}
+              <main style={padTop ? { paddingTop: NAV_CLEAR } : undefined}>
+                {crumbs && (
+                  <div className="page-head">
+                    <Breadcrumbs trail={crumbs} />
+                    <h1 className="page-h1">{meta.h1}</h1>
+                    {/* The lede is written to be lifted: one self-contained
+                        paragraph, directly under the h1, that answers what the
+                        page is about without needing the rest of the page for
+                        context. That is the shape an assistant quotes. */}
+                    {meta.lede && <p className="page-lede answer-block">{meta.lede}</p>}
+                  </div>
+                )}
+                {children}
+              </main>
+              <Footer />
+              <WhatsAppButton />
+              <ConsentBanner />
             </div>
-            <Footer />
-            <WhatsAppButton />
-            <ConsentBanner />
-          </div>
-        </GeoContext.Provider>
+          </GeoContext.Provider>
+        </RouteContext.Provider>
       </MotionConfig>
     </LazyMotion>
   )

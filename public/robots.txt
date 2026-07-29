@@ -1,9 +1,82 @@
 # AquaVia — https://www.aquaviaworld.com
 # Files in public/ are copied to the deploy root verbatim by Vite.
+#
+# sitemap.xml is NOT in this directory any more. It is generated at build time by
+# scripts/prerender.mjs from the route table and the content index, so it cannot
+# fall out of step with what the site actually publishes. A static copy here
+# would be copied over the generated one.
 
 User-agent: *
 Allow: /
 Disallow: /api/
+
+# ── AI crawlers, named explicitly ─────────────────────────────────────────────
+#
+# The wildcard above already allows every one of these. They are named anyway,
+# because a named directive is an unambiguous decision rather than a default that
+# nobody looked at — and because several of these operators publish separate
+# tokens for training, indexing and live user-initiated fetches, which are three
+# different questions that deserve three answers rather than one silence.
+#
+#   GPTBot             OpenAI, training and retrieval
+#   OAI-SearchBot      OpenAI, indexing for ChatGPT search
+#   ChatGPT-User       OpenAI, live fetch of a page a user asked about
+#   ClaudeBot          Anthropic, crawling
+#   Claude-SearchBot   Anthropic, search indexing
+#   Claude-User        Anthropic, live fetch on a user's behalf
+#   PerplexityBot      Perplexity, indexing
+#   Perplexity-User    Perplexity, live fetch
+#   Google-Extended    Gemini grounding. This is the consequential one: blocking
+#                      it removes the site from Gemini's answers and has NO
+#                      effect on Google Search ranking. Allowing it is the whole
+#                      point of the generative-search work.
+#   Applebot-Extended  Apple Intelligence
+#   CCBot              Common Crawl, the corpus behind many models
+#   meta-externalagent Meta AI
+#   Amazonbot          Amazon
+#   Bytespider         ByteDance
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
 
 # /admin is deliberately NOT disallowed. It already serves
 # <meta name="robots" content="noindex, nofollow">, and a crawler has to be

@@ -83,7 +83,7 @@ export function HeroSection() {
   useHeroParallax(artRef)
 
   return (
-    <section id="hero" className="hero" style={{ paddingTop: NAV_CLEAR }}>
+    <section id="hero" className="hero" aria-labelledby="main-heading" style={{ paddingTop: NAV_CLEAR }}>
       {/* Deliberately empty behind the art. This carried a teal Himalayan
           mountain silhouette and two glow orbs; against them the artwork had
           nothing to be brighter than, and the whole hero read flat. The only
@@ -165,7 +165,7 @@ export function HeroSection() {
         width={ART.width}
         height={ART.height}
         alt="Three AquaVia bottles — 250ml, 500ml and 1 litre — with custom-branded labels, standing in water."
-        fetchPriority="high"
+        fetchpriority="high"
         decoding="async"
       />
     </section>

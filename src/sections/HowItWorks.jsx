@@ -5,10 +5,10 @@ import { useReveal } from '../site/hooks'
 export function HowItWorksSection() {
   const titleRef = useReveal()
   return (
-    <section id="how" className="sec" style={{ background:'var(--navy-mid)' }}>
+    <section id="how" className="sec" aria-labelledby="how-heading" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div ref={titleRef} className="reveal sec-head">
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+          <h2 id="how-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             From Logo to Doorstep in 4 Steps
           </h2>
         </div>

@@ -1,5 +1,6 @@
 import { TrackInView } from '../analytics/TrackInView.jsx'
 import { CopyButton } from '../site/CopyButton.jsx'
+import { claim } from '../site/claims'
 import { BROCHURE_URL } from '../site/data'
 import { useGeo, useReveal } from '../site/hooks'
 import { SectionTag } from '../site/ui.jsx'
@@ -95,7 +96,10 @@ export function ContactSection() {
     {
       kind: 'call',
       title: 'Call the sales desk',
-      note: 'Monday to Saturday, 9am to 7pm IST.',
+      // One source for the hours. This line and the openingHoursSpecification in
+      // the LocalBusiness schema used to disagree (Mon–Sat 9–7 here, Mon–Fri
+      // 9–6 there); both now read CLAIMS.businessHours.
+      note: `${claim('businessHours')}.`,
       value: phone,
       href: tel,
       copyLabel: 'phone number',
@@ -116,13 +120,13 @@ export function ContactSection() {
   ]
 
   return (
-    <section id="contact" className="sec" style={{ background:'#04101f' }}>
+    <section id="contact" className="sec" aria-labelledby="contact-heading" style={{ background:'#04101f' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div className="contact-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, alignItems:'start' }}>
           {/* Left */}
           <div ref={leftRef} className="reveal-left">
             <SectionTag>Get in Touch</SectionTag>
-            <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,48px)', color:'var(--white)', lineHeight:1.1, marginBottom:20 }}>
+            <h2 id="contact-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,48px)', color:'var(--white)', lineHeight:1.1, marginBottom:20 }}>
               Let's Build Something Together
             </h2>
             <p style={{ color:'var(--muted)', lineHeight:1.75, marginBottom:40, maxWidth:'56ch' }}>
@@ -135,8 +139,10 @@ export function ContactSection() {
             <div style={{ marginBottom:36 }}>
               {[
                 { step:'01', text:'Rate card and MOQ confirmed against your quantity.' },
-                { step:'02', text:'Label proof back within 48 hours of receiving artwork.' },
-                { step:'03', text:'Approved orders dispatched in 7 to 10 working days.' },
+                { step:'02', text:`Label proof back within ${claim('proofTime')} of receiving artwork.` },
+                // Was "7 to 10 working days" while the FAQ said 5–10 business
+                // days. Both now read the same verified claim.
+                { step:'03', text:`Approved orders dispatched in ${claim('leadTime')}.` },
               ].map(item => (
                 <div key={item.step} style={{ display:'flex', gap:16, alignItems:'baseline', padding:'14px 0', borderTop:'1px solid var(--glass-border)' }}>
                   <span style={{ color:'var(--aqua)', fontSize:12, fontWeight:600, letterSpacing:'0.12em', flexShrink:0 }}>{item.step}</span>

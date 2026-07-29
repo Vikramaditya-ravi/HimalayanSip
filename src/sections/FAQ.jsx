@@ -9,10 +9,10 @@ export function FAQSection() {
   const [open, setOpen] = useState(null)
   const ref = useReveal()
   return (
-    <section id="faq" className="sec" style={{ background:'var(--navy)' }}>
+    <section id="faq" className="sec" aria-labelledby="faq-heading" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:800, margin:'0 auto' }}>
         <div ref={ref} className="reveal sec-head">
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+          <h2 id="faq-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Frequently Asked Questions
           </h2>
         </div>

@@ -1,38 +1,304 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/cron/rollup", "schedule": "0 2 * * *" },
-    { "path": "/api/cron/insights", "schedule": "30 2 * * *" }
+    {
+      "path": "/api/cron/rollup",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/insights",
+      "schedule": "30 2 * * *"
+    }
   ],
   "redirects": [
-    { "source": "/products.html", "destination": "/products", "permanent": true },
-    { "source": "/pricing.html", "destination": "/pricing", "permanent": true },
-    { "source": "/process.html", "destination": "/process", "permanent": true },
-    { "source": "/about.html", "destination": "/about", "permanent": true },
-    { "source": "/contact.html", "destination": "/contact", "permanent": true }
+    {
+      "source": "/products.html",
+      "destination": "/products",
+      "permanent": true
+    },
+    {
+      "source": "/pricing.html",
+      "destination": "/pricing",
+      "permanent": true
+    },
+    {
+      "source": "/process.html",
+      "destination": "/process",
+      "permanent": true
+    },
+    {
+      "source": "/about.html",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/contact.html",
+      "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/delhi.html",
+      "destination": "/delhi",
+      "permanent": true
+    },
+    {
+      "source": "/faq.html",
+      "destination": "/faq",
+      "permanent": true
+    },
+    {
+      "source": "/faridabad.html",
+      "destination": "/faridabad",
+      "permanent": true
+    },
+    {
+      "source": "/for/corporate-offices.html",
+      "destination": "/for/corporate-offices",
+      "permanent": true
+    },
+    {
+      "source": "/for/gyms-and-wellness.html",
+      "destination": "/for/gyms-and-wellness",
+      "permanent": true
+    },
+    {
+      "source": "/for/hospitals-and-clinics.html",
+      "destination": "/for/hospitals-and-clinics",
+      "permanent": true
+    },
+    {
+      "source": "/for/hotels-and-resorts.html",
+      "destination": "/for/hotels-and-resorts",
+      "permanent": true
+    },
+    {
+      "source": "/for/restaurants-and-cafes.html",
+      "destination": "/for/restaurants-and-cafes",
+      "permanent": true
+    },
+    {
+      "source": "/for/weddings-and-events.html",
+      "destination": "/for/weddings-and-events",
+      "permanent": true
+    },
+    {
+      "source": "/ghaziabad.html",
+      "destination": "/ghaziabad",
+      "permanent": true
+    },
+    {
+      "source": "/guides/bottled-water-for-weddings.html",
+      "destination": "/guides/bottled-water-for-weddings",
+      "permanent": true
+    },
+    {
+      "source": "/guides/branded-water-bottle-moq.html",
+      "destination": "/guides/branded-water-bottle-moq",
+      "permanent": true
+    },
+    {
+      "source": "/guides/corporate-gifting-branded-water.html",
+      "destination": "/guides/corporate-gifting-branded-water",
+      "permanent": true
+    },
+    {
+      "source": "/guides/custom-water-bottle-cost-india.html",
+      "destination": "/guides/custom-water-bottle-cost-india",
+      "permanent": true
+    },
+    {
+      "source": "/guides/how-ro-filtration-works.html",
+      "destination": "/guides/how-ro-filtration-works",
+      "permanent": true
+    },
+    {
+      "source": "/guides/ideal-tds-drinking-water.html",
+      "destination": "/guides/ideal-tds-drinking-water",
+      "permanent": true
+    },
+    {
+      "source": "/guides/logo-artwork-for-bottle-printing.html",
+      "destination": "/guides/logo-artwork-for-bottle-printing",
+      "permanent": true
+    },
+    {
+      "source": "/guides/mineral-water-vs-packaged-drinking-water.html",
+      "destination": "/guides/mineral-water-vs-packaged-drinking-water",
+      "permanent": true
+    },
+    {
+      "source": "/guides/packaged-drinking-water-standards-india.html",
+      "destination": "/guides/packaged-drinking-water-standards-india",
+      "permanent": true
+    },
+    {
+      "source": "/guides/water-bottle-label-materials.html",
+      "destination": "/guides/water-bottle-label-materials",
+      "permanent": true
+    },
+    {
+      "source": "/gurugram.html",
+      "destination": "/gurugram",
+      "permanent": true
+    },
+    {
+      "source": "/noida.html",
+      "destination": "/noida",
+      "permanent": true
+    },
+    {
+      "source": "/specifications.html",
+      "destination": "/specifications",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/products", "destination": "/products.html" },
-    { "source": "/pricing", "destination": "/pricing.html" },
-    { "source": "/process", "destination": "/process.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/contact", "destination": "/contact.html" }
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/products",
+      "destination": "/products.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/process",
+      "destination": "/process.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/delhi",
+      "destination": "/delhi.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/faridabad",
+      "destination": "/faridabad.html"
+    },
+    {
+      "source": "/for/corporate-offices",
+      "destination": "/for/corporate-offices.html"
+    },
+    {
+      "source": "/for/gyms-and-wellness",
+      "destination": "/for/gyms-and-wellness.html"
+    },
+    {
+      "source": "/for/hospitals-and-clinics",
+      "destination": "/for/hospitals-and-clinics.html"
+    },
+    {
+      "source": "/for/hotels-and-resorts",
+      "destination": "/for/hotels-and-resorts.html"
+    },
+    {
+      "source": "/for/restaurants-and-cafes",
+      "destination": "/for/restaurants-and-cafes.html"
+    },
+    {
+      "source": "/for/weddings-and-events",
+      "destination": "/for/weddings-and-events.html"
+    },
+    {
+      "source": "/ghaziabad",
+      "destination": "/ghaziabad.html"
+    },
+    {
+      "source": "/guides/bottled-water-for-weddings",
+      "destination": "/guides/bottled-water-for-weddings.html"
+    },
+    {
+      "source": "/guides/branded-water-bottle-moq",
+      "destination": "/guides/branded-water-bottle-moq.html"
+    },
+    {
+      "source": "/guides/corporate-gifting-branded-water",
+      "destination": "/guides/corporate-gifting-branded-water.html"
+    },
+    {
+      "source": "/guides/custom-water-bottle-cost-india",
+      "destination": "/guides/custom-water-bottle-cost-india.html"
+    },
+    {
+      "source": "/guides/how-ro-filtration-works",
+      "destination": "/guides/how-ro-filtration-works.html"
+    },
+    {
+      "source": "/guides/ideal-tds-drinking-water",
+      "destination": "/guides/ideal-tds-drinking-water.html"
+    },
+    {
+      "source": "/guides/logo-artwork-for-bottle-printing",
+      "destination": "/guides/logo-artwork-for-bottle-printing.html"
+    },
+    {
+      "source": "/guides/mineral-water-vs-packaged-drinking-water",
+      "destination": "/guides/mineral-water-vs-packaged-drinking-water.html"
+    },
+    {
+      "source": "/guides/packaged-drinking-water-standards-india",
+      "destination": "/guides/packaged-drinking-water-standards-india.html"
+    },
+    {
+      "source": "/guides/water-bottle-label-materials",
+      "destination": "/guides/water-bottle-label-materials.html"
+    },
+    {
+      "source": "/gurugram",
+      "destination": "/gurugram.html"
+    },
+    {
+      "source": "/noida",
+      "destination": "/noida.html"
+    },
+    {
+      "source": "/specifications",
+      "destination": "/specifications.html"
+    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+        }
       ]
     }
   ]

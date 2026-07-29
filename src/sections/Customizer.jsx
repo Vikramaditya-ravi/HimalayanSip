@@ -54,11 +54,11 @@ export function CustomizerSection() {
   // The #customizer id lives on the lazy wrapper on the products page — see the
   // note there.
   return (
-    <section className="sec" style={{ background:'var(--navy)' }}>
+    <section className="sec" aria-labelledby="customizer-heading" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div className="sec-head">
           <SectionTag>Live Customizer</SectionTag>
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+          <h2 id="customizer-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
             Design Your Bottle, Live
           </h2>
         </div>

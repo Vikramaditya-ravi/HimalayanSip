@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useMetric } from './api'
-import { AcquisitionTab, ContactsTab, FunnelTab, LeadsTab, LiveTab, OverviewTab, ProductsTab, SearchTab } from './tabs.jsx'
+import { AcquisitionTab, ContactsTab, CrawlersTab, FunnelTab, LeadsTab, LiveTab, OverviewTab, ProductsTab, SearchTab } from './tabs.jsx'
 
 const TABS = [
   { id: 'overview', label: 'Overview', Component: OverviewTab },
@@ -10,6 +10,7 @@ const TABS = [
   { id: 'search', label: 'Search', Component: SearchTab },
   { id: 'leads', label: 'Leads', Component: LeadsTab },
   { id: 'contacts', label: 'Contacts', Component: ContactsTab },
+  { id: 'crawlers', label: 'AI crawlers', Component: CrawlersTab },
   { id: 'live', label: 'Live', Component: LiveTab },
 ]
 

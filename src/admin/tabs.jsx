@@ -785,3 +785,101 @@ export function ContactsTab({ onUnauthorized }) {
     </div>
   )
 }
+
+// ---------------------------------------------------------------------------
+// AI crawlers
+//
+// The one tab on this dashboard that is not about people.
+//
+// Every other metric here filters bots out — deliberately, so a crawler sweep
+// never inflates a visitor count. But the whole point of the generative-search
+// work is to be read by machines that never execute the tracker, so their visits
+// were invisible: GPTBot could crawl the entire site daily and nothing on this
+// dashboard would move.
+//
+// These rows come from `crawler_fetch` events written at the edge (middleware.js
+// → api/crawl.ts). The question they answer — "has ChatGPT's crawler actually
+// read our pricing page?" — is one almost no business this size can answer.
+// ---------------------------------------------------------------------------
+
+/** Agents that matter for being cited in an AI answer, as opposed to ranking. */
+const AI_AGENTS = new Set([
+  'gptbot', 'claudebot', 'claude-web', 'perplexitybot', 'ccbot', 'applebot',
+])
+
+export function CrawlersTab({ days, onUnauthorized }) {
+  const agents = useMetric('crawlers', days, { onUnauthorized })
+  const pages = useMetric('crawlerPages', days, { onUnauthorized })
+
+  const agentRows = agents.data ?? []
+  const pageRows = pages.data ?? []
+  const aiHits = agentRows.filter((r) => AI_AGENTS.has(r.agent)).reduce((n, r) => n + r.hits, 0)
+  const totalHits = agentRows.reduce((n, r) => n + r.hits, 0)
+
+  return (
+    <div className="grid" style={{ gap: 16 }}>
+      <div className="grid cols-4">
+        <StatTile label="AI crawler hits" value={fmt.format(aiHits)} note="GPTBot, ClaudeBot, PerplexityBot, CCBot" />
+        <StatTile label="All crawler hits" value={fmt.format(totalHits)} note="including Googlebot and Bingbot" />
+        <StatTile label="Distinct agents" value={fmt.format(agentRows.length)} note="named by user-agent" />
+      </div>
+
+      <Card
+        title="Crawlers seen"
+        sub="Recorded at the edge, because crawlers never run the client tracker. Bot rows are excluded from every other metric on this dashboard."
+      >
+        {agents.loading && !agents.data ? (
+          <Loading />
+        ) : (
+          <Table
+            empty="No crawler hits recorded yet. This fills in as search and AI crawlers fetch the site."
+            columns={[
+              {
+                key: 'agent',
+                label: 'Agent',
+                render: (r) => (
+                  <>
+                    <strong style={{ color: 'var(--ink)' }}>{r.agent}</strong>{' '}
+                    {AI_AGENTS.has(r.agent) && <span className="badge good">AI</span>}
+                  </>
+                ),
+              },
+              { key: 'hits', label: 'Fetches', num: true, render: (r) => fmt.format(r.hits) },
+              { key: 'pages', label: 'URLs reached', num: true, render: (r) => fmt.format(r.pages) },
+              {
+                key: 'lastSeen',
+                label: 'Last seen',
+                render: (r) => (r.lastSeen ? new Date(r.lastSeen).toLocaleString('en-IN', { hour12: false }) : '—'),
+              },
+            ]}
+            rows={agentRows}
+          />
+        )}
+      </Card>
+
+      <Card
+        title="Pages crawlers fetched"
+        sub="The agents column is the actionable one: a page Googlebot reads and GPTBot has never touched can rank but cannot be cited."
+      >
+        {pages.loading && !pages.data ? (
+          <Loading />
+        ) : (
+          <Table
+            empty="No crawled pages recorded yet."
+            columns={[
+              { key: 'page', label: 'Page', render: (r) => <span className="mono">{r.page}</span> },
+              { key: 'hits', label: 'Fetches', num: true, render: (r) => fmt.format(r.hits) },
+              { key: 'agents', label: 'Agents' },
+              {
+                key: 'lastSeen',
+                label: 'Last seen',
+                render: (r) => (r.lastSeen ? new Date(r.lastSeen).toLocaleDateString('en-IN') : '—'),
+              },
+            ]}
+            rows={pageRows}
+          />
+        )}
+      </Card>
+    </div>
+  )
+}

@@ -13,11 +13,21 @@ import { useEffect } from 'react'
  */
 export const NAV_CLEAR = 92
 
-// ─── Global Style Injection ───────────────────────────────────────────────────
-export function useGlobalStyles() {
-  useEffect(() => {
-    const style = document.createElement('style')
-    style.textContent = `
+// ─── Global stylesheet ────────────────────────────────────────────────────────
+/**
+ * The whole stylesheet, as a string.
+ *
+ * Exported rather than kept inside the hook so scripts/prerender.mjs can write
+ * it into every built page's <head> as a real <style> block. It used to exist
+ * only inside a useEffect, which meant the served HTML carried no styles at all
+ * until the JS bundle had parsed and mounted — the page was unstyled for the
+ * whole of that window, and a crawler that never executes JS saw an unstyled
+ * document forever.
+ *
+ * Inlining it also takes a render-blocking dependency off the critical path
+ * entirely: there is no stylesheet request, and no reflow when one lands.
+ */
+export const GLOBAL_CSS = `
       /* The Google Fonts @import that used to head this block now lives as a
          static <link> in each route's HTML. Nested inside JS-injected CSS it was
          not discovered until the bundle mounted (~1.67s), which delayed the
@@ -110,12 +120,23 @@ export function useGlobalStyles() {
       .marquee-track { display:flex; width:max-content; }
       .marquee-track:hover { animation-play-state:paused !important; }
 
-      .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.75s ease,transform 0.75s ease; }
-      .reveal.visible { opacity:1; transform:translateY(0); }
-      .reveal-left { opacity:0; transform:translateX(-28px); transition:opacity 0.75s ease,transform 0.75s ease; }
-      .reveal-left.visible { opacity:1; transform:translateX(0); }
-      .reveal-right { opacity:0; transform:translateX(28px); transition:opacity 0.75s ease,transform 0.75s ease; }
-      .reveal-right.visible { opacity:1; transform:translateX(0); }
+      /* ── Scroll reveals ────────────────────────────────────────────────────
+         Every rule here is scoped to html.js-on, which an inline <head> script
+         sets before first paint. Unscoped, opacity:0 is a promise that
+         JavaScript will come along and add .visible — and on a prerendered page
+         that promise is broken twice over: a crawler that does not execute JS
+         would receive a full document and render all of it invisible, and a
+         real visitor would see the content paint, vanish the instant the
+         stylesheet applied, then fade back in.
+
+         Scoped this way the content is visible by default and only becomes
+         animatable once we know something is running to animate it. */
+      html.js-on .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.75s ease,transform 0.75s ease; }
+      html.js-on .reveal.visible { opacity:1; transform:translateY(0); }
+      html.js-on .reveal-left { opacity:0; transform:translateX(-28px); transition:opacity 0.75s ease,transform 0.75s ease; }
+      html.js-on .reveal-left.visible { opacity:1; transform:translateX(0); }
+      html.js-on .reveal-right { opacity:0; transform:translateX(28px); transition:opacity 0.75s ease,transform 0.75s ease; }
+      html.js-on .reveal-right.visible { opacity:1; transform:translateX(0); }
 
       /* ── Glass ─────────────────────────────────────────────────────────────
          Both surfaces state an opaque background FIRST, then upgrade to the
@@ -388,6 +409,96 @@ export function useGlobalStyles() {
          floats above them — without this the anchor lands underneath it. */
       .sec { scroll-margin-top: var(--nav-clear); }
       .sec-head { text-align: center; margin-bottom: var(--head-gap); }
+
+      /* ── Page head: breadcrumbs + the route's h1 ───────────────────────────
+         Every route except home renders one of these above its sections. Five
+         of the six pages previously had no h1 in the DOM at all — their top
+         heading was a section h2 — so this band is the fix for that, not
+         decoration. It is set left-aligned against the same gutter every other
+         band uses, and sits tighter above the first section than a .sec would,
+         so the heading reads as the page's title rather than as a section. */
+      .page-head { padding: clamp(28px, 4vw, 44px) var(--gutter) 0; max-width: 1200px; margin: 0 auto; }
+      .page-h1 {
+        font-family: 'Cormorant Garamond', serif; font-weight: 700;
+        font-size: clamp(32px, 4.6vw, 58px); line-height: 1.08;
+        color: var(--white); margin: 14px 0 0; max-width: 20ch;
+      }
+      .page-lede { color: var(--muted); font-size: 16.5px; line-height: 1.75; margin: 18px 0 0; max-width: 72ch; }
+      .crumbs ol { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0; margin: 0; }
+      .crumbs li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+      .crumbs a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+      .crumbs a:hover { color: var(--aqua); }
+      .crumbs [aria-current='page'] { color: var(--white); }
+      .crumb-sep { color: rgba(122,155,181,0.5); }
+      /* The h1 band already introduces the page, so the first section under it
+         does not need its own full top padding as well. */
+      .page-head + .sec, .page-head + div > .sec:first-child { padding-top: clamp(28px, 3.5vw, 40px); }
+
+      /* ── Generated content pages ───────────────────────────────────────────
+         One set of rules for all ~23 pages under src/content, which all render
+         through src/content/render.jsx. Measure is capped at 72ch: these are
+         1,200–1,800 word documents and a full-width line of body text at
+         desktop widths is genuinely hard to read. */
+      .content-body { max-width: 860px; margin: 0 auto; padding: 8px var(--gutter) 72px; }
+      .content-body p { color: var(--muted); line-height: 1.8; font-size: 16.5px; margin: 0 0 18px; max-width: 72ch; }
+      .content-body a { color: var(--aqua); text-decoration: underline; text-underline-offset: 3px; }
+      .content-section { margin-top: 44px; scroll-margin-top: var(--nav-clear); }
+      .content-section h2, .key-facts h2, .quote-box h2 {
+        font-family: 'Cormorant Garamond', serif; font-weight: 700;
+        font-size: clamp(24px, 3vw, 36px); color: var(--white); line-height: 1.15; margin: 0 0 16px;
+      }
+      .content-section h3 { font-size: 17px; font-weight: 600; color: var(--white); margin: 26px 0 8px; }
+      .content-list { margin: 0 0 18px; padding-left: 22px; color: var(--muted); line-height: 1.8; font-size: 16.5px; max-width: 72ch; }
+      .content-list li { margin-bottom: 12px; }
+      .content-list strong { color: var(--white); font-weight: 600; }
+      .faq-item { border-top: 1px solid var(--glass-border); padding-top: 18px; margin-top: 18px; }
+      .faq-item h3 { margin-top: 0; }
+      .content-brochure { margin-top: 40px; }
+
+      /* Key facts. A <dl> laid out as a two-column grid so the term and its
+         value stay visually paired at any width — the pairing is the whole
+         reason this block exists. */
+      .key-facts { margin-top: 44px; }
+      .key-facts dl { margin: 0; border-top: 1px solid var(--glass-border); }
+      .fact-row {
+        display: grid; grid-template-columns: minmax(150px, 34%) 1fr; gap: 16px;
+        padding: 13px 0; border-bottom: 1px solid var(--glass-border);
+      }
+      .fact-row dt { color: var(--white); font-weight: 600; font-size: 14.5px; }
+      .fact-row dd { color: var(--muted); font-size: 14.5px; line-height: 1.65; margin: 0; }
+
+      /* Tables scroll inside their own container. The page body must never
+         scroll sideways, and a five-column rate card on a phone will not fit. */
+      .table-wrap { overflow-x: auto; margin: 0 0 22px; -webkit-overflow-scrolling: touch; }
+      .data-table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14.5px; }
+      .data-table caption { text-align: left; color: var(--muted); font-size: 13px; padding-bottom: 10px; }
+      .data-table th, .data-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--glass-border); vertical-align: top; }
+      .data-table thead th { color: var(--white); font-weight: 600; border-bottom-color: rgba(62,207,191,0.35); white-space: nowrap; }
+      .data-table tbody th { color: var(--white); font-weight: 600; }
+      .data-table td { color: var(--muted); line-height: 1.6; }
+      .data-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+      /* Quote form. The only form on the site — see the note in render.jsx. */
+      .quote-box { margin-top: 52px; padding: 28px; background: var(--navy-card); border: 1px solid var(--glass-border); border-radius: 20px; }
+      .quote-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 22px; }
+      .quote-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--white); font-weight: 500; }
+      .quote-form label em { color: var(--muted); font-style: normal; font-weight: 400; }
+      .quote-form input, .quote-form textarea {
+        background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 10px;
+        padding: 11px 13px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 15px;
+      }
+      .quote-form input:focus, .quote-form textarea:focus { outline: 2px solid var(--aqua); outline-offset: 1px; border-color: transparent; }
+      .quote-wide { grid-column: 1 / -1; }
+      .quote-submit {
+        background: var(--aqua); color: #04101f; border: none; border-radius: 10px;
+        padding: 13px 26px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
+      }
+      .quote-submit:disabled { opacity: 0.6; cursor: progress; }
+      .quote-error { color: #ff8f8f; font-size: 14px; margin-top: 10px; }
+      @media (max-width: 700px) {
+        .quote-form { grid-template-columns: 1fr; }
+        .fact-row { grid-template-columns: 1fr; gap: 4px; }
+      }
 
       /* Direct-lines panel. One opaque Navy Card surface holding three rows
          divided by hairlines — deliberately not three separate cards, which
@@ -861,7 +972,30 @@ export function useGlobalStyles() {
         :root { --wa-size: 50px; --wa-inset: 14px; }
         .wa-fab-glyph { width: 24px; height: 24px; }
       }
-    `
+`
+
+/**
+ * Injects GLOBAL_CSS at runtime — but only when it is not already there.
+ *
+ * Prerendered pages are served with the same CSS inlined in <head> under
+ * id="aq-global", so this becomes a no-op for every real visitor. It still runs
+ * in `vite dev`, where nothing prerenders and the styles have to come from
+ * somewhere.
+ *
+ * The `js-on` class is what re-enables the reveal animations: the .reveal rules
+ * are scoped to html.js-on so that prerendered content is fully visible to
+ * crawlers and to anyone without JS, instead of sitting at opacity:0 forever
+ * waiting for an IntersectionObserver that will never run. In a browser the
+ * class is set by an inline <head> script before first paint (see
+ * scripts/prerender.mjs); this is the dev-server fallback for the same thing.
+ */
+export function useGlobalStyles() {
+  useEffect(() => {
+    document.documentElement.classList.add('js-on')
+    if (document.getElementById('aq-global')) return
+    const style = document.createElement('style')
+    style.id = 'aq-global'
+    style.textContent = GLOBAL_CSS
     document.head.appendChild(style)
     return () => document.head.removeChild(style)
   }, [])

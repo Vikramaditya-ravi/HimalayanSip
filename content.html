@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/aquavia-mark.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!--
+      This file is a TEMPLATE, not a page. It is never served.
+
+      Its only job is to be a Vite build input, so that Rollup produces a hashed
+      bundle for src/entries/content.jsx and emits an HTML file carrying the
+      right <script> and <link> tags for it. scripts/prerender.mjs then reads the
+      built dist/content.html, uses its asset tags as the shell for all ~23
+      generated content pages, and deletes it from dist so nothing ships.
+
+      That is why there is no real <title> or description here — every generated
+      page writes its own head from its content module, and this one is replaced
+      wholesale. It is marked noindex as a belt-and-braces measure in case a
+      build ever leaves it behind.
+    -->
+    <title>AquaVia</title>
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" />
+  </head>
+  <body style="margin:0;padding:0;background:#080D16;">
+    <div id="root"></div>
+    <script type="module" src="/src/entries/content.jsx"></script>
+  </body>
+</html>

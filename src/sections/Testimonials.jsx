@@ -17,12 +17,24 @@ export function TestimonialsSection() {
   // The #testimonials id lives on the lazy wrapper on the home page — see the
   // note there.
   return (
-    <section className="sec" style={{ background:'var(--navy-mid)' }}>
+    <section className="sec" aria-labelledby="testimonials-heading" style={{ background:'var(--navy-mid)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div ref={titleRef} className="reveal sec-head">
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
-            Trusted by India's Leading Brands
+          <h2 id="testimonials-heading" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(30px,4vw,52px)', color:'var(--white)', lineHeight:1.1 }}>
+            What Buyers Tell Us
           </h2>
+          {/* Said out loud, on the page.
+              These quotes are not attributable to named clients who have agreed
+              to be published, and a marquee of unverifiable five-star reviews
+              under "Trusted by India's Leading Brands" reads as a claim. It is
+              labelled instead of quietly dropped because the shape of the
+              feedback is still useful to a buyer — and no Review or
+              AggregateRating schema is emitted for it anywhere (see
+              src/site/schema.js). Replace TESTIMONIALS with consented, named
+              clients and both this label and that exclusion can go. */}
+          <p style={{ color:'var(--muted)', fontSize:13.5, marginTop:10 }}>
+            Illustrative — composite feedback representative of client responses, not attributed quotes.
+          </p>
         </div>
 
         <div className="marquee-wrapper">

@@ -17,9 +17,11 @@ All are professional, digitally comfortable, and evaluating AquaVia against gene
 
 ## Product Purpose
 
-AquaVia sells customized branded bottled water to Indian businesses — Himalayan spring water bottled with the client's logo, colors, and label design. Available in four sizes (100ml, 250ml, 500ml, 1L), delivered in bulk to hotels, corporate offices, event venues, hospitals, real estate firms, gyms, and airlines across Delhi NCR, expanding pan-India.
+AquaVia sells customized branded bottled water to Indian businesses — packaged drinking water, bottled by a licensed partner plant and dressed in the client's logo, colours and label design. Available in three sizes (250ml, 500ml, 1L), delivered in bulk to hotels, corporate offices, event venues, hospitals, real estate firms, gyms, and airlines across Delhi NCR, expanding pan-India.
 
-The website's job: convert a skeptical B2B visitor into a contact-form submission or WhatsApp inquiry. Trust, quality proof, and clear ordering paths are the conversion levers.
+100ml was discontinued. It is named here only so nobody reintroduces it from an old brochure — `PRODUCTS` in `src/site/data.js` is the source of truth for what is sold, and the render test asserts the discontinued sizes appear nowhere.
+
+The website's job: convert a skeptical B2B visitor into a WhatsApp inquiry, a call, or an email to the sales desk. There is no contact form — it was removed deliberately. Trust, quality proof, and clear ordering paths are the conversion levers.
 
 ## Brand Personality
 

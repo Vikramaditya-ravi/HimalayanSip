@@ -841,7 +841,11 @@ export const GLOBAL_CSS = `
         .ch-row:hover .ch-disc, .ch-row:hover .ch-arrow { transform: none; }
       }
 
-      .step-card:hover .step-num { background: var(--aqua); color: var(--navy); }
+      /* color needs !important; background does not. The circle in
+         HowItWorks.jsx carries an inline color: var(--aqua), and an inline
+         style beats an unmarked stylesheet declaration — so without this the
+         fill turned aqua while the number stayed aqua and vanished into it. */
+      .step-card:hover .step-num { background: var(--aqua); color: var(--navy) !important; }
       .industry-chip:hover { border-color:var(--aqua) !important; background:rgba(62,207,191,0.08) !important; transform:translateX(4px); }
       .bottle-card {
         transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s ease, border-color 0.3s ease !important;

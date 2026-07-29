@@ -179,6 +179,7 @@ export function ContactSection() {
                 Not ready to talk yet?
               </span>
               <a
+                className="ch-foot-link"
                 href={BROCHURE_URL} download target="_blank" rel="noopener"
                 data-evt="pricing_brochure_downloaded"
                 style={{ color:'var(--aqua)', fontSize:13.5, fontWeight:500, textDecoration:'none' }}

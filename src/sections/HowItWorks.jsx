@@ -29,7 +29,10 @@ function StepCard({ step, delay, isLast }) {
       padding:'32px 24px', textAlign:'center', position:'relative', transitionDelay:`${delay}s`
     }}>
       {!isLast && (
-        <div style={{
+        // Geometry assumes the 4-across desktop grid — in the stacked mobile
+        // layouts it points off the side of the card into empty space, so
+        // .step-link is hidden below 768px.
+        <div className="step-link" style={{
           position:'absolute', top:44, right:'-12%', width:'24%', height:2,
           background:'linear-gradient(90deg, var(--aqua), transparent)',
           zIndex:10, pointerEvents:'none'

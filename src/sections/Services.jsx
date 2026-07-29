@@ -8,7 +8,11 @@ export function ServicesSection() {
     <section id="services" className="sec" style={{ background:'var(--navy)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto' }}>
         <div style={{ marginBottom:36 }} ref={ref} className="reveal">
-          <h2 style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(26px,3.2vw,44px)', color:'var(--white)', lineHeight:1.1, whiteSpace:'nowrap' }}>
+          {/* The one-line treatment is a wide-viewport flourish only. Left as an
+              unconditional inline `nowrap` it made this heading 404px wide inside a
+              390px viewport — the single cause of horizontal overflow on the home
+              page. .services-h2 releases it below 1100px. */}
+          <h2 className="services-h2" style={{ fontFamily:'Cormorant Garamond, serif', fontWeight:700, fontSize:'clamp(26px,3.2vw,44px)', color:'var(--white)', lineHeight:1.1 }}>
             End-to-End Branded Water Solutions
           </h2>
         </div>
@@ -25,7 +29,7 @@ export function ServicesSection() {
 function ServiceItem({ service, index }) {
   const ref = useReveal()
   return (
-    <div ref={ref} className="reveal" style={{
+    <div ref={ref} className="reveal service-item" style={{
       display:'grid', gridTemplateColumns:'56px 1fr', gap:24,
       padding:'20px 0', borderTop:'1px solid var(--glass-border)',
       transitionDelay:`${index * 0.08}s`

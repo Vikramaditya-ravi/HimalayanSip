@@ -339,13 +339,16 @@ export function Navbar() {
           <BrandLockup waterRef={waterRef} />
         </a>
 
+        {/* Layout (display/gap) lives in CSS on .nav-links so the gap can
+            tighten between 900 and 1200px, where the links, the search field
+            and the brochure pill together ran past the right edge. */}
         {!compact && (
-          <div className="nav-links" style={{ display: 'flex', gap: 30, alignItems: 'center' }}>
+          <div className="nav-links">
             {links}
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* Search lives in the bar on desktop and inside the drawer on
               mobile — one instance either way, never both. */}
           {!compact && <SiteSearch index={SEARCH_INDEX} onNavigate={navigate} />}

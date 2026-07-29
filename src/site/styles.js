@@ -59,6 +59,20 @@ export function useGlobalStyles() {
       @keyframes floatB { 0%,100%{transform:translateY(-10px) rotate(4deg)} 50%{transform:translateY(12px) rotate(4deg)} }
       @keyframes fadeUp { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
       @keyframes ripple { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(2.4);opacity:0} }
+
+      /* ── Floating WhatsApp button ──────────────────────────────────────────
+         --wa-size and --wa-inset so the mobile rules below only have to restate
+         two numbers. The ripple ring scales to 2.4×, which is why the button
+         reads as much larger than its 58px and why it was landing on top of
+         card text on a phone. */
+      :root { --wa-size: 58px; --wa-inset: 26px; }
+      .wa-fab {
+        position: fixed; z-index: 9999;
+        right: var(--wa-inset);
+        bottom: calc(var(--wa-inset) + env(safe-area-inset-bottom, 0px));
+      }
+      .wa-fab-inner { position: relative; width: var(--wa-size); height: var(--wa-size); }
+      .wa-fab-btn { width: var(--wa-size); height: var(--wa-size); }
       @keyframes waBounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
       @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
       @keyframes shimmerSweep { 0%{left:-80%} 100%{left:130%} }
@@ -258,6 +272,17 @@ export function useGlobalStyles() {
          decision — when they disagree the bar renders neither the inline links
          nor the burger, and the site has no navigation. React owns it; this
          just styles whatever React chose to render. */
+      /* ── Bar fit ───────────────────────────────────────────────────────────
+         The three groups in .nav-bar are flex items, and a flex item's default
+         min-width is its min-content width — so between 900px (where the burger
+         replaces the links) and ~1200px the links, the search field and the
+         full-label brochure pill simply refused to shrink and ran 77px past the
+         right edge of a 1024px viewport. min-width:0 lets the two flexible
+         groups give way; the burger and the pill keep their size. */
+      .nav-bar > * { min-width: 0; }
+      .nav-links { display: flex; align-items: center; gap: 30px; min-width: 0; }
+      .nav-actions { flex: none; }
+
       .nav-burger {
         display: inline-flex; width: 42px; height: 42px; flex: none;
         align-items: center; justify-content: center;
@@ -349,7 +374,16 @@ export function useGlobalStyles() {
          it. Below ~1160px viewport width the clamp tightens further on its
          own, which is where the grids start stacking anyway. */
       :root { --sec-pad: clamp(44px, 5.5vw, 64px); --head-gap: 32px; }
-      .sec { padding: var(--sec-pad) 5%; }
+      /* One horizontal gutter for every full-width band — sections, the hero
+         copy and the footer. These were three separate 5% values resolved
+         against three different containing blocks, which on a phone put
+         their left edges at visibly
+         different x. 5% of 390px is also only 19px; the floor keeps
+         a readable margin on the narrowest phones. Deliberately max() and not
+         clamp(): above ~400px this resolves to exactly the 5% these bands
+         already used, so nothing on desktop moves. */
+      :root { --gutter: max(20px, 5%); }
+      .sec { padding: var(--sec-pad) var(--gutter); }
       /* Sections are cross-route deep-link targets (/pricing#faq) and the navbar
          floats above them — without this the anchor lands underneath it. */
       .sec { scroll-margin-top: var(--nav-clear); }
@@ -717,6 +751,30 @@ export function useGlobalStyles() {
         .hero-vignette { background: radial-gradient(ellipse 90% 46% at 50% 72%, #0e2430 0%, #0a1520 46%, #05090f 80%); }
       }
 
+      /* ── Bar fit, 1200px ───────────────────────────────────────────────────
+         Not 768px. useCompact() swaps the links for the burger at 900px, but
+         between 900 and ~1200 the bar is still carrying six inline links, the
+         search field AND the full-label brochure pill, and measured 77px past
+         the right edge of a 1024px viewport. The label is what costs the width,
+         so it goes first — well before the layout changes shape. */
+      @media (max-width: 1200px) {
+        .nav-links { gap: 18px; }
+        .nav-brochure { padding: 11px !important; }
+        .nav-brochure-label { display: none !important; }
+        .site-search-input { max-width: 180px; }
+      }
+
+      /* The one-line treatment for the Services heading is a wide-viewport
+         flourish. Below this the string cannot fit on one line at any font size
+         the design allows, and forcing it was pushing the page 14px wider than
+         the viewport on every phone. */
+      @media (max-width: 1100px) {
+        .services-h2 { white-space: normal; }
+      }
+      @media (min-width: 1101px) {
+        .services-h2 { white-space: nowrap; }
+      }
+
       @media (max-width: 768px) {
         :root { --sec-pad: 40px; --head-gap: 26px; }
         .about-grid { grid-template-columns: 1fr !important; }
@@ -739,6 +797,69 @@ export function useGlobalStyles() {
         .services-numbered { grid-template-columns: 1fr !important; }
         .testimonials-grid { grid-template-columns: 1fr !important; }
         .journey-row-grid { grid-template-columns: 1fr !important; }
+        /* The connector between step cards is drawn at right:-12% on the
+           assumption of a 4-across row. Once the grid stacks it points off the
+           side of the card into nothing. */
+        .step-link { display: none !important; }
+      }
+
+      /* ── Touch targets ─────────────────────────────────────────────────────
+         Measured at 390px: footer links were 18px tall, the copy buttons 23px,
+         the stage toggle 17px — all well under the 44px minimum.
+
+         Gated on width, not (pointer: coarse), even though coarse is the more
+         literal expression of the concern. Every other breakpoint in this file
+         is width-based, and a pointer query is invisible to width-based
+         responsive testing — the rules would silently not apply in devtools and
+         read as unfixed. 900px matches where the bar goes compact.
+
+         Padding and min-height only — deliberately no font-size changes, so
+         nothing reflows and the type scale stays exactly as designed. */
+      @media (max-width: 900px) {
+        .footer-link, .footer-row a, .sample-title, .stage-toggle, .ch-foot-link {
+          min-height: 44px;
+          display: inline-flex; align-items: center;
+        }
+        /* The links are the footer column's only content, so the tap area can
+           come out of the gap that was already between them rather than making
+           the column taller. */
+        .footer-grid .footer-link { display: flex; margin-bottom: 0 !important; }
+        .footer-grid { row-gap: 28px; }
+        .stage-toggle { padding: 6px 0; }
+        /* Not listed here: .product-cta, the "Order Now" button on the product
+           cards. It measures 41px — 3px short — but the cards live in a
+           fixed-252px marquee, so it is 41px at 1440 too. That makes it a
+           standing sizing choice rather than anything responsive, and growing
+           it would change the desktop card. Left alone deliberately. */
+        .ch-copy { min-height: 44px; min-width: 44px; padding: 10px 12px !important; }
+        .nav-burger { width: 44px; height: 44px; }
+        /* 14, not 13: the glyph inside is 16px, so this is what makes the disc
+           exactly 44. */
+        .nav-brochure { padding: 14px !important; }
+        /* The FAB is fixed, so the one place it is guaranteed to sit on top of
+           something is the very end of the page. Give the last line room to
+           clear it. */
+        footer { padding-bottom: 92px; }
+      }
+
+      /* ── Narrow phones ─────────────────────────────────────────────────────
+         Net-new tier. Until now the smallest general breakpoint was 768px, so a
+         390px phone inherited the tablet layout wholesale — anything still too
+         wide at 767px was equally broken at 390px. */
+      @media (max-width: 460px) {
+        :root { --sec-pad: 34px; --head-gap: 20px; }
+        /* Two columns of icon-plus-label chips leave ~150px per cell here,
+           which wraps every label onto three lines. */
+        .about-features { grid-template-columns: 1fr !important; }
+        /* Same reasoning as .step-link above: 2-up step cards are ~155px wide
+           at this size, narrower than their own 52px numeral plus padding
+           wants. */
+        .how-grid { grid-template-columns: 1fr !important; }
+        .service-item { grid-template-columns: 44px 1fr !important; gap: 16px !important; }
+        /* The ripple ring spreads to 2.4× the disc, so at 58px/26px this was
+           sweeping ~70px into the content column on every scroll. */
+        :root { --wa-size: 50px; --wa-inset: 14px; }
+        .wa-fab-glyph { width: 24px; height: 24px; }
       }
     `
     document.head.appendChild(style)

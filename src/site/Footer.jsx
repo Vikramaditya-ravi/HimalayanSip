@@ -15,7 +15,7 @@ export function Footer() {
   const here = currentPath()
   const phone = content?.phone || '+91 76248 03460'
   return (
-    <footer style={{ background:'#03090f', padding:'60px 5% 30px' }}>
+    <footer style={{ background:'#03090f', padding:'60px var(--gutter) 30px' }}>
       <div className="footer-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:40, maxWidth:1200, margin:'0 auto', marginBottom:40 }}>
         {/* Brand */}
         <div>
@@ -35,7 +35,7 @@ export function Footer() {
             const active = href === here
             const restColor = active ? 'var(--white)' : 'var(--muted)'
             return (
-              <a key={href} href={href}
+              <a key={href} href={href} className="footer-link"
                 aria-current={active ? 'page' : undefined}
                 style={{ display:'block', background:'none', border:'none', color:restColor, fontSize:14, marginBottom:10, cursor:'pointer', transition:'color 0.2s', padding:0, fontFamily:'DM Sans, sans-serif', textDecoration:'none' }}
                 onMouseEnter={e => e.currentTarget.style.color='var(--aqua)'}

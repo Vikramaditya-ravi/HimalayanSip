@@ -139,9 +139,16 @@ export function BottleSVG({ logo, color = '#3ecfbf', label = '500ml', size = 200
   )
 }
 
+/**
+ * Fluid, not fixed. The 320×260 attributes this used to carry gave the About
+ * section a 369px min-content floor (illustration + card padding), which
+ * overflowed the viewport at 360px and again at 768px once the grid stacked.
+ * The viewBox already carries the aspect ratio, so width:100% capped at the
+ * original 320 renders identically on desktop and shrinks on phones.
+ */
 export function MoonMountainIllustration() {
   return (
-    <svg viewBox="0 0 320 260" width="320" height="260">
+    <svg viewBox="0 0 320 260" width="100%" style={{ display: 'block', maxWidth: 320, height: 'auto' }}>
       <defs>
         <linearGradient id="sky-grad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#04101f" />

@@ -29,16 +29,19 @@
 
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToString } from 'react-dom/server'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = join(ROOT, 'dist')
 
+// Imported through pathToFileURL rather than as a bare path: Node's ESM loader
+// accepts only file:, data: and node: URLs, and on Windows an absolute path
+// reads as protocol 'c:' and throws ERR_UNSUPPORTED_ESM_URL_SCHEME.
 const {
   ROUTES, ROUTE_FILES, SITE_URL, GLOBAL_CSS,
   CONTENT_PAGES, renderRoute, renderContentPage, contentMeta, graphFor, graphForContent,
-} = await import(join(ROOT, 'dist-ssr/server.js'))
+} = await import(pathToFileURL(join(ROOT, 'dist-ssr/server.js')).href)
 
 // ─── Head fragments ───────────────────────────────────────────────────────────
 

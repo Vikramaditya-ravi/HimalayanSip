@@ -52,6 +52,18 @@ function htmlFiles(): string[] {
   return out.filter((f) => !f.endsWith('admin.html'));
 }
 
+/**
+ * The URL slug a built file stands for.
+ *
+ * join() emits the platform separator, so on Windows a nested page comes back as
+ * `for\corporate-offices` and every URL derived from it disagrees with the one
+ * the prerenderer actually wrote. The prerendered output is correct on both
+ * platforms — only this derivation was platform-dependent.
+ */
+function slugOf(file: string): string {
+  return file.slice(DIST.length + 1).replace(/\.html$/, '').replace(/\\/g, '/');
+}
+
 describe.skipIf(!built)('prerendered output', () => {
   it('renders real content into every page, not an empty root', () => {
     for (const file of htmlFiles()) {
@@ -92,7 +104,7 @@ describe.skipIf(!built)('prerendered output', () => {
       const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
       expect(canonical, `${file} has no canonical`).toBeTruthy();
 
-      const slug = file.slice(DIST.length + 1).replace(/\.html$/, '');
+      const slug = slugOf(file);
       const expected =
         slug === 'index'
           ? 'https://www.aquaviaworld.com/'
@@ -153,7 +165,7 @@ describe.skipIf(!built)('prerendered output', () => {
     expect(existsSync(join(DIST, 'llms-full.txt'))).toBe(true);
 
     for (const file of htmlFiles()) {
-      const slug = file.slice(DIST.length + 1).replace(/\.html$/, '');
+      const slug = slugOf(file);
       const url =
         slug === 'index' ? 'https://www.aquaviaworld.com/' : `https://www.aquaviaworld.com/${slug}`;
       expect(sitemap, `sitemap is missing ${url}`).toContain(`<loc>${url}</loc>`);

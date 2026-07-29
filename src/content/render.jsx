@@ -1,10 +1,9 @@
-import { useState } from 'react'
-
 import { PageShell } from '../site/PageShell.jsx'
 import { SITE_URL } from '../site/data'
 import { graphForContent } from '../site/schema'
+import { ResourceCard } from '../site/Resources.jsx'
 import { BrochureLink } from '../site/ui.jsx'
-import { contentPageBySlug } from './index.js'
+import { RESOURCES_PATH, contentPageBySlug, groupForPage, trailFor } from './index.js'
 
 /**
  * The one renderer every generated content page goes through.
@@ -121,110 +120,35 @@ function FaqBlock({ faqs }) {
  *
  * Descriptive anchor text, resolved from the content index rather than written
  * by hand, so a retitled page cannot leave twenty stale link labels behind it.
+ *
+ * Two changes from the bare <ul> this used to be. It renders the same
+ * ResourceCard the hub and the marketing routes use, so a related link looks
+ * like a related link everywhere on the site rather than like a bullet here and
+ * a card there. And it always ends with a route up to the category and the hub,
+ * which is what stops a reader who has exhausted these three suggestions from
+ * being at a dead end — previously the only way onward was the footer.
  */
-function Related({ slugs }) {
-  const pages = slugs.map(contentPageBySlug).filter(Boolean)
-  if (!pages.length) return null
+function Related({ page }) {
+  const pages = (page.related ?? []).map(contentPageBySlug).filter(Boolean)
+  const group = groupForPage(page)
+  if (!pages.length && !group) return null
   return (
-    <section aria-labelledby="related-heading" className="content-section">
-      <h2 id="related-heading">Related reading</h2>
-      <ul className="content-list">
-        {pages.map((p) => (
-          <li key={p.slug}>
-            <a href={`/${p.slug}`}>{p.linkText ?? p.h1}</a> — {p.description}
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-// ─── Quote request ────────────────────────────────────────────────────────────
-
-/**
- * The one form on the site, and api/lead.ts's first caller.
- *
- * That endpoint has existed, fully wired to Web3Forms with server-side identity
- * stitching and a `lead_submitted` conversion event, with zero callers in src/ —
- * the contact page deliberately dropped its form in favour of three direct
- * channels, and nothing replaced the lead path.
- *
- * These pages are the right place for it. Someone reading 1,400 words on label
- * materials or wedding quantities is mid-research, not ready to open WhatsApp,
- * and a two-field form is a lower step than a phone call. The direct channels
- * stay listed beside it for anyone who would rather just message.
- *
- * Only name and email are required, matching what the endpoint validates.
- */
-function QuoteForm({ topic }) {
-  const [state, setState] = useState('idle')
-  const [error, setError] = useState(null)
-
-  async function onSubmit(e) {
-    e.preventDefault()
-    if (state === 'sending') return
-    setState('sending')
-    setError(null)
-    const data = Object.fromEntries(new FormData(e.currentTarget))
-    try {
-      const res = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, message: `[${topic}] ${data.message ?? ''}`.trim() }),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.message || 'Something went wrong. Please WhatsApp us instead.')
-      }
-      setState('sent')
-    } catch (err) {
-      setState('idle')
-      setError(err.message)
-    }
-  }
-
-  if (state === 'sent') {
-    return (
-      <div className="quote-box" role="status">
-        <h2>Thanks — that&rsquo;s with the sales desk.</h2>
-        <p>You&rsquo;ll have a reply the same working day. If it is urgent, WhatsApp <a href="https://wa.me/917624803460" target="_blank" rel="noopener noreferrer">+91 76248 03460</a>.</p>
+    <section aria-labelledby="related-heading" className="content-section related-block">
+      <h2 id="related-heading">Related resources</h2>
+      <div className="res-grid res-grid-compact">
+        {pages.map((p) => <ResourceCard key={p.slug} page={p} placement="content_related" />)}
       </div>
-    )
-  }
-
-  return (
-    <div className="quote-box">
-      <h2 id="quote">Get a quote for your order</h2>
-      <p>Tell us the size and rough quantity and we will come back with a rate the same working day. Prefer to talk? WhatsApp <a href="https://wa.me/917624803460" target="_blank" rel="noopener noreferrer">+91 76248 03460</a> or email <a href="mailto:info@aquaviaworld.com">info@aquaviaworld.com</a>.</p>
-      <form onSubmit={onSubmit} className="quote-form">
-        <label>
-          <span>Your name</span>
-          <input name="name" type="text" required autoComplete="name" />
-        </label>
-        <label>
-          <span>Work email</span>
-          <input name="email" type="email" required autoComplete="email" />
-        </label>
-        <label>
-          <span>Company <em>(optional)</em></span>
-          <input name="company" type="text" autoComplete="organization" />
-        </label>
-        <label>
-          <span>Quantity and size <em>(optional)</em></span>
-          <input name="quantity" type="text" placeholder="e.g. 5,000 × 500ml" />
-        </label>
-        <label className="quote-wide">
-          <span>Anything else <em>(optional)</em></span>
-          <textarea name="message" rows="3" />
-        </label>
-        <div className="quote-wide">
-          <button type="submit" className="quote-submit" disabled={state === 'sending'}>
-            {state === 'sending' ? 'Sending…' : 'Request a quote'}
-          </button>
-          {error && <p className="quote-error" role="alert">{error}</p>}
-        </div>
-      </form>
-    </div>
+      <p className="related-more">
+        {group && (
+          <>
+            More in{' '}
+            <a href={`${RESOURCES_PATH}#${group.id}`}>{group.label}</a>
+            {' '}({group.pages.length} pages), or{' '}
+          </>
+        )}
+        <a href={RESOURCES_PATH}>browse every guide and specification</a>.
+      </p>
+    </section>
   )
 }
 
@@ -246,14 +170,22 @@ export function contentMeta(page) {
     keywords: page.keywords,
     h1: page.h1,
     lede: page.answerBlock,
-    trail: page.trail ?? [{ name: page.breadcrumb ?? page.h1, path }],
+    // Home / Resources / <category> / <page>, derived from the content index —
+    // see trailFor. The same array feeds the BreadcrumbList in the JSON-LD, so
+    // the visible trail and the structured one cannot describe different sites.
+    trail: trailFor(page),
     canonical: `${SITE_URL}${path}`,
   }
 }
 
 export function ContentPage({ page }) {
+  // Computed once and used twice: PageShell renders `meta.trail` as the visible
+  // breadcrumbs, and the same array becomes the BreadcrumbList in the JSON-LD.
+  // See the note on graphForContent for why the trail cannot be derived inside
+  // schema.js.
+  const meta = contentMeta(page)
   return (
-    <PageShell meta={contentMeta(page)} schema={graphForContent(page, page.schema?.() ?? [])}>
+    <PageShell meta={meta} schema={graphForContent(page, page.schema?.() ?? [], meta.trail)}>
       <div className="content-body">
         {page.keyFacts?.length > 0 && <KeyFacts facts={page.keyFacts} />}
         {page.sections.map((s) => <Section key={s.id} section={s} />)}
@@ -263,13 +195,12 @@ export function ContentPage({ page }) {
             document two times over, which reads as padding to a human and as
             duplication to an engine. */}
         {page.faqBlock !== false && page.faqs?.length > 0 && <FaqBlock faqs={page.faqs} />}
-        <QuoteForm topic={page.h1} />
         {page.brochure !== false && (
           <p className="content-brochure">
             Working to a budget? <BrochureLink variant="ghost" /> for the full per-case rate card.
           </p>
         )}
-        {page.related?.length > 0 && <Related slugs={page.related} />}
+        <Related page={page} />
       </div>
     </PageShell>
   )

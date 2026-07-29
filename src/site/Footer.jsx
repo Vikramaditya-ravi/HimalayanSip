@@ -1,4 +1,4 @@
-import { CONTENT_GROUPS } from '../content/index.js'
+import { CONTENT_GROUPS, RESOURCES_PATH } from '../content/index.js'
 import { CopyButton } from './CopyButton.jsx'
 import { NAV_LINKS } from './data'
 import { useCurrentPath, useGeo } from './hooks'
@@ -16,10 +16,34 @@ const EMAIL = 'info@aquaviaworld.com'
  * Sliced, because there are ten guides and a footer column is not a sitemap.
  * The reference pages carry the full lists.
  */
-const group = (name) => CONTENT_GROUPS.find((g) => g.name === name)?.pages ?? []
-const USE_CASE_PAGES = group('Who we supply')
-const GUIDE_PAGES = [...group('Reference'), ...group('Guides').slice(0, 4)]
-const LOCATION_PAGES = group('Where we deliver')
+const group = (name) => CONTENT_GROUPS.find((g) => g.name === name) ?? { pages: [], id: '' }
+const USE_CASES = group('Who we supply')
+const GUIDES = group('Guides')
+const REFERENCE = group('Reference')
+const LOCATIONS = group('Where we deliver')
+const GUIDE_PAGES = [...REFERENCE.pages, ...GUIDES.pages.slice(0, 4)]
+
+// How many pages the footer is NOT showing. The columns were silently truncated
+// — six of the ten guides simply were not there — with nothing to say so and
+// nowhere to go for the rest. Now the count is stated and links to the hub.
+const TOTAL_PAGES = CONTENT_GROUPS.reduce((n, g) => n + g.pages.length, 0)
+
+/**
+ * A footer column heading that is also a link into the hub.
+ *
+ * These were plain <div>s, which meant the categories the footer organises the
+ * library by existed only as styling — a reader who wanted "all the guides"
+ * could see the word Guides and could not click it.
+ */
+function ColumnHead({ children, href }) {
+  const style = { fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }
+  if (!href) return <div style={style}>{children}</div>
+  return (
+    <a href={href} className="footer-col-head" style={{ ...style, display:'block', textDecoration:'none' }}>
+      {children}
+    </a>
+  )
+}
 
 // The footer's quick links are the site's routes. NAV_LINKS now leads with Home
 // itself, so this is a straight alias — prepending Home here as well would list
@@ -50,7 +74,7 @@ export function Footer() {
             that scrolls is invisible to a crawler, and these are now the site's
             actual routes. */}
         <div>
-          <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Quick Links</div>
+          <ColumnHead>Quick Links</ColumnHead>
           {FOOTER_LINKS.map(({ href, label }) => {
             const active = href === here
             const restColor = active ? 'var(--white)' : 'var(--muted)'
@@ -73,8 +97,8 @@ export function Footer() {
             orphans: the footer is the only element on every page, so it is the
             only place that can reach all of them. */}
         <div>
-          <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Who we supply</div>
-          {USE_CASE_PAGES.map(p => (
+          <ColumnHead href={`${RESOURCES_PATH}#${USE_CASES.id}`}>Who we supply</ColumnHead>
+          {USE_CASES.pages.map(p => (
             <a key={p.slug} href={`/${p.slug}`} className="footer-link"
               style={{ display:'block', color:'var(--muted)', fontSize:14, marginBottom:10, textDecoration:'none' }}
             >{p.breadcrumb}</a>
@@ -83,17 +107,22 @@ export function Footer() {
 
         {/* Guides */}
         <div>
-          <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Guides</div>
+          <ColumnHead href={`${RESOURCES_PATH}#${GUIDES.id}`}>Guides</ColumnHead>
           {GUIDE_PAGES.map(p => (
             <a key={p.slug} href={`/${p.slug}`} className="footer-link"
               style={{ display:'block', color:'var(--muted)', fontSize:14, marginBottom:10, textDecoration:'none' }}
             >{p.breadcrumb}</a>
           ))}
+          {/* The way out of a truncated column. Without it the footer shows
+              four of ten guides and implies that is all of them. */}
+          <a href={RESOURCES_PATH} className="footer-link footer-all"
+            style={{ display:'block', color:'var(--aqua)', fontSize:14, marginTop:4, textDecoration:'none' }}
+          >All {TOTAL_PAGES} resources →</a>
         </div>
 
         {/* Contact */}
         <div>
-          <div style={{ fontWeight:600, fontSize:14, color:'var(--white)', marginBottom:16, letterSpacing:'0.08em', textTransform:'uppercase' }}>Contact</div>
+          <ColumnHead>Contact</ColumnHead>
           <div className="footer-row">📍 Delhi, India</div>
           <div className="footer-row">
             📞 <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
@@ -108,7 +137,7 @@ export function Footer() {
               search — or an assistant asked "who supplies branded water in
               Noida" — is most likely to land on. */}
           <div style={{ marginTop:14, display:'flex', flexWrap:'wrap', gap:'8px 14px' }}>
-            {LOCATION_PAGES.map(p => (
+            {LOCATIONS.pages.map(p => (
               <a key={p.slug} href={`/${p.slug}`} className="footer-link"
                 style={{ color:'var(--muted)', fontSize:13, textDecoration:'none' }}
               >{p.breadcrumb}</a>

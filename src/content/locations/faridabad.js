@@ -1,11 +1,11 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS, LEAD_TIME } from '../shared'
+import { COMMON_FAQS, LEAD_TIME, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'faridabad',
   title: 'Custom Branded Water Bottles in Faridabad | AquaVia',
   description:
-    'Branded bottled water delivered across Faridabad — NIT, Sectors 15 and 16, the industrial sectors, Neelam Chowk, Ballabgarh and Surajkund. Bulk orders from 150 units.',
+    'Branded bottled water delivered across Faridabad — NIT, Sectors 15 and 16, the industrial sectors, Neelam Chowk, Ballabgarh and Surajkund. Bulk orders from 100 units (1,200 bottles).',
   keywords:
     'custom water bottles Faridabad, branded water bottle supplier Faridabad, industrial canteen water Faridabad, Surajkund event water',
   h1: 'Custom Branded Water Bottles in Faridabad',
@@ -14,13 +14,14 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia delivers custom branded bottled water across Faridabad, including NIT, Sectors 15 and 16, the industrial sectors along the Mathura Road corridor, Neelam Chowk, Ballabgarh and Surajkund. Orders start at 150 units per size with 5–10 day delivery.',
+    'AquaVia delivers custom branded bottled water across Faridabad, including NIT, Sectors 15 and 16, the industrial sectors along the Mathura Road corridor, Neelam Chowk, Ballabgarh and Surajkund. Orders start at 100 units — a unit is a case, so 1,200 bottles at 1 litre — with 2–3 day delivery.',
 
   keyFacts: [
     { term: 'Areas served', detail: 'NIT Faridabad, Sectors 15, 16, 21, industrial Sectors 24–31, Neelam Chowk, Ballabgarh, Surajkund' },
     { term: 'Dominant demand', detail: 'Manufacturing canteens and industrial staff supply' },
     { term: 'Preferred size here', detail: '1 litre — cost per litre is the deciding number' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml) / 500 (250ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
     { term: 'Lead time', detail: LEAD_TIME },
     { term: 'Seasonal peak', detail: 'Surajkund International Crafts Mela, February' },
   ],

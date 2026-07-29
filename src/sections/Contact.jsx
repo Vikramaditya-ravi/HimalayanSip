@@ -140,8 +140,8 @@ export function ContactSection() {
               {[
                 { step:'01', text:'Rate card and MOQ confirmed against your quantity.' },
                 { step:'02', text:`Label proof back within ${claim('proofTime')} of receiving artwork.` },
-                // Was "7 to 10 working days" while the FAQ said 5–10 business
-                // days. Both now read the same verified claim.
+                // This once said "7 to 10 working days" while the FAQ said
+                // something else. Both now read the same claim record.
                 { step:'03', text:`Approved orders dispatched in ${claim('leadTime')}.` },
               ].map(item => (
                 <div key={item.step} style={{ display:'flex', gap:16, alignItems:'baseline', padding:'14px 0', borderTop:'1px solid var(--glass-border)' }}>

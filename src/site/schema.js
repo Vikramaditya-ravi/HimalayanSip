@@ -1,7 +1,7 @@
 import { CLAIMS, claim } from './claims'
 import {
   FAQS, FILTRATION_STAGES, INDUSTRIES, OG_IMAGE, PRICING_TIERS, PRODUCTS,
-  SERVICES, SITE_URL, STEPS,
+  SERVICES, SITE_URL, STEPS, bottlesPerUnit, moqBottles, moqUnits,
 } from './data'
 
 /**
@@ -254,9 +254,9 @@ function products() {
       seller: { '@id': ID.business },
       eligibleQuantity: {
         '@type': 'QuantitativeValue',
-        value: Number(p.minOrder.replace(/[^\d]/g, '')),
+        value: moqBottles(p),
         unitText: 'bottles',
-        description: `Minimum order quantity for ${p.size}`,
+        description: `Minimum order quantity for ${p.size} — ${moqUnits(p)}, a unit being a case of ${bottlesPerUnit(p)}`,
       },
       areaServed: areaServed(),
     },
@@ -391,7 +391,16 @@ export function graphFor(route, meta, dateModified) {
  * for a use-case page, an FAQPage for anything with questions — and this wires
  * them into the same entity graph the rest of the site uses.
  */
-export function graphForContent(page, extraNodes = []) {
+/**
+ * `trail` is passed in rather than derived here, and that is not an accident of
+ * convenience. Building a content page's trail needs the content index (it names
+ * the page's category), and this module is imported BY the content modules —
+ * `serviceNode` — so importing the index back would close a cycle. The caller
+ * has the trail already: it comes from contentMeta(), which is also what renders
+ * the visible breadcrumbs, so the two are guaranteed to be the same array rather
+ * than two derivations that agreed on the day they were written.
+ */
+export function graphForContent(page, extraNodes = [], trail) {
   const path = `/${page.slug}`
   const nodes = [
     ...identityNodes(),
@@ -402,7 +411,7 @@ export function graphForContent(page, extraNodes = []) {
       dateModified: page.updatedAt,
       breadcrumb: true,
     }),
-    breadcrumbList(path, page.trail ?? [{ name: page.breadcrumb ?? page.h1, path }]),
+    breadcrumbList(path, trail ?? page.trail ?? [{ name: page.breadcrumb ?? page.h1, path }]),
     {
       '@type': 'Article',
       '@id': `${SITE_URL}${path}#article`,

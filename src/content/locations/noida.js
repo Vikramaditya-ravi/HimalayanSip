@@ -1,5 +1,5 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS, LEAD_TIME } from '../shared'
+import { COMMON_FAQS, LEAD_TIME, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'noida',
@@ -14,12 +14,13 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia delivers custom branded bottled water across Noida and Greater Noida, including Sector 62, Sector 16 Film City, Sector 18, the Expressway sectors 125–142, Knowledge Park and India Expo Mart. Orders start at 150 units per size with 5–10 day delivery.',
+    'AquaVia delivers custom branded bottled water across Noida and Greater Noida, including Sector 62, Sector 16 Film City, Sector 18, the Expressway sectors 125–142, Knowledge Park and India Expo Mart. Orders start at 100 units — a unit is a case, so 1,200 bottles at 1 litre — with 2–3 day delivery.',
 
   keyFacts: [
     { term: 'Noida districts served', detail: 'Sectors 1–20, 58–65, 125–142 along the Expressway, Film City (Sector 16), Sector 18' },
     { term: 'Greater Noida', detail: 'Knowledge Park, Alpha and Beta commercial, Techzone, India Expo Mart' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml) / 500 (250ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
     { term: 'Lead time', detail: LEAD_TIME },
     { term: 'Distinctive demand', detail: 'Media production, exhibitions, education campuses' },
     { term: 'Access advantage', detail: 'Planned sector grid — the easiest large-vehicle access in NCR' },
@@ -74,7 +75,7 @@ export default {
     { q: 'Do you deliver to India Expo Mart in Greater Noida?', a: 'Yes. The venue runs its own vehicle-entry and exhibitor-pass process around event dates, so start that paperwork when you place the order and schedule the delivery for a set-up day rather than the opening.' },
     { q: 'Can you supply a shoot at Film City, Noida?', a: 'Yes, and it is a regular part of our work in Noida. Production supply tends to be short-notice and location-based — give us a mobile number for someone on set, since locations move.' },
     { q: 'Which Noida sectors do you cover?', a: 'Sectors 1–20, the 58–65 IT belt, Sector 16 Film City, Sector 18, and the Expressway sectors 125–142, plus Greater Noida including Knowledge Park, Techzone and Greater Noida West.' },
-    { q: 'Is delivery in Noida faster than in Delhi?', a: 'Access is easier, which makes scheduling more predictable — the planned sector grid means wide roads and real loading access. Production time is the same: 5–10 business days after proof approval.' },
+    { q: 'Is delivery in Noida faster than in Delhi?', a: 'Access is easier, which makes scheduling more predictable — the planned sector grid means wide roads and real loading access. Production time is the same: 2–3 business days after proof approval.' },
     { q: 'Can you supply university campuses in Knowledge Park?', a: 'Yes. Campus demand peaks around convocations, placements and technical festivals; those dates are known well ahead, so order a fortnight out at minimum.' },
     ...COMMON_FAQS.slice(1),
   ],

@@ -1,5 +1,5 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS, LEAD_TIME } from '../shared'
+import { COMMON_FAQS, LEAD_TIME, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'for/hotels-and-resorts',
@@ -14,7 +14,7 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia supplies hotels and resorts across Delhi NCR with bottled water carrying the property’s own branding — 1 litre for guest rooms, 500ml for banqueting and 250ml for spas and turndown. Orders start at 150 units per size and dispatch on a weekly schedule that fits housekeeping cycles.',
+    'AquaVia supplies hotels and resorts across Delhi NCR with bottled water carrying the property’s own branding — 1 litre for guest rooms, 500ml for banqueting and 250ml for spas and turndown. Orders start at 100 units — a unit is a case, so 1,200 bottles at 1 litre — and dispatch on a weekly schedule that fits housekeeping cycles.',
 
   keyFacts: [
     { term: 'Guest rooms', detail: '1 litre — best cost per litre, two per room per night is the common standard' },
@@ -78,7 +78,7 @@ export default {
       heading: 'Groups and multiple properties',
       body: [
         'For a group, consolidating supply across properties is the single most effective lever on rate — combined dispatch frequency moves the whole group into a better tier than any individual property would reach alone.',
-        'Labels can still differ by property. A group mark with a property line beneath it is one artwork family with several variants, and each variant needs to meet its own minimum order quantity, which for a hotel taking 1 litre bottles means 150 units — a low bar for any operating property.',
+        'Labels can still differ by property. A group mark with a property line beneath it is one artwork family with several variants, and each variant is its own print run, so each needs its own batch — for a hotel taking 1 litre bottles that is 100 units, which at 12 bottles a case is 1,200 bottles per variant. Worth knowing before a group splits one label into six.',
       ],
     },
   ],
@@ -86,7 +86,7 @@ export default {
   faqs: [
     { q: 'What size water bottle do hotels usually put in guest rooms?', a: '1 litre is the most common for complimentary room water, because cost per litre is the deciding factor and two bottles cover a double occupancy for a night. Minibar stock is usually 500ml, priced as a single serving.' },
     { q: 'Can we have our hotel logo on the bottles?', a: 'Yes — that is the product. You supply artwork, we print it as a label and apply it to bottles filled at our partner plant, then deliver by the case across Delhi NCR.' },
-    { q: 'What is the minimum order for a hotel?', a: '150 units for 1 litre, 250 for 500ml and 500 for 250ml. Most properties clear all three comfortably in a single month.' },
+    { q: 'What is the minimum order for a hotel?', a: 'One batch: 100 units of 1 litre, 145 of 500ml or 180 of 250ml. A unit is a case, so that is 1,200, 3,480 and 6,480 bottles. A property running 100 rooms at two litre bottles a night reaches the litre batch in about three weeks; the smaller sizes are a longer commitment and suit a scheduled dispatch.' },
     { q: 'Which label material should a hotel use?', a: 'BOPP film. Hotel bottles are served chilled everywhere — rooms, banqueting, spa — and paper labels fail within an hour of contact with condensation.' },
     { q: 'Can you deliver on a fixed weekly schedule?', a: 'Yes, and it is cheaper than ad-hoc ordering. Scheduled dispatch is what moves an account into the Preferred and Enterprise rate tiers.' },
     ...COMMON_FAQS,

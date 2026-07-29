@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 
 /**
- * Vertical space the floating navbar occupies: 14px inset + 64px pill, plus
- * 14px of breathing room.
+ * Vertical space the docked navbar occupies: the 64px bar, plus 14px of
+ * breathing room.
  *
  * Exported because four separate places have to agree on it and they are not
  * all CSS — PageShell's top padding and its hash-scroll offset are computed in
@@ -11,7 +11,7 @@ import { useEffect } from 'react'
  * a deep link landing with its heading tucked under the navbar, which is
  * invisible until someone actually follows one.
  */
-export const NAV_CLEAR = 92
+export const NAV_CLEAR = 78
 
 // ─── Global stylesheet ────────────────────────────────────────────────────────
 /**
@@ -172,41 +172,32 @@ export const GLOBAL_CSS = `
       }
 
       /* ── Navbar ────────────────────────────────────────────────────────────
-         A detached pill inset from all three edges rather than a full-bleed
-         bar. Consequence worth knowing: the bar no longer spans the viewport,
-         so it cannot "cover" content the way a full-width bar does — every
-         scroll-margin and top-padding below is measured against 14 + 64 = 78px
-         of occupied space, rounded up to 92 for breathing room. */
+         A full-bleed bar docked to the top edge, not a detached pill. It spans
+         the viewport at rest and stays there, so the only thing scrolling
+         changes is the surface treatment (translucent → opaque), never the
+         geometry. Occupied space is a flat 64px, rounded up to 78 for breathing
+         room — that is what every scroll-margin and top-padding below measures
+         against. */
       .nav-bar {
-        position: fixed; top: 14px; left: 5%; right: 5%; z-index: 1000;
+        position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
         display: flex; align-items: center; justify-content: space-between;
-        gap: 20px; height: 64px; padding: 0 10px 0 18px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.35);
-        transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease,
-                    top 0.35s cubic-bezier(0.22,1,0.36,1), left 0.35s cubic-bezier(0.22,1,0.36,1),
-                    right 0.35s cubic-bezier(0.22,1,0.36,1), border-radius 0.35s ease,
-                    padding 0.35s cubic-bezier(0.22,1,0.36,1);
-      }
-      .brand-ripple { transition: opacity 0.3s ease; }
-      /* Scrolled: the pill docks. It goes full-bleed to all three edges, drops
-         its radius and its side borders, and — the point of the exercise —
-         turns fully opaque. The resting state's translucency is a flourish that
-         only works over the hero; once the page is moving, section content
-         sliding visibly *through* the bar reads as a bug, not as depth. So the
-         blur upgrade is cancelled here too (backdrop-filter over an opaque
-         background is pure cost for no visible effect), and the transition is
-         on the geometry as well as the colour so the dock is a movement rather
-         than a jump. */
-      .nav-scrolled {
-        top: 0; left: 0; right: 0;
+        gap: 20px; height: 64px; padding: 0 5%;
         border-radius: 0;
         border-color: transparent;
         border-bottom-color: rgba(62,207,191,0.22);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+        transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+      }
+      /* Scrolled: the bar turns fully opaque. The resting state's translucency
+         is a flourish that only works over the hero; once the page is moving,
+         section content sliding visibly *through* the bar reads as a bug, not
+         as depth. The blur upgrade is cancelled here too — backdrop-filter over
+         an opaque background is pure cost for no visible effect. */
+      .nav-scrolled {
         background: var(--navy);
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
         box-shadow: 0 10px 34px rgba(0,0,0,0.55);
-        padding-left: 5%; padding-right: 5%;
       }
       @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
         .nav-scrolled { background: var(--navy); }
@@ -214,7 +205,6 @@ export const GLOBAL_CSS = `
       /* The reflection hangs 26px below the pill. Detached that is a nice
          touch; docked it is three arcs floating over the page content the bar
          is now sitting flush against. */
-      .nav-scrolled .brand-ripple { opacity: 0; }
 
       /* Resting/hover/active colour moved out of the inline onMouseEnter and
          onMouseLeave handlers this used to carry. Those had to recompute the
@@ -271,18 +261,6 @@ export const GLOBAL_CSS = `
       .brand-lockup:hover .brand-ring { stroke-opacity: 1; }
       .brand-drop { filter: drop-shadow(0 0 7px rgba(62,207,191,0.30)); }
 
-      /* The emblem's reflection below the pill. Absolutely positioned and
-         allowed to overflow the bar — .nav-bar leaves overflow visible, which
-         is what lets this sit outside it. Masked at both ends so the arcs fade
-         out rather than terminating. */
-      .brand-ripple {
-        position: absolute; left: 50%; bottom: -26px;
-        width: 128%; height: 30px; margin-left: -64%;
-        pointer-events: none; overflow: visible;
-        -webkit-mask-image: radial-gradient(ellipse 55% 100% at 50% 0%, #000 30%, transparent 78%);
-        mask-image: radial-gradient(ellipse 55% 100% at 50% 0%, #000 30%, transparent 78%);
-      }
-
       /* ── Mobile drawer ─────────────────────────────────────────────────────
          Net-new. Until now .nav-links was simply display:none below 768px,
          which left every nav destination unreachable on a phone except through
@@ -313,16 +291,15 @@ export const GLOBAL_CSS = `
       .nav-burger:hover { background: rgba(62,207,191,0.16); }
       .nav-burger:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
 
+      /* Hangs flush under the bar, matching its full-bleed width. */
       .nav-drawer {
-        position: fixed; top: 86px; left: 5%; right: 5%; z-index: 999;
+        position: fixed; top: 64px; left: 0; right: 0; z-index: 999;
         overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.55);
-      }
-      /* Follows the bar down when it docks: flush under a full-bleed bar, and
-         opaque for the same reason the bar is. */
-      .nav-drawer.nav-drawer-docked {
-        top: 64px; left: 0; right: 0;
         border-radius: 0; border-color: transparent;
         border-bottom-color: rgba(62,207,191,0.22);
+      }
+      /* Opaque once scrolled, for the same reason the bar is. */
+      .nav-drawer.nav-drawer-docked {
         background: var(--navy);
         -webkit-backdrop-filter: none; backdrop-filter: none;
       }
@@ -384,7 +361,6 @@ export const GLOBAL_CSS = `
       @media (max-width: 600px) {
         .brand-word, .brand-sub { display: none; }
         .brand-drop { height: 46px; }
-        .brand-ripple { display: none; }
       }
 
       /* One vertical rhythm for every heading-plus-content section.
@@ -409,6 +385,71 @@ export const GLOBAL_CSS = `
          floats above them — without this the anchor lands underneath it. */
       .sec { scroll-margin-top: var(--nav-clear); }
       .sec-head { text-align: center; margin-bottom: var(--head-gap); }
+
+      /* ── How we work ───────────────────────────────────────────────────────
+         Six disclosures, sitting directly above the FAQ. The previous version
+         was six glass cards in an auto-fit grid, which at desktop width dealt
+         four across and left the last two stranded in a half-empty second row —
+         a ragged edge under a heading about being straightforward. A fixed
+         three-column track makes it 3×2 exactly, and align-items: stretch
+         plus a column layout squares the card heights, so the row lines up
+         however uneven the copy is.
+
+         The band carries a faint aqua wash off the top edge to separate it from
+         the FAQ's flat navy below, rather than a border — one more horizontal
+         rule in a page that already has many. */
+      .hww {
+        background:
+          radial-gradient(80% 100% at 50% 0%, rgba(62,207,191,0.055), transparent 62%),
+          var(--navy-mid);
+      }
+      .hww-inner { max-width: 1200px; margin: 0 auto; }
+      .hww-head { max-width: 68ch; margin-bottom: 34px; }
+      .hww-h2 {
+        font-family: 'Cormorant Garamond', serif; font-weight: 700;
+        font-size: clamp(26px, 3.4vw, 42px); line-height: 1.12;
+        color: var(--white); margin: 0;
+      }
+      .hww-intro { color: var(--muted); font-size: 16px; line-height: 1.75; margin: 14px 0 0; }
+      .hww-grid {
+        list-style: none; padding: 0; margin: 0;
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 18px; align-items: stretch;
+      }
+      /* Not .glass-card: that one lifts 6px and glows on hover, which is right
+         for something clickable and wrong for six paragraphs of disclosure. The
+         only hover here is the number and the top rule coming up to full
+         strength — a response, not an invitation. */
+      .hww-card {
+        display: flex; flex-direction: column;
+        padding: 24px 24px 26px; border-radius: 16px;
+        background: var(--navy-card); border: 1px solid var(--glass-border);
+        position: relative; overflow: hidden;
+        transition: border-color 0.3s ease, background-color 0.3s ease;
+      }
+      .hww-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, var(--aqua), transparent 78%);
+        opacity: 0.35; transition: opacity 0.3s ease;
+      }
+      .hww-card:hover { border-color: rgba(62,207,191,0.32); }
+      .hww-card:hover::before { opacity: 0.9; }
+      .hww-num {
+        font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 700;
+        line-height: 1; color: var(--aqua); opacity: 0.4;
+        transition: opacity 0.3s ease; margin-bottom: 12px;
+      }
+      .hww-card:hover .hww-num { opacity: 0.85; }
+      .hww-card-t {
+        font-size: 16px; font-weight: 600; line-height: 1.35;
+        color: var(--white); margin: 0 0 10px;
+      }
+      .hww-card-d { color: var(--muted); font-size: 14.5px; line-height: 1.72; margin: 0; }
+      @media (max-width: 1000px) { .hww-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 640px) {
+        .hww-grid { grid-template-columns: 1fr; gap: 14px; }
+        .hww-card { padding: 20px; }
+      }
 
       /* ── Page head: breadcrumbs + the route's h1 ───────────────────────────
          Every route except home renders one of these above its sections. Five
@@ -443,7 +484,7 @@ export const GLOBAL_CSS = `
       .content-body p { color: var(--muted); line-height: 1.8; font-size: 16.5px; margin: 0 0 18px; max-width: 72ch; }
       .content-body a { color: var(--aqua); text-decoration: underline; text-underline-offset: 3px; }
       .content-section { margin-top: 44px; scroll-margin-top: var(--nav-clear); }
-      .content-section h2, .key-facts h2, .quote-box h2 {
+      .content-section h2, .key-facts h2 {
         font-family: 'Cormorant Garamond', serif; font-weight: 700;
         font-size: clamp(24px, 3vw, 36px); color: var(--white); line-height: 1.15; margin: 0 0 16px;
       }
@@ -478,25 +519,218 @@ export const GLOBAL_CSS = `
       .data-table td { color: var(--muted); line-height: 1.6; }
       .data-table tbody tr:hover { background: rgba(255,255,255,0.02); }
 
-      /* Quote form. The only form on the site — see the note in render.jsx. */
-      .quote-box { margin-top: 52px; padding: 28px; background: var(--navy-card); border: 1px solid var(--glass-border); border-radius: 20px; }
-      .quote-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 22px; }
-      .quote-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--white); font-weight: 500; }
-      .quote-form label em { color: var(--muted); font-style: normal; font-weight: 400; }
-      .quote-form input, .quote-form textarea {
-        background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 10px;
-        padding: 11px 13px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 15px;
+      /* ── The resources system ──────────────────────────────────────────────
+         One card, one grid and one band, shared by the navbar menu, the
+         /resources hub, the "Related resources" block on all six marketing
+         routes and the one at the foot of every content page. Written once here
+         rather than per surface, because a related-links block that looks
+         different in six places reads as six unrelated features instead of one
+         library — which is the exact problem the hub exists to solve.
+
+         Colour, radius and border all come from the existing tokens; nothing
+         here introduces a new surface treatment. The card is the Navy Card the
+         pricing tiers and the quote box already use. */
+      .res-card {
+        display: flex; flex-direction: column; gap: 8px;
+        padding: 20px 20px 18px; border-radius: 16px;
+        background: var(--navy-card); border: 1px solid var(--glass-border);
+        text-decoration: none; position: relative; overflow: hidden;
+        transition: transform 0.28s cubic-bezier(0.22,1,0.36,1), border-color 0.28s, box-shadow 0.28s;
       }
-      .quote-form input:focus, .quote-form textarea:focus { outline: 2px solid var(--aqua); outline-offset: 1px; border-color: transparent; }
-      .quote-wide { grid-column: 1 / -1; }
-      .quote-submit {
-        background: var(--aqua); color: #04101f; border: none; border-radius: 10px;
-        padding: 13px 26px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
+      /* The teal wash that the rest of the site uses to mark a hovered surface.
+         A pseudo-element rather than a background-image transition so the card's
+         own background token stays the one source of its colour. */
+      .res-card::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+        background: radial-gradient(120% 100% at 0% 0%, rgba(62,207,191,0.10), transparent 60%);
+        transition: opacity 0.28s;
       }
-      .quote-submit:disabled { opacity: 0.6; cursor: progress; }
-      .quote-error { color: #ff8f8f; font-size: 14px; margin-top: 10px; }
+      .res-card:hover { transform: translateY(-4px); border-color: rgba(62,207,191,0.45); box-shadow: 0 16px 38px rgba(0,0,0,0.38); }
+      .res-card:hover::after { opacity: 1; }
+      .res-card:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
+      .res-card-title {
+        font-family: 'Cormorant Garamond', serif; font-weight: 700;
+        font-size: 20px; line-height: 1.2; color: var(--white);
+      }
+      /* Clamped to four lines. These descriptions are meta descriptions — they
+         run to ~160 characters and vary, and without a clamp one long one sets
+         the height of every card in its row. */
+      .res-card-desc {
+        color: var(--muted); font-size: 14px; line-height: 1.6; flex: 1;
+        display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+      }
+      .res-card-more { color: var(--aqua); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+      .res-arrow { display: inline-block; margin-left: 7px; transition: transform 0.25s; }
+      .res-card:hover .res-arrow, .res-hub-link:hover .res-arrow, .nav-menu-all:hover .res-arrow { transform: translateX(4px); }
+
+      /* auto-fit, so the same grid holds three cards on a marketing page and ten
+         on the hub without either surface declaring a column count. */
+      .res-grid {
+        display: grid; gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
+      .res-grid-compact { gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+
+      /* The band that ends a marketing route. Full-bleed with its own faint top
+         rule, so it reads as a change of register — you have finished the page,
+         here is where to read further — rather than as one more section. */
+      .res-band {
+        padding: clamp(48px, 6vw, 76px) var(--gutter);
+        border-top: 1px solid var(--glass-border);
+        background:
+          radial-gradient(90% 120% at 50% 0%, rgba(62,207,191,0.05), transparent 62%),
+          #050d16;
+      }
+      .res-band-inner { max-width: 1200px; margin: 0 auto; }
+      .res-band-head {
+        display: flex; align-items: flex-end; justify-content: space-between;
+        gap: 24px; flex-wrap: wrap; margin-bottom: 26px;
+      }
+      .res-eyebrow {
+        display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+        text-transform: uppercase; color: var(--aqua); margin-bottom: 8px;
+      }
+      .res-band-h2 {
+        font-family: 'Cormorant Garamond', serif; font-weight: 700;
+        font-size: clamp(26px, 3.4vw, 40px); line-height: 1.12; color: var(--white); margin: 0;
+      }
+      .res-band-intro { color: var(--muted); font-size: 15.5px; line-height: 1.7; margin: 10px 0 0; max-width: 62ch; }
+      .res-hub-link, .nav-menu-all {
+        color: var(--aqua); font-size: 14px; font-weight: 600; text-decoration: none;
+        white-space: nowrap; padding: 9px 18px; border-radius: 50px;
+        border: 1px solid rgba(62,207,191,0.35); transition: background-color 0.25s, border-color 0.25s;
+      }
+      .res-hub-link:hover, .nav-menu-all:hover { background: rgba(62,207,191,0.10); border-color: var(--aqua); }
+      .res-hub-link:focus-visible, .nav-menu-all:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
+
+      /* The Related block at the foot of a content page sits inside
+         .content-body, whose 860px cap is right for prose and tight for cards —
+         hence the compact grid, whose 230px minimum lets three sit in a row
+         there and fall to one on a phone. */
+      .related-block .res-grid { margin-top: 4px; }
+      .related-more { margin-top: 20px !important; font-size: 15px; }
+
+      /* ── /resources ────────────────────────────────────────────────────────
+         Wider than .content-body: this is an index, not prose, so the 72ch
+         measure that makes a guide readable would waste half the viewport. */
+      .res-page { max-width: 1200px; margin: 0 auto; padding: 10px var(--gutter) 80px; }
+      .res-jump { display: flex; flex-wrap: wrap; gap: 10px; margin: 30px 0 8px; }
+      .res-jump-link {
+        display: inline-flex; align-items: center; gap: 9px;
+        padding: 9px 17px; border-radius: 50px; text-decoration: none;
+        background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+        color: var(--white); font-size: 14px; font-weight: 500;
+        transition: border-color 0.25s, background-color 0.25s;
+      }
+      .res-jump-link:hover { border-color: rgba(62,207,191,0.5); background: rgba(62,207,191,0.08); }
+      .res-jump-link:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
+      .res-jump-count, .res-menu-count {
+        font-size: 11.5px; font-weight: 600; color: var(--aqua);
+        background: rgba(62,207,191,0.12); border-radius: 40px; padding: 2px 8px;
+      }
+      /* scroll-margin so a jump link or a breadcrumb landing on #guides clears
+         the fixed bar, the same way .sec and .content-section do. */
+      .res-cat { margin-top: clamp(44px, 5vw, 64px); scroll-margin-top: var(--nav-clear); }
+      .res-cat-head { margin-bottom: 22px; }
+      .res-cat-h2 {
+        font-family: 'Cormorant Garamond', serif; font-weight: 700;
+        font-size: clamp(26px, 3.4vw, 40px); line-height: 1.12; color: var(--white); margin: 0 0 10px;
+      }
+      .res-cat-blurb { color: var(--muted); font-size: 15.5px; line-height: 1.7; margin: 0; max-width: 68ch; }
+      .res-cta {
+        margin-top: clamp(52px, 6vw, 78px); padding: clamp(26px, 3.4vw, 40px);
+        border-radius: 22px; background: var(--navy-card); border: 1px solid var(--glass-border);
+      }
+      .res-cta p { color: var(--muted); font-size: 16px; line-height: 1.75; margin: 0 0 24px; max-width: 68ch; }
+      .res-cta a { color: var(--aqua); text-decoration: underline; text-underline-offset: 3px; }
+      .res-cta-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+      .res-cta-ghost {
+        padding: 12px 24px; border-radius: 50px; text-decoration: none !important;
+        border: 1px solid rgba(62,207,191,0.45); color: var(--aqua);
+        font-size: 15px; font-weight: 600; transition: background-color 0.25s, border-color 0.25s;
+      }
+      .res-cta-ghost:hover { background: rgba(62,207,191,0.10); border-color: var(--aqua); }
+
+      /* ── Navbar Resources menu ─────────────────────────────────────────────
+         The panel is positioned against .nav-menu, so the wrapper is the
+         positioning context and the gap between trigger and panel is padding on
+         the panel rather than empty space — a real gap would drop the hover
+         halfway across and close the menu the pointer is travelling to. */
+      .nav-menu { position: relative; display: flex; align-items: center; }
+      .nav-menu-trigger { display: inline-flex; align-items: center; gap: 6px; }
+      .nav-caret {
+        width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+        border-top: 4.5px solid currentColor; opacity: 0.7; transition: transform 0.25s;
+      }
+      .nav-caret-up { transform: rotate(180deg); }
+      .nav-menu-open > .nav-menu-trigger { color: var(--white); }
+      .nav-menu-panel {
+        position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+        width: min(860px, calc(100vw - 48px));
+        padding: 24px 26px 20px; border-radius: 18px; z-index: 1100;
+        box-shadow: 0 26px 70px rgba(0,0,0,0.6);
+        /* Fully opaque, and deliberately NOT the shared .glass treatment the bar
+           and the drawer use. Glass works for a 60px bar over a hero image; at
+           this size it put the page's own h1 legibly behind four columns of
+           links. The border is restated because .glass is no longer supplying
+           one. */
+        background: #050e19;
+        border: 1px solid var(--glass-border);
+        animation: resMenuIn 0.22s cubic-bezier(0.22,1,0.36,1) both;
+      }
+      @keyframes resMenuIn { from { opacity: 0; transform: translateX(-50%) translateY(-6px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+      .nav-menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+      .res-menu-head {
+        display: flex; align-items: center; gap: 8px; text-decoration: none;
+        color: var(--white); font-size: 12.5px; font-weight: 600;
+        letter-spacing: 0.09em; text-transform: uppercase;
+        padding-bottom: 10px; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border);
+      }
+      .res-menu-head:hover { color: var(--aqua); }
+      .res-menu-list { list-style: none; margin: 0; padding: 0; }
+      .res-menu-list li { margin: 0; }
+      .res-menu-list a {
+        display: block; padding: 6px 0; color: var(--muted);
+        font-size: 13.5px; line-height: 1.45; text-decoration: none; transition: color 0.2s;
+      }
+      .res-menu-list a:hover { color: var(--white); }
+      .res-menu-list a:focus-visible, .res-menu-head:focus-visible { outline: 2px solid var(--aqua); outline-offset: 2px; border-radius: 3px; }
+      .res-menu-rest { color: var(--aqua) !important; font-weight: 600; }
+      .nav-menu-all { display: inline-block; margin-top: 18px; }
+
+      /* The same four columns inside the mobile drawer, stacked. */
+      .nav-drawer-group { border-top: 1px solid var(--glass-border); margin-top: 6px; padding-top: 6px; }
+      .nav-drawer-toggle {
+        display: flex; align-items: center; justify-content: space-between; width: 100%;
+        padding: 13px 14px; border-radius: 10px; background: none; border: none;
+        color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 15px;
+        font-weight: 500; cursor: pointer; text-align: left;
+      }
+      .nav-drawer-toggle:hover, .nav-drawer-toggle[aria-expanded='true'] { background: rgba(62,207,191,0.09); color: var(--white); }
+      .nav-drawer-toggle:focus-visible { outline: 2px solid var(--aqua); outline-offset: -2px; }
+      /* Capped and scrollable: four categories of links can easily exceed a
+         phone's viewport, and a drawer that grows past the bottom of the screen
+         hides the search field underneath it. */
+      .nav-drawer-sub { padding: 6px 14px 4px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      .nav-drawer-sub .res-menu-col { margin-bottom: 16px; }
+      /* The drawer's blanket \`a { padding: 13px 14px }\` rule is meant for the
+         six route links; applied to twenty menu links it would make this panel
+         four screens tall. */
+      .nav-drawer-sub a { padding: 5px 0; border-radius: 0; font-size: 14px; }
+      .nav-drawer-sub .nav-menu-all { padding: 9px 18px; }
+
+      @media (max-width: 1100px) {
+        .nav-menu-panel { width: min(680px, calc(100vw - 40px)); }
+        .nav-menu-grid { grid-template-columns: repeat(2, 1fr); gap: 18px 22px; }
+      }
       @media (max-width: 700px) {
-        .quote-form { grid-template-columns: 1fr; }
+        .res-band-head { flex-direction: column; align-items: flex-start; gap: 16px; }
+        .res-grid { grid-template-columns: 1fr; }
+        .res-cta-actions { flex-direction: column; align-items: stretch; }
+        .res-cta-ghost { text-align: center; }
+      }
+
+      @media (max-width: 700px) {
         .fact-row { grid-template-columns: 1fr; gap: 4px; }
       }
 
@@ -978,25 +1212,45 @@ export const GLOBAL_CSS = `
  * Injects GLOBAL_CSS at runtime — but only when it is not already there.
  *
  * Prerendered pages are served with the same CSS inlined in <head> under
- * id="aq-global", so this becomes a no-op for every real visitor. It still runs
- * in `vite dev`, where nothing prerenders and the styles have to come from
+ * id="aq-global", so this is a no-op for every real visitor. It still matters in
+ * `vite dev`, where nothing prerenders and the styles have to come from
  * somewhere.
  *
+ * Deliberately a module side effect rather than the body of the hook below.
+ * Effects run *after* the browser has painted, so injecting from one meant `vite
+ * dev` reliably painted a full frame of unstyled DOM first — and the loudest
+ * thing in unstyled DOM is the navbar's droplet emblem, an inline SVG with no
+ * intrinsic size that fills the viewport with a teal blob before the rules that
+ * shrink it to 54px arrive. Running at import time puts the stylesheet in the
+ * document before React has rendered anything at all, so that frame cannot
+ * happen.
+ *
+ * Guarded on `document` because this module is imported by the SSR build
+ * (src/entries/server.jsx) to read GLOBAL_CSS as a string.
+ */
+if (typeof document !== 'undefined' && !document.getElementById('aq-global')) {
+  const style = document.createElement('style')
+  style.id = 'aq-global'
+  style.textContent = GLOBAL_CSS
+  document.head.appendChild(style)
+}
+
+/**
  * The `js-on` class is what re-enables the reveal animations: the .reveal rules
  * are scoped to html.js-on so that prerendered content is fully visible to
  * crawlers and to anyone without JS, instead of sitting at opacity:0 forever
  * waiting for an IntersectionObserver that will never run. In a browser the
  * class is set by an inline <head> script before first paint (see
  * scripts/prerender.mjs); this is the dev-server fallback for the same thing.
+ *
+ * It also retires the boot shimmer. #aq-boot is markup injected into every page
+ * by the bootShimmer() plugin in vite.config.js and shown while the bundle is
+ * still downloading; the moment a route has actually mounted it is a lie, so it
+ * comes out here — the one effect that every page runs exactly once.
  */
 export function useGlobalStyles() {
   useEffect(() => {
     document.documentElement.classList.add('js-on')
-    if (document.getElementById('aq-global')) return
-    const style = document.createElement('style')
-    style.id = 'aq-global'
-    style.textContent = GLOBAL_CSS
-    document.head.appendChild(style)
-    return () => document.head.removeChild(style)
+    document.getElementById('aq-boot')?.remove()
   }, [])
 }

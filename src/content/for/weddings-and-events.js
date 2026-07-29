@@ -14,7 +14,7 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia produces personalised bottled water for weddings, conferences, launches and exhibitions across Delhi NCR. 500ml is the event standard at two to six bottles per guest per day depending on season and venue. Order three weeks before the date; production runs 5–10 business days after proof approval.',
+    'AquaVia produces personalised bottled water for weddings, conferences, launches and exhibitions across Delhi NCR. 500ml is the event standard at two to six bottles per guest per day depending on season and venue. Order three weeks before the date; production runs 2–3 business days after proof approval.',
 
   keyFacts: [
     { term: 'Event standard size', detail: '500ml — one serving, held in one hand, finished' },
@@ -95,7 +95,7 @@ export default {
 
   faqs: [
     { q: 'How many water bottles do I need for an event?', a: 'Two to three 500ml bottles per person per day indoors, four to six outdoors in a Delhi NCR summer, plus 15–20% for staff, vendors and crew. Count exhibition stands from footfall rather than headcount.' },
-    { q: 'How far in advance should I order personalised event bottles?', a: 'Three weeks before the date. Production and delivery run 5–10 business days after you approve the proof, and it is almost always the approval — not the printing — that slips.' },
+    { q: 'How far in advance should I order personalised event bottles?', a: 'Three weeks before the date. Production and delivery run 2–3 business days after you approve the proof, and it is almost always the approval — not the printing — that slips.' },
     { q: 'What size bottle works best at an event?', a: '500ml. It is one serving, fits a hand and a table setting, and gets finished. 250ml doubles your effective count because people take a second, and a litre bottle gets half-drunk and abandoned at a standing function.' },
     { q: 'Which label material should event bottles use?', a: 'BOPP film. Event bottles live in ice, and paper labels are ruined within an hour of getting wet.' },
     { q: 'Can you deliver directly to the venue?', a: 'Yes. Give us the venue address, the access constraints and a named contact who will be there to receive it.' },

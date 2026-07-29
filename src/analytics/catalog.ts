@@ -58,6 +58,17 @@ export const EVENTS = {
     status: 'live',
     description: 'An industry chip was clicked.',
   },
+  resource_clicked: {
+    subjects: [],
+    status: 'live',
+    description:
+      'A link into a content page (src/content) was clicked from a navigation ' +
+      'surface — the navbar Resources menu, the /resources hub, or a Related ' +
+      'resources block on another page. props.placement says which surface, ' +
+      'props.slug which page. This is what tells us whether surfacing the ' +
+      'library actually moved traffic into it, rather than whether the pages ' +
+      'happened to rank.',
+  },
   pricing_brochure_downloaded: {
     subjects: [],
     status: 'live',
@@ -325,6 +336,7 @@ export const CLIENT_EMITTABLE = new Set<EventName>([
   'product_viewed',
   'product_cta_clicked',
   'industry_clicked',
+  'resource_clicked',
   'pricing_brochure_downloaded',
   'faq_opened',
   'filtration_stages_expanded',
@@ -357,6 +369,10 @@ export const ENGAGEMENT_EVENTS: readonly EventName[] = [
   'product_viewed',
   'product_cta_clicked',
   'industry_clicked',
+  // Someone who clicked through to a 1,400-word guide is engaged by any
+  // definition — leaving this out would let the library's own traffic read as
+  // bounces and make the section look like it was not working.
+  'resource_clicked',
   'pricing_brochure_downloaded',
   'faq_opened',
   'filtration_stages_expanded',

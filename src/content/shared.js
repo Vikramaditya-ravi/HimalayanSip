@@ -1,5 +1,5 @@
 import { claim } from '../site/claims'
-import { CASE_SIZES, PACK_SIZES, PRICING_TIERS, PRODUCTS, perBottle } from '../site/data'
+import { CASE_SIZES, PACK_FOR_SKU, PACK_SIZES, PRICING_TIERS, PRODUCTS, moqBottles, moqFull, moqUnits, perBottle } from '../site/data'
 
 /**
  * Facts the content pages share.
@@ -11,8 +11,20 @@ import { CASE_SIZES, PACK_SIZES, PRICING_TIERS, PRODUCTS, perBottle } from '../s
  * content sites end up contradicting their own pricing page.
  */
 
-export const MOQ = Object.fromEntries(PRODUCTS.map((p) => [p.sku, p.minOrder]))
+export const MOQ = Object.fromEntries(PRODUCTS.map((p) => [p.sku, moqFull(p)]))
 export const PRICE = Object.fromEntries(PRODUCTS.map((p) => [p.sku, p.price]))
+
+/**
+ * The minimum order, written the way every page should write it.
+ *
+ * A unit is a case, so "100 units" alone reads as 100 bottles to anyone who has
+ * not been told otherwise — a twelvefold understatement. MOQ_LINE always carries
+ * the bottle count beside the unit count, and UNIT_NOTE is the sentence that
+ * explains the relationship once per page.
+ */
+export const MOQ_LINE = PRODUCTS.map((p) => `${moqFull(p)} of ${p.size}`).join(' · ')
+export const UNIT_NOTE = `One unit is one case: ${PRODUCTS.map((p) => `${CASE_SIZES[PACK_FOR_SKU[p.sku]]} bottles at ${p.size}`).join(', ')}.`
+export const MOQ_SENTENCE = `The minimum order is one batch — ${MOQ_LINE} — and a batch is a full mini-truck load, so sizes can be mixed as long as the combined quantity fills the truck.`
 
 export const LEAD_TIME = claim('leadTime')
 export const PROOF_TIME = claim('proofTime')
@@ -34,24 +46,25 @@ export function rateTable(caption = 'Per-case rates by partnership tier') {
   }
 }
 
-/**
- * Which entry in PACK_SIZES a PRODUCTS sku corresponds to.
- *
- * The two arrays spell the same three bottles differently ('1L' vs '1000 ML')
- * because one is a caption and the other is the brochure's own wording. This is
- * the single place that knows they are the same thing.
- */
-export const PACK_FOR_SKU = { '250ml': '250 ML', '500ml': '500 ML', '1L': '1000 ML' }
+// Lives in data.js now that the MOQ helpers there need it too. Re-exported so
+// the content pages that import it from here keep working.
+export { PACK_FOR_SKU }
 
-/** Sizes, MOQs and case counts — the three numbers every buyer asks for first. */
+/**
+ * Sizes, MOQs and case counts — the numbers every buyer asks for first.
+ *
+ * The minimum is quoted in units and in bottles side by side, because a unit is
+ * a case and a reader who sees only "100 units" will read it as 100 bottles.
+ */
 export function sizeTable(caption = 'Bottle sizes, case counts and minimum order quantities') {
   return {
     caption,
-    head: ['Size', 'Bottles per case', 'Minimum order', 'Entry rate'],
+    head: ['Size', 'Bottles per case', 'Minimum order (units)', 'Minimum order (bottles)', 'Entry rate'],
     rows: PRODUCTS.map((p) => [
       p.size,
       String(CASE_SIZES[PACK_FOR_SKU[p.sku]]),
-      p.minOrder,
+      moqUnits(p),
+      moqBottles(p).toLocaleString('en-IN'),
       p.price,
     ]),
   }

@@ -14,14 +14,14 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'Custom branded bottled water in India typically costs ₹4 to ₹9 per bottle at business volumes, sold by the case rather than individually. AquaVia rates start at ₹100 per case of 12 × 1 litre (₹8.33 per bottle) and fall with weekly dispatch volume. GST and transportation are quoted separately.',
+    'Custom branded bottled water in India typically costs ₹4 to ₹9 per bottle at business volumes, sold by the case rather than individually. AquaVia rates start at ₹100 per case of 12 × 1 litre (₹8.33 per bottle) and fall with weekly dispatch volume. GST and transportation are included.',
 
   keyFacts: [
     { term: 'Typical range', detail: '₹4–₹9 per bottle at commercial volumes, depending on size and order frequency' },
     { term: 'Sold by', detail: `The case — ${Object.entries(CASE_SIZES).map(([k, v]) => `${v} × ${k}`).join(', ')}` },
     { term: 'Cheapest per bottle', detail: '250ml, because 36 bottles share one case' },
     { term: 'Cheapest per litre', detail: '1 litre, by a wide margin' },
-    { term: 'Not included in the rate', detail: 'GST and transportation' },
+    { term: 'Included in the rate', detail: 'GST and transportation' },
     { term: 'Included in the rate', detail: 'Label printing, label application, standard artwork setup' },
   ],
 
@@ -75,17 +75,17 @@ export default {
       ],
     },
     {
-      id: 'excluded',
-      heading: 'What is not in the quoted rate',
+      id: 'included',
+      heading: 'What is in the quoted rate',
       body: [
-        'Two things are quoted separately in this category almost universally, and both catch first-time buyers out at invoice.',
+        'Two things are quoted separately in this category almost universally, and both catch first-time buyers out at invoice. AquaVia includes them in the per-case figure instead.',
       ],
       list: [
-        { term: 'GST', detail: 'The published per-case rates are ex-tax. Ask for the tax-inclusive figure if you are comparing against a quote that bundles it.' },
-        { term: 'Transportation', detail: 'Quoted against the delivery profile. A single drop inside Delhi is not the same cost as a split across five NCR sites.' },
+        { term: 'GST', detail: 'Already in the published per-case rate. Check whether a competing quote does the same before comparing the two figures — an ex-tax rate is not the number you will pay.' },
+        { term: 'Transportation', detail: 'Also included, across the standard Delhi NCR delivery profile. Elsewhere it is priced against the drop pattern: a single drop inside Delhi is not the same cost as a split across five sites.' },
       ],
       after: [
-        'When you compare suppliers, insist on comparing like for like: per case, ex-tax, with transportation stated. Two quotes that look ₹15 apart per case are frequently identical once one of them stops hiding freight inside the rate.',
+        'When you compare suppliers, insist on comparing like for like: per case, with tax and freight stated either way. Two quotes that look ₹15 apart per case are frequently identical once one of them stops leaving GST and transportation off the sheet.',
       ],
     },
     {

@@ -1,5 +1,5 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS } from '../shared'
+import { COMMON_FAQS, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'for/gyms-and-wellness',
@@ -14,7 +14,7 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia supplies gyms, studios and spas across Delhi NCR with own-branded bottled water — 1 litre for training floors, 500ml for front-desk retail and classes, 250ml for spa and treatment rooms. Minimum orders start at 150 units and BOPP labels survive sweat and condensation.',
+    'AquaVia supplies gyms, studios and spas across Delhi NCR with own-branded bottled water — 1 litre for training floors, 500ml for front-desk retail and classes, 250ml for spa and treatment rooms. Minimum orders start at 100 units, a unit being a case of 12 litre bottles and BOPP labels survive sweat and condensation.',
 
   keyFacts: [
     { term: 'Training floor', detail: '1 litre — a full session’s hydration in one bottle' },
@@ -22,7 +22,8 @@ export default {
     { term: 'Classes and studios', detail: '500ml, handed out or sold at the door' },
     { term: 'Spa and treatment rooms', detail: '250ml — offered after a treatment' },
     { term: 'Label stock', detail: 'BOPP film — sweat, condensation and constant handling' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml) / 500 (250ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
   ],
 
   sections: [
@@ -77,7 +78,7 @@ export default {
       id: 'ordering',
       heading: 'Ordering rhythm for a single site',
       body: [
-        'A single gym typically clears the 500ml minimum of 250 units in a fortnight, and the 1 litre minimum of 150 units faster than that.',
+        'A single gym is buying a quarter or two of supply at the minimum, not a fortnight of it: 145 units of 500ml is a case count, and at 24 bottles a case that is 3,480 bottles. The 1 litre batch of 100 units — 1,200 bottles — is the smaller commitment of the two.',
         'Storage tends to be the constraint rather than budget — floor space in an NCR studio is expensive, and a month of stock in it is a poor use of the room. A fortnightly or weekly scheduled dispatch keeps the storeroom small and moves the account towards the better rate tiers.',
         'For chains and multi-studio operators, consolidating across sites improves the tier for every location, with delivery split by address.',
       ],
@@ -88,7 +89,7 @@ export default {
     { q: 'What size water bottle is best for a gym?', a: '1 litre for the training floor, because it covers a whole session without a refill. 500ml for front-desk retail and group classes, where it is a single serving and an impulse purchase.' },
     { q: 'Can a gym sell its own branded water at the desk?', a: 'Yes, and it is usually better business than stocking a national brand — lower purchase cost, and a retail price that is not anchored to a figure every member already knows from the corner shop.' },
     { q: 'Which label material survives a gym environment?', a: 'BOPP film. Gym bottles are handled with wet hands, set down on wet surfaces and carried in bags with damp kit; paper labels look tired within a single session.' },
-    { q: 'What is the minimum order for a single studio?', a: '150 units of 1 litre, 250 of 500ml, or 500 of 250ml. A single site typically clears the 500ml minimum inside a fortnight.' },
+    { q: 'What is the minimum order for a single studio?', a: 'One batch: 100 units of 1 litre, 145 of 500ml or 180 of 250ml. A unit is a case, so that is 1,200, 3,480 and 6,480 bottles. For a single studio the 1 litre batch is the realistic starting point, taken on a scheduled dispatch so the storeroom is never holding all of it.' },
     { q: 'Do you supply spas and treatment rooms as well?', a: 'Yes. 250ml is the usual choice there — offered after a treatment as a courtesy, where the size reads as considered rather than functional.' },
     ...COMMON_FAQS,
   ],

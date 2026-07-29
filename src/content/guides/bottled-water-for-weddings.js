@@ -104,7 +104,7 @@ export default {
   faqs: [
     { q: 'How many water bottles for a 300 person wedding?', a: 'For a two-day celebration with one outdoor function, roughly 2,800–3,000 × 500ml bottles including an allowance for staff and vendors. For a single indoor winter event, closer to 900–1,100.' },
     { q: 'What size water bottle is best for a wedding?', a: '500ml for functions — it is one serving, easy to hold and gets finished. Use 1 litre bottles in guest rooms for outstation guests, where cost per litre matters and nobody is carrying it around.' },
-    { q: 'How far in advance should I order personalised wedding water bottles?', a: 'Three to four weeks before the first function. Production and delivery take 5–10 business days after you approve the proof; the part that runs late is almost always the approval, not the printing.' },
+    { q: 'How far in advance should I order personalised wedding water bottles?', a: 'Three to four weeks before the first function. Production and delivery take 2–3 business days after you approve the proof; the part that runs late is almost always the approval, not the printing.' },
     { q: 'Which label material should wedding bottles use?', a: 'BOPP film. Wedding bottles go into ice buckets and tubs, and paper labels cockle, bleed and peel within an hour of getting wet.' },
     { q: 'Can each function have a different label?', a: 'Yes, though each design is a separate setup and each must meet the minimum order quantity on its own. Most couples run one design across all functions, which is both cheaper and more coherent in photographs.' },
     ...COMMON_FAQS,

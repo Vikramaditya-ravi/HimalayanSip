@@ -86,11 +86,36 @@ export function contentPageBySlug(slug) {
   return BY_SLUG.get(slug.replace(/^\//, '')) ?? null
 }
 
-/** Grouping used by llms.txt and by the footer's link columns. */
+/** The hub every content page hangs off. One constant, so nothing hardcodes it. */
+export const RESOURCES_PATH = '/resources'
+
+/**
+ * The four categories, and everything a surface needs to present one.
+ *
+ * This used to be `{name, pages}` — enough for llms.txt and four footer columns
+ * and nothing else. Every category is now a destination in its own right: it has
+ * an `id` that is a real anchor on /resources, a `label` used in breadcrumbs and
+ * menus, and a `blurb` that tells a reader what the category is for before they
+ * click into it.
+ *
+ * `name` is kept as the llms.txt / footer heading it always was. The additions
+ * are what let the navbar menu, the hub page, the breadcrumb trail and the
+ * cross-page related blocks all be derived from this one list rather than from
+ * four hand-kept copies of it.
+ */
 export const CONTENT_GROUPS = [
-  { name: 'Reference', pages: [faq, specifications] },
+  {
+    name: 'Reference',
+    id: 'reference',
+    label: 'Reference',
+    blurb: 'The numbers and answers, stated once and kept current — every question a buyer asks, and every specification we can evidence.',
+    pages: [faq, specifications],
+  },
   {
     name: 'Guides',
+    id: 'guides',
+    label: 'Guides',
+    blurb: 'Long-form explainers on cost, minimums, label stock, artwork and the standards packaged drinking water is held to in India.',
     pages: [
       customWaterBottleCost, brandedWaterBottleMoq, standards, mineralVsPackaged,
       idealTds, howRoFiltrationWorks, labelMaterials, logoArtwork,
@@ -99,10 +124,71 @@ export const CONTENT_GROUPS = [
   },
   {
     name: 'Who we supply',
+    id: 'who-we-supply',
+    label: 'Who we supply',
+    blurb: 'What branded water actually costs, and how it is specified, for each kind of business we deliver to.',
     pages: [
       hotelsAndResorts, corporateOffices, weddingsAndEvents,
       restaurantsAndCafes, hospitalsAndClinics, gymsAndWellness,
     ],
   },
-  { name: 'Where we deliver', pages: [delhi, gurugram, noida, faridabad, ghaziabad] },
+  {
+    name: 'Where we deliver',
+    id: 'where-we-deliver',
+    label: 'Where we deliver',
+    blurb: 'Delivery, lead times and local specifics for each city in the Delhi NCR service area.',
+    pages: [delhi, gurugram, noida, faridabad, ghaziabad],
+  },
 ]
+
+/** Which category a page belongs to. Used by breadcrumbs and by the hub. */
+const GROUP_BY_SLUG = new Map(
+  CONTENT_GROUPS.flatMap((g) => g.pages.map((p) => [p.slug, g])),
+)
+
+export function groupForPage(page) {
+  return GROUP_BY_SLUG.get(page.slug) ?? null
+}
+
+/**
+ * A content page's breadcrumb trail: Resources → its category → the page.
+ *
+ * Derived rather than declared per page, and read by BOTH the visible trail in
+ * PageShell and the BreadcrumbList in the JSON-LD — the two are the same array,
+ * so they cannot describe different site structures. A page may still override
+ * it by declaring its own `trail`.
+ *
+ * The category crumb points at its section on the hub, which is a real anchor
+ * that scrolls to that category's cards, not a URL invented for the schema.
+ */
+export function trailFor(page) {
+  if (page.trail) return page.trail
+  const path = `/${page.slug}`
+  const group = groupForPage(page)
+  return [
+    { name: 'Resources', path: RESOURCES_PATH },
+    ...(group ? [{ name: group.label, path: `${RESOURCES_PATH}#${group.id}` }] : []),
+    { name: page.breadcrumb ?? page.h1, path },
+  ]
+}
+
+/**
+ * Every content page as a search entry.
+ *
+ * Site search indexed the home page's sections and nothing else, so the
+ * twenty-three pages carrying most of the site's actual writing were
+ * unsearchable on the site that published them. These carry an `href`, which
+ * SiteSearch navigates to directly rather than resolving through SECTION_ROUTES.
+ *
+ * Lives here rather than in the SEARCH_INDEX in src/site/data.js because the
+ * content modules import that file — building it there would be a cycle.
+ */
+export const CONTENT_SEARCH_ENTRIES = CONTENT_GROUPS.flatMap((g) =>
+  g.pages.map((p) => ({
+    id: `content-${p.slug}`,
+    href: `/${p.slug}`,
+    kind: g.label,
+    title: p.breadcrumb ?? p.h1,
+    body: `${p.description} ${p.keywords ?? ''}`,
+  })),
+)

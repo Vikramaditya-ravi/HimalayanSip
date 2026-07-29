@@ -68,10 +68,25 @@ export function SiteSearch({ index, onNavigate }) {
     return () => document.removeEventListener('mousedown', onDown)
   }, [])
 
+  /**
+   * Two kinds of result now.
+   *
+   * The original entries name a `sectionId`, and onNavigate decides whether that
+   * means scrolling or navigating — see the note on it in Navbar.jsx. Content
+   * pages have no section on any other page to scroll to; they ARE a page, so
+   * they carry an `href` and go straight there. Without this branch the whole
+   * content library would have had to pretend to be a section of the home page
+   * in order to be findable from the search box.
+   */
   const choose = (entry) => {
-    track('search_result_clicked', { queryText: query.trim().toLowerCase(), sectionId: entry.sectionId })
+    track('search_result_clicked', {
+      queryText: query.trim().toLowerCase(),
+      sectionId: entry.sectionId,
+      props: entry.href ? { href: entry.href } : undefined,
+    })
     setOpen(false)
     setQuery('')
+    if (entry.href) { window.location.href = entry.href; return }
     onNavigate(entry.sectionId)
   }
 

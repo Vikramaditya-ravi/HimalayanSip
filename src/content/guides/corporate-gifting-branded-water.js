@@ -90,7 +90,7 @@ export default {
   faqs: [
     { q: 'Is branded bottled water a good corporate gift?', a: 'As a component, yes — it makes a hamper, delegate kit or welcome set look complete at a very low unit cost, and unlike most merchandise it is actually consumed. As a standalone gift to a client, no.' },
     { q: 'What size bottle is best for corporate gifting?', a: '250ml for hampers and boardroom tables, where it reads as considered and fits the setting. 500ml for delegate kits and exhibition stands, where people will actually drink it during the day.' },
-    { q: 'How much does branded water cost for an event?', a: 'From ₹4.89 per 250ml bottle and ₹5.67 per 500ml at entry rates. A 500-delegate event needing two bottles each comes to roughly ₹5,700 before GST and transportation.' },
+    { q: 'How much does branded water cost for an event?', a: 'From ₹4.89 per 250ml bottle and ₹5.67 per 500ml at entry rates. A 500-delegate event needing two bottles each comes to roughly ₹5,700, with GST and transportation included.' },
     { q: 'Which label finish looks most premium?', a: 'Metallic foil accents on a matte base, for gifting handled dry. If the bottles will be iced, use BOPP film instead — a ruined paper label undoes any amount of finish.' },
     { q: 'Can we put an event date or QR code on the label?', a: 'Yes. Dates work particularly well on the back panel. Test any QR code at printed size on a curved bottle before approving the proof.' },
     ...COMMON_FAQS,

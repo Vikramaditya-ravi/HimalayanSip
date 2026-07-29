@@ -1,11 +1,11 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS, LEAD_TIME } from '../shared'
+import { COMMON_FAQS, LEAD_TIME, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'gurugram',
   title: 'Custom Branded Water Bottles in Gurugram (Gurgaon) | AquaVia',
   description:
-    'Branded bottled water delivered across Gurugram — Cyber City, Golf Course Road, Sohna Road, Udyog Vihar, MG Road and IMT Manesar. Bulk orders from 150 units.',
+    'Branded bottled water delivered across Gurugram — Cyber City, Golf Course Road, Sohna Road, Udyog Vihar, MG Road and IMT Manesar. Bulk orders from 100 units (1,200 bottles).',
   keywords:
     'custom water bottles Gurgaon, branded water bottles Gurugram, corporate water supply Cyber City, bulk water bottles Sohna Road',
   h1: 'Custom Branded Water Bottles in Gurugram',
@@ -14,12 +14,13 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia delivers custom branded bottled water across Gurugram, including Cyber City, Golf Course Road, Sohna Road, Udyog Vihar, MG Road and IMT Manesar. Orders start at 150 units per size, with delivery 5–10 business days after label approval.',
+    'AquaVia delivers custom branded bottled water across Gurugram, including Cyber City, Golf Course Road, Sohna Road, Udyog Vihar, MG Road and IMT Manesar. Orders start at 100 units — a unit is a case, so 1,200 bottles at 1 litre —, with delivery 2–3 business days after label approval.',
 
   keyFacts: [
     { term: 'Business districts served', detail: 'Cyber City, Cyber Hub, Golf Course Road, Golf Course Extension, Sohna Road, Udyog Vihar, MG Road, Sector 44' },
     { term: 'Industrial areas', detail: 'IMT Manesar, Udyog Vihar Phases I–V' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml) / 500 (250ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
     { term: 'Lead time', detail: LEAD_TIME },
     { term: 'Dominant demand', detail: 'Corporate offices and multinational campuses' },
     { term: 'Common constraint', detail: 'Basement loading bays and managed-campus security' },
@@ -78,7 +79,7 @@ export default {
     { q: 'Do you deliver branded water bottles in Cyber City?', a: 'Yes. Cyber City and Cyber Hub deliveries go through basement loading bays with facility-management sign-in. The first delivery to a new tower takes longest while vendor registration is set up; after that it is routine.' },
     { q: 'Which areas of Gurugram do you cover?', a: 'Cyber City, Golf Course Road and Extension, Sohna Road, Udyog Vihar, MG Road, Sector 29 and 44, Huda City Centre, the Dwarka Expressway sectors and IMT Manesar.' },
     { q: 'Can you supply a manufacturing canteen at IMT Manesar?', a: 'Yes. Canteen supply is usually 1 litre bottles at high frequency, where cost per litre is the deciding number. Deliveries are best scheduled away from shift changes.' },
-    { q: 'How long does delivery take in Gurugram?', a: '5–10 business days after label approval, with the proof back in 24–48 hours. Standing weekly schedules run to a fixed day once the account is set up.' },
+    { q: 'How long does delivery take in Gurugram?', a: '2–3 business days after label approval, with the proof back in 24–48 hours. Standing weekly schedules run to a fixed day once the account is set up.' },
     { q: 'We have several teams in one building ordering separately — does that matter?', a: 'It costs you money. Consolidating into one account with a combined weekly dispatch usually moves the whole building into a better rate tier without any other change.' },
     ...COMMON_FAQS.slice(1),
   ],

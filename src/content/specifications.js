@@ -1,6 +1,6 @@
 import { CASE_SIZES, PACK_SIZES, PRICING_INCLUDES, PRICING_TIERS, PRODUCTS, perBottle } from '../site/data'
 import { CLAIMS, claim } from '../site/claims'
-import { LABEL_MATERIALS, LEAD_TIME, PROOF_TIME, SERVICE_AREA, rateTable, sizeTable } from './shared'
+import { LABEL_MATERIALS, LEAD_TIME, MOQ_LINE, PROOF_TIME, SERVICE_AREA, UNIT_NOTE, rateTable, sizeTable } from './shared'
 
 /**
  * The specification sheet.
@@ -28,11 +28,12 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia supplies custom branded packaged drinking water in three sizes: 250ml (36 per case, from 500 units), 500ml (24 per case, from 250 units) and 1 litre (12 per case, from 150 units). Rates start at ₹100 per case. Proofs return in 24–48 hours and delivery across Delhi NCR takes 5–10 business days.',
+    'AquaVia supplies custom branded packaged drinking water in three sizes: 250ml (36 per case, from 180 units or 6,480 bottles), 500ml (24 per case, from 145 units or 3,480 bottles) and 1 litre (12 per case, from 100 units or 1,200 bottles). A unit is a case, and one batch is a full mini-truck load. Rates start at ₹100 per case. Proofs return in 24–48 hours and delivery across Delhi NCR takes 2–3 business days.',
 
   keyFacts: [
     { term: 'Sizes available', detail: PRODUCTS.map((p) => p.size).join(', ') },
-    { term: 'Minimum order', detail: PRODUCTS.map((p) => `${p.size}: ${p.minOrder}`).join(' · ') },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
     { term: 'Case counts', detail: PACK_SIZES.map((s) => `${s}: ${CASE_SIZES[s]} bottles`).join(' · ') },
     { term: 'Entry rate', detail: `₹${PRICING_TIERS[0].prices['1000 ML']} per case of ${CASE_SIZES['1000 ML']} × 1 litre` },
     { term: 'Proof turnaround', detail: PROOF_TIME },
@@ -40,7 +41,7 @@ export default {
     { term: 'Service area', detail: SERVICE_AREA },
     { term: 'Label materials', detail: LABEL_MATERIALS.map((l) => l.name).join(', ') },
     { term: 'Artwork accepted', detail: 'SVG, AI, PDF (vector preferred); PNG at 300dpi or better' },
-    { term: 'Taxes', detail: 'GST and transportation quoted separately' },
+    { term: 'Taxes', detail: 'GST and transportation included' },
   ],
 
   sections: [
@@ -48,7 +49,7 @@ export default {
       id: 'sizes',
       heading: 'Bottle sizes, case counts and minimum orders',
       body: [
-        'Three sizes are in production. Each is sold by the case, and the minimum order is expressed in bottles rather than cases because that is the number buyers plan around.',
+        'Three sizes are in production. Each is sold by the case, and the minimum order is quoted in units — a unit being one case, so the bottle count is the case count multiplied by 12, 24 or 36. Both figures are in the table because buyers plan around bottles and we dispatch in cases. One batch — the minimum — is a full mini-truck load in any of the three sizes.',
       ],
       table: sizeTable(),
       after: [
@@ -69,7 +70,7 @@ export default {
       table: rateTable(),
       after: [
         `Every tier includes: ${PRICING_INCLUDES.join(', ').toLowerCase()}.`,
-        'GST and transportation are quoted separately where applicable. The published rates are ex-tax.',
+        'GST and transportation are included in the published rates, so the per-case figure is what you pay.',
       ],
     },
     {
@@ -121,15 +122,15 @@ export default {
   faqs: [
     {
       q: 'What is the smallest order AquaVia will take?',
-      a: '150 units of 1 litre, which is the lowest minimum across the three sizes. For 500ml it is 250 units and for 250ml it is 500 units.',
+      a: '100 units of 1 litre, which is the lowest minimum across the three sizes. A unit is a case of 12, so that is 1,200 bottles. For 500ml it is 145 units (3,480 bottles) and for 250ml 180 units (6,480 bottles).',
     },
     {
       q: 'Are the published rates inclusive of GST?',
-      a: 'No. GST and transportation are quoted separately where applicable, so the per-case figures above are ex-tax.',
+      a: 'Yes. GST and transportation are included, so the per-case figures above are what you pay.',
     },
     {
       q: 'Can I mix sizes in one order?',
-      a: 'Yes, but each size has to meet its own minimum order quantity. 200 × 500ml plus 200 × 1 litre works; 100 of each does not.',
+      a: 'Yes. Sizes mix freely as long as the combined quantity fills a mini truck. One full truck is approximately 100 units of 1 litre, 145 units of 500ml or 180 units of 250ml — units being cases — so 50 units of 1 litre alongside 73 units of 500ml is a full load and works exactly as well as 100 units of 1 litre on its own.',
     },
     {
       q: 'Do you hold a BIS or FSSAI licence?',

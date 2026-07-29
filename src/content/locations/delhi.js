@@ -1,11 +1,11 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS, LEAD_TIME } from '../shared'
+import { COMMON_FAQS, LEAD_TIME, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'delhi',
   title: 'Custom Branded Water Bottles in Delhi | AquaVia',
   description:
-    'Branded bottled water delivered across Delhi — Connaught Place, Nehru Place, Aerocity, Okhla, Saket and Chanakyapuri. Bulk orders from 150 units with 5–10 day delivery.',
+    'Branded bottled water delivered across Delhi — Connaught Place, Nehru Place, Aerocity, Okhla, Saket and Chanakyapuri. Bulk orders from 100 units (1,200 bottles) with 2–3 day delivery.',
   keywords:
     'custom water bottles Delhi, branded water bottle supplier Delhi, bulk water bottles Connaught Place, corporate water Nehru Place',
   h1: 'Custom Branded Water Bottles in Delhi',
@@ -14,12 +14,13 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia delivers custom branded bottled water across Delhi, including Connaught Place, Nehru Place, Aerocity, Okhla, Saket and the Chanakyapuri diplomatic enclave. Orders start at 150 units per size and reach delivery 5–10 business days after label approval.',
+    'AquaVia delivers custom branded bottled water across Delhi, including Connaught Place, Nehru Place, Aerocity, Okhla, Saket and the Chanakyapuri diplomatic enclave. Orders start at 100 units — a unit is a case, so 1,200 bottles at 1 litre — and reach delivery 2–3 business days after label approval.',
 
   keyFacts: [
     { term: 'Areas covered', detail: 'Central, South, East, West and North Delhi' },
     { term: 'Business districts served', detail: 'Connaught Place, Nehru Place, Aerocity, Okhla, Jasola, Saket, Netaji Subhash Place' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml) / 500 (250ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
     { term: 'Lead time', detail: LEAD_TIME },
     { term: 'Typical delivery window', detail: 'Weekday mornings, outside the commercial-vehicle restriction hours' },
     { term: 'Common uses', detail: 'Offices, hotels, conferences at Bharat Mandapam and Pragati Maidan, restaurants, clinics' },
@@ -81,9 +82,9 @@ export default {
 
   faqs: [
     { q: 'Do you deliver branded water bottles across all of Delhi?', a: 'Yes — central, south, east, west and north Delhi, including Connaught Place, Nehru Place, Aerocity, Okhla, Jasola, Saket, Vasant Kunj, Chanakyapuri and Netaji Subhash Place.' },
-    { q: 'How quickly can I get branded bottles in Delhi?', a: 'Production and delivery run 5–10 business days after you approve the label proof, with the proof itself returning in 24–48 hours. For a dated event, allow three weeks — four during the October to March season.' },
+    { q: 'How quickly can I get branded bottles in Delhi?', a: 'Production and delivery run 2–3 business days after you approve the label proof, with the proof itself returning in 24–48 hours. For a dated event, allow three weeks — four during the October to March season.' },
     { q: 'Can you deliver to Pragati Maidan or Bharat Mandapam?', a: 'Yes. Both have their own vehicle-entry and gate-pass procedures with their own lead times, so start that paperwork when you place the order rather than the week of the event.' },
-    { q: 'What is the minimum order for a Delhi business?', a: '150 units for 1 litre, 250 for 500ml, 500 for 250ml — the same across the service area.' },
+    { q: 'What is the minimum order for a Delhi business?', a: 'One batch: 100 units of 1 litre, 145 of 500ml or 180 of 250ml. A unit is a case, so those are 1,200, 3,480 and 6,480 bottles respectively — the same across the service area.' },
     { q: 'Why are deliveries scheduled early in the morning?', a: 'Goods vehicle movement is restricted in parts of Delhi during the day. Early slots are how a central-district delivery arrives reliably rather than optimistically.' },
     ...COMMON_FAQS.slice(1),
   ],

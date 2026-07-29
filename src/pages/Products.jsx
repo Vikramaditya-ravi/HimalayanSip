@@ -2,6 +2,7 @@ import { TrackInView } from '../analytics/TrackInView.jsx'
 import { CustomizerSection } from '../sections/Customizer.jsx'
 import { ProductsSection } from '../sections/Products.jsx'
 import { PageShell } from '../site/PageShell.jsx'
+import { RelatedResources } from '../site/Resources.jsx'
 import { useLazySection } from '../site/hooks'
 
 /** Products: the three sizes, their MOQs, and the live label mockup. */
@@ -21,6 +22,19 @@ export function ProductsPage() {
           </TrackInView>
         )}
       </div>
+      {/* The customizer is where artwork questions surface — what file to send,
+          which stock survives a cooler — and answering them here is cheaper
+          than answering them again over WhatsApp after a bad proof. */}
+      <RelatedResources
+        placement="products"
+        heading="Before you send artwork"
+        intro="Label stock, logo file formats and minimum quantities — the three things that decide whether your first proof comes back right."
+        slugs={[
+          'guides/water-bottle-label-materials',
+          'guides/logo-artwork-for-bottle-printing',
+          'guides/branded-water-bottle-moq',
+        ]}
+      />
     </PageShell>
   )
 }

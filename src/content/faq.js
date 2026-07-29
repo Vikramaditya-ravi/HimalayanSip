@@ -1,6 +1,6 @@
 import { PRICING_TIERS, PRODUCTS } from '../site/data'
 import { CLAIMS } from '../site/claims'
-import { LEAD_TIME, PROOF_TIME, SERVICE_AREA, HOURS } from './shared'
+import { LEAD_TIME, MOQ_LINE, PROOF_TIME, SERVICE_AREA, HOURS, UNIT_NOTE } from './shared'
 
 /**
  * The site's answer page.
@@ -17,9 +17,9 @@ import { LEAD_TIME, PROOF_TIME, SERVICE_AREA, HOURS } from './shared'
 
 const ordering = [
   { q: 'What does AquaVia actually sell?', a: 'Custom branded packaged drinking water. You supply a logo and artwork; we print it as a label, apply it to 250ml, 500ml or 1 litre bottles filled at our bottling partner’s plant, and deliver the cases to you in bulk across Delhi NCR.' },
-  { q: 'What is the minimum order quantity?', a: `${PRODUCTS.map((p) => `${p.minOrder} for ${p.size}`).join(', ')}. The minimums differ because the case counts differ — 36 bottles per case at 250ml against 12 at 1 litre.` },
-  { q: 'Can I mix bottle sizes in a single order?', a: 'Yes, provided each size independently meets its own minimum. 500 × 250ml alongside 150 × 1 litre is fine; 200 of each is not, because 200 falls under the 250ml minimum.' },
-  { q: 'How is pricing structured?', a: `Per case, across three partnership tiers set by weekly dispatch volume: ${PRICING_TIERS.map((t) => `${t.name} (${t.dispatches})`).join(', ')}. Rates start at ₹${PRICING_TIERS[0].prices['1000 ML']} per case of 12 × 1 litre and fall as dispatch frequency rises. GST and transportation are quoted separately.` },
+  { q: 'What is the minimum order quantity?', a: `${MOQ_LINE}. ${UNIT_NOTE} Each of those is one batch, which is a full mini-truck load — the same minimum counted in three sizes.` },
+  { q: 'Can I mix bottle sizes in a single order?', a: 'Yes. Sizes can be mixed freely as long as the combined quantity fills a mini truck. One full truck is 100 units of 1 litre, 145 units of 500ml or 180 units of 250ml — a unit being a case of 12, 24 or 36 bottles — so half a load of one size plus half a load of another clears the minimum just as a single size does.' },
+  { q: 'How is pricing structured?', a: `Per case, across three partnership tiers set by weekly dispatch volume: ${PRICING_TIERS.map((t) => `${t.name} (${t.dispatches})`).join(', ')}. Rates start at ₹${PRICING_TIERS[0].prices['1000 ML']} per case of 12 × 1 litre and fall as dispatch frequency rises. GST and transportation are included.` },
   { q: 'Why is pricing based on dispatch frequency rather than order size?', a: 'Because that is what drives the cost of serving an account. A hotel taking two pallets a week costs less per case to serve than a company taking the same annual volume in four one-off deliveries, and the tiers reflect that rather than pretending otherwise.' },
   { q: 'Do you charge for label design?', a: 'Label setup from supplied artwork is included. If you need the label designed rather than laid out — no brand assets, no existing artwork — say so when you enquire and we will quote it separately.' },
   { q: 'Is there a charge for a sample?', a: 'No. Message the sales desk with your logo and rough quantity and we will arrange a sample bottle so you can see the print and the stock before committing.' },
@@ -79,7 +79,7 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia prints your branding on 250ml, 500ml and 1 litre packaged drinking water bottles for businesses across Delhi NCR. Minimum orders start at 150 units, pricing is per case across three volume tiers, proofs return in 24–48 hours, and delivery takes 5–10 business days after approval.',
+    'AquaVia prints your branding on 250ml, 500ml and 1 litre packaged drinking water bottles for businesses across Delhi NCR. Minimum orders start at 100 units, pricing is per case across three volume tiers, proofs return in 24–48 hours, and delivery takes 2–3 business days after approval.',
 
   // Rendered as grouped sections, and flattened into one FAQPage node so every
   // question is individually addressable by a search or answer engine.

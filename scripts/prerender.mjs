@@ -40,7 +40,7 @@ const DIST = join(ROOT, 'dist')
 // reads as protocol 'c:' and throws ERR_UNSUPPORTED_ESM_URL_SCHEME.
 const {
   ROUTES, ROUTE_FILES, SITE_URL, GLOBAL_CSS,
-  CONTENT_PAGES, renderRoute, renderContentPage, contentMeta, graphFor, graphForContent,
+  CONTENT_PAGES, renderRoute, renderContentPage, contentMeta, graphForRoute, graphForContent,
 } = await import(pathToFileURL(join(ROOT, 'dist-ssr/server.js')).href)
 
 // ─── Head fragments ───────────────────────────────────────────────────────────
@@ -154,13 +154,16 @@ function prerenderRoute(route) {
     () => `<div id="root" data-prerendered="true">${markup}</div>`,
   )
   if (html === before) throw new Error(`prerender: could not find #root in ${ROUTE_FILES[route]}`)
-  if (html.includes('<noscript>')) {
+  // Comments are stripped first: resources.html documents in prose why it has
+  // no <noscript> fallback, and the literal tag inside that comment was enough
+  // to trip an assertion meant for real markup.
+  if (html.replace(/<!--[\s\S]*?-->/g, '').includes('<noscript>')) {
     throw new Error(`prerender: <noscript> survived in ${ROUTE_FILES[route]} — #root match was too short`)
   }
 
   html = html.replace(
     '</head>',
-    `  ${headTags(meta, graphFor(route, meta), canonical)}\n    ${inlineCss()}\n    ${JS_ON}\n  </head>`,
+    `  ${headTags(meta, graphForRoute(route, meta), canonical)}\n    ${inlineCss()}\n    ${JS_ON}\n  </head>`,
   )
   writeFileSync(file, html)
   return markup.length
@@ -189,7 +192,7 @@ function loadShell() {
 function prerenderContent(page, shell) {
   const meta = contentMeta(page)
   const canonical = `${SITE_URL}${meta.path}`
-  const graph = graphForContent(page, page.schema?.() ?? [])
+  const graph = graphForContent(page, page.schema?.() ?? [], meta.trail)
   const markup = renderToString(renderContentPage(page))
 
   const head = shell.head

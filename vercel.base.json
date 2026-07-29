@@ -36,6 +36,11 @@
       "source": "/contact.html",
       "destination": "/contact",
       "permanent": true
+    },
+    {
+      "source": "/resources.html",
+      "destination": "/resources",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -62,6 +67,10 @@
     {
       "source": "/contact",
       "destination": "/contact.html"
+    },
+    {
+      "source": "/resources",
+      "destination": "/resources.html"
     }
   ],
   "headers": [

@@ -1,11 +1,11 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS, LEAD_TIME } from '../shared'
+import { COMMON_FAQS, LEAD_TIME, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'ghaziabad',
   title: 'Custom Branded Water Bottles in Ghaziabad | AquaVia',
   description:
-    'Branded bottled water delivered across Ghaziabad — Indirapuram, Vaishali, Kaushambi, Raj Nagar Extension, Sahibabad industrial area and Mohan Nagar. Bulk orders from 150 units.',
+    'Branded bottled water delivered across Ghaziabad — Indirapuram, Vaishali, Kaushambi, Raj Nagar Extension, Sahibabad industrial area and Mohan Nagar. Bulk orders from 100 units (1,200 bottles).',
   keywords:
     'custom water bottles Ghaziabad, branded water supplier Indirapuram, bulk water bottles Vaishali, Sahibabad industrial water supply',
   h1: 'Custom Branded Water Bottles in Ghaziabad',
@@ -14,13 +14,14 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia delivers custom branded bottled water across Ghaziabad, including Indirapuram, Vaishali, Kaushambi, Raj Nagar Extension, Mohan Nagar and the Sahibabad industrial area. Orders start at 150 units per size with 5–10 day delivery.',
+    'AquaVia delivers custom branded bottled water across Ghaziabad, including Indirapuram, Vaishali, Kaushambi, Raj Nagar Extension, Mohan Nagar and the Sahibabad industrial area. Orders start at 100 units — a unit is a case, so 1,200 bottles at 1 litre — with 2–3 day delivery.',
 
   keyFacts: [
     { term: 'Areas served', detail: 'Indirapuram, Vaishali, Vasundhara, Kaushambi, Raj Nagar and Raj Nagar Extension, Mohan Nagar, Sahibabad, Crossings Republik' },
     { term: 'Mixed demand', detail: 'Industrial units, banqueting halls, schools and residential clubhouses' },
     { term: 'Strong local segment', detail: 'Wedding and function venues' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml) / 500 (250ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
     { term: 'Lead time', detail: LEAD_TIME },
     { term: 'Access note', detail: 'Kaushambi and Vaishali sit on the Delhi border — schedules follow Delhi vehicle timings' },
   ],

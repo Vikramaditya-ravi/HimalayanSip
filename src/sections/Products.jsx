@@ -1,5 +1,5 @@
 import { TrackInView } from '../analytics/TrackInView.jsx'
-import { PRODUCTS } from '../site/data'
+import { PRODUCTS, moqFull } from '../site/data'
 import { useReveal } from '../site/hooks'
 import { BottleSVG, SectionTag } from '../site/ui.jsx'
 
@@ -65,7 +65,7 @@ function ProductCard({ product, delay, marquee, trackable = true }) {
       <div style={{ fontSize:12, color:'var(--muted)', marginBottom:4 }}>
         {product.caseNote ? `${product.caseNote} · lower at volume` : ' '}
       </div>
-      <div style={{ fontSize:13, color:'var(--muted)', marginBottom:16 }}>Min. {product.minOrder}</div>
+      <div style={{ fontSize:13, color:'var(--muted)', marginBottom:16 }}>Min. {moqFull(product)}</div>
       <a
         href="/contact"
         data-evt="product_cta_clicked"

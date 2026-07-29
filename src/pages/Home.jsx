@@ -5,6 +5,7 @@ import { CustomizerSection } from '../sections/Customizer.jsx'
 import { FAQSection } from '../sections/FAQ.jsx'
 import { HeroSection } from '../sections/Hero.jsx'
 import { HowItWorksSection } from '../sections/HowItWorks.jsx'
+import { HowWeWorkSection } from '../sections/HowWeWork.jsx'
 import { IndustriesSection } from '../sections/Industries.jsx'
 import { JourneySection } from '../sections/Journey.jsx'
 import { PricingSection } from '../sections/Pricing.jsx'
@@ -12,6 +13,7 @@ import { ProductsSection } from '../sections/Products.jsx'
 import { ServicesSection } from '../sections/Services.jsx'
 import { TestimonialsSection } from '../sections/Testimonials.jsx'
 import { PageShell } from '../site/PageShell.jsx'
+import { RelatedResources } from '../site/Resources.jsx'
 import { useLazySection } from '../site/hooks'
 
 /**
@@ -79,7 +81,27 @@ export function HomePage() {
         )}
       </div>
 
+      {/* Directly above the FAQ, deliberately: it is the structure the answers
+          below are given from, and a reader here is already checking claims. */}
+      <TrackInView event="section_viewed" sectionId="how-we-work"><HowWeWorkSection /></TrackInView>
       <TrackInView event="section_viewed" sectionId="faq"><FAQSection /></TrackInView>
+
+      {/* The library's only entry point from the home page, and the reason it
+          sits after the FAQ rather than earlier: the FAQ answers the seven
+          questions in a sentence each, and this is where a reader who wanted a
+          longer answer to one of them goes next. Before this, the twenty-three
+          pages were reachable from / only through the footer. */}
+      <RelatedResources
+        placement="home"
+        heading="Read before you order"
+        intro="Costs, minimum quantities, label materials and the standards behind the water — written out in full, not in a sentence."
+        slugs={[
+          'guides/custom-water-bottle-cost-india',
+          'guides/branded-water-bottle-moq',
+          'guides/water-bottle-label-materials',
+          'specifications',
+        ]}
+      />
 
       {/* No section_viewed wrapper, matching /contact and the single-page
           original — the panel emits contact_form_viewed from inside itself. */}

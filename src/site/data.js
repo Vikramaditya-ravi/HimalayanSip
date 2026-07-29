@@ -31,10 +31,15 @@ export const STEPS = [
 //
 // `size` is the caption; `sku` is what analytics groups by. They differ for the
 // litre bottle on purpose — see PRODUCT_SKUS in analytics/catalog.ts.
+//
+// `minOrderUnits` is in units, and a unit is a case — 12 bottles at 1 litre, 24
+// at 500ml, 36 at 250ml. It is stored as a number rather than as the string the
+// pages print, because the bottle equivalent is the figure buyers actually plan
+// around and it has to be derived from CASE_SIZES rather than typed twice.
 export const PRODUCTS = [
-  { size: '250ml', sku: '250ml', name: 'Petite', desc: 'Ideal for flights, meetings & premium gift hampers', price: '₹4.89/bottle', caseNote: '₹176 per case of 36', minOrder: '500 units', color: '#3ecfbf', featured: false },
-  { size: '500ml', sku: '500ml', name: 'Classic', desc: 'Our most popular — perfect for offices & events', price: '₹5.67/bottle', caseNote: '₹136 per case of 24', minOrder: '250 units', color: '#c8a44a', featured: true },
-  { size: '1 Litre', sku: '1L', name: 'Grande', desc: 'Ideal for gyms, hotels & extended stays', price: '₹8.33/bottle', caseNote: '₹100 per case of 12', minOrder: '150 units', color: '#5b8ff9', featured: false },
+  { size: '250ml', sku: '250ml', name: 'Petite', desc: 'Ideal for flights, meetings & premium gift hampers', price: '₹4.89/bottle', caseNote: '₹176 per case of 36', minOrderUnits: 180, color: '#3ecfbf', featured: false },
+  { size: '500ml', sku: '500ml', name: 'Classic', desc: 'Our most popular — perfect for offices & events', price: '₹5.67/bottle', caseNote: '₹136 per case of 24', minOrderUnits: 145, color: '#c8a44a', featured: true },
+  { size: '1 Litre', sku: '1L', name: 'Grande', desc: 'Ideal for gyms, hotels & extended stays', price: '₹8.33/bottle', caseNote: '₹100 per case of 12', minOrderUnits: 100, color: '#5b8ff9', featured: false },
 ]
 
 // ─── Corporate pricing programme (from the pricing brochure) ──────────────────
@@ -56,11 +61,28 @@ export const PRICING_TIERS = [
 ]
 
 export const PRICING_INCLUDES = ['Premium mineral water', 'Custom branding', 'High quality label printing', 'Corporate dispatch', 'Quality assurance']
-export const PRICING_FOOTNOTE = 'GST and transportation charges are quoted separately where applicable.'
+export const PRICING_FOOTNOTE = 'GST and transportation charges are included in the published rates.'
 
 // Derived, never hard-coded a second time: one edit to a case price cannot leave
 // a stale per-bottle figure sitting next to it.
 export const perBottle = (casePrice, size) => (casePrice / CASE_SIZES[size]).toFixed(2)
+
+/**
+ * Which entry in PACK_SIZES a PRODUCTS sku corresponds to.
+ *
+ * The two arrays spell the same three bottles differently ('1L' vs '1000 ML')
+ * because one is a caption and the other is the brochure's own wording. This is
+ * the single place that knows they are the same thing.
+ */
+export const PACK_FOR_SKU = { '250ml': '250 ML', '500ml': '500 ML', '1L': '1000 ML' }
+
+// The minimum order, three ways. Every page that quotes an MOQ calls one of
+// these rather than typing a number, so "100 units" and "1,200 bottles" cannot
+// drift apart or be mistaken for each other.
+export const bottlesPerUnit = (p) => CASE_SIZES[PACK_FOR_SKU[p.sku]]
+export const moqBottles = (p) => p.minOrderUnits * bottlesPerUnit(p)
+export const moqUnits = (p) => `${p.minOrderUnits} units`
+export const moqFull = (p) => `${moqUnits(p)} (${moqBottles(p).toLocaleString('en-IN')} bottles)`
 
 export const INDUSTRIES = [
   { icon: '🏨', name: 'Hotels & Resorts' }, { icon: '🏥', name: 'Hospitals & Clinics' },
@@ -137,8 +159,8 @@ export const TESTIMONIALS = [
 ]
 
 export const FAQS = [
-  { q: 'What is the minimum order quantity?', a: '500 units for 250ml, 250 units for 500ml, and 150 units for 1L bottles.' },
-  { q: 'How is your pricing structured?', a: 'Pricing is per case across three partnership tiers set by weekly dispatch volume — Signature (1–10 / week), Preferred (11–50) and Enterprise (51+). A case is 12 × 1L, 24 × 500ml or 36 × 250ml. Rates start at ₹100 / ₹136 / ₹176 per case and fall with volume. GST and transportation are quoted separately.' },
+  { q: 'What is the minimum order quantity?', a: `${PRODUCTS.map((p) => `${moqFull(p)} for ${p.size}`).join(', ')}. A unit is a case — ${PRODUCTS.map((p) => `${bottlesPerUnit(p)} bottles at ${p.size}`).join(', ')} — and one batch is a full mini-truck load, so sizes can be mixed as long as the combined quantity fills the truck.` },
+  { q: 'How is your pricing structured?', a: 'Pricing is per case across three partnership tiers set by weekly dispatch volume — Signature (1–10 / week), Preferred (11–50) and Enterprise (51+). A case is 12 × 1L, 24 × 500ml or 36 × 250ml. Rates start at ₹100 / ₹136 / ₹176 per case and fall with volume. GST and transportation are included.' },
   { q: 'Which areas do you currently serve?', a: 'We currently serve Delhi and Delhi NCR — including Gurugram, Noida, Faridabad, and Ghaziabad.' },
   { q: 'How long does production and delivery take?', a: `Design proof in ${claim('proofTime')}. Production + delivery in ${claim('leadTime')}. Rush orders available.` },
   { q: 'What file format should I send my logo in?', a: 'We accept PNG, SVG, PDF, and AI files. Vector formats (SVG, AI) yield the sharpest print results.' },
@@ -183,7 +205,7 @@ export const GEO_CONTENT = {
 export const SEARCH_INDEX = [
   ...PRODUCTS.map(p => ({
     id: `product-${p.size}`, sectionId: 'products', kind: 'Bottle size',
-    title: `${p.size} — ${p.name}`, body: `${p.desc} ${p.price} ${p.minOrder}`,
+    title: `${p.size} — ${p.name}`, body: `${p.desc} ${p.price} ${moqFull(p)}`,
   })),
   ...SERVICES.map(s => ({
     id: `service-${s.title}`, sectionId: 'services', kind: 'Service',
@@ -221,6 +243,12 @@ export const SEARCH_INDEX = [
     body: 'price list rate card pdf download tiers per case gst transportation' },
   { id: 'contact', sectionId: 'contact', kind: 'Page', title: 'Get a quote',
     body: 'contact enquiry quote sample pricing order delivery brochure rate card' },
+  // The hub itself, so "guides" or "learn" resolves to somewhere rather than to
+  // the zero-results panel. The twenty-three pages under it are indexed
+  // separately by CONTENT_SEARCH_ENTRIES in src/content/index.js — they cannot
+  // be built here, because the content modules import this file.
+  { id: 'resources', href: '/resources', kind: 'Page', title: 'Resources — all guides and specifications',
+    body: 'learn guides library reference articles explainers specifications answers help documentation' },
 ]
 
 // ─── JSON-LD ──────────────────────────────────────────────────────────────────
@@ -264,25 +292,25 @@ export const ROUTES = {
   products: {
     path: '/products',
     title: 'Custom Water Bottle Sizes & MOQs — 250ml, 500ml, 1L | AquaVia',
-    description: 'Branded water bottles in 250ml, 500ml and 1 litre. Minimum orders from 150 units. Upload your logo and preview your label before you order.',
+    description: 'Branded water bottles in 250ml, 500ml and 1 litre. Minimum order 100 units — a unit is a case, so 1,200 bottles at 1 litre. Upload your logo and preview your label before you order.',
     keywords: 'custom water bottle sizes, 250ml branded bottle, 500ml corporate water bottle, 1 litre custom bottle, water bottle MOQ',
     h1: 'Custom Branded Water Bottle Sizes & Minimum Order Quantities',
-    lede: 'AquaVia prints your branding on three bottle sizes — 250ml, 500ml and 1 litre — sold by the case to businesses across Delhi NCR. Minimum orders start at 150 units for 1 litre, 250 for 500ml and 500 for 250ml. Upload artwork below to preview your label before you commit.',
+    lede: 'AquaVia prints your branding on three bottle sizes — 250ml, 500ml and 1 litre — sold by the case to businesses across Delhi NCR. The minimum is one batch: 100 units of 1 litre, 145 of 500ml or 180 of 250ml. A unit is a case, so those are 1,200, 3,480 and 6,480 bottles. Upload artwork below to preview your label before you commit.',
     breadcrumb: 'Products',
   },
   pricing: {
     path: '/pricing',
     title: 'Bulk Water Bottle Pricing & Corporate Tiers | AquaVia',
-    description: 'Per-case rates across three partnership tiers from ₹100 per case. Download the full rate card. GST and transportation quoted separately.',
+    description: 'Per-case rates across three partnership tiers from ₹100 per case. Download the full rate card. GST and transportation included.',
     keywords: 'bulk water bottle price, corporate water bottle pricing Delhi, branded water rate card, water bottle price per case',
     h1: 'Bulk Water Bottle Pricing for Delhi NCR Businesses',
-    lede: 'Branded bottled water is priced per case across three partnership tiers set by weekly dispatch volume, starting at ₹100 per case of 12 × 1 litre. GST and transportation are quoted separately. The full rate card is downloadable below.',
+    lede: 'Our pricing is tailored to your dispatch requirements, with flexible partnership tiers for businesses of all sizes. GST and transportation are included for complete pricing transparency. Download the rate card below to explore pricing across all bottle sizes and partnership tiers.',
     breadcrumb: 'Pricing',
   },
   process: {
     path: '/process',
     title: 'How We Make It — 7-Stage Filtration & Delivery | AquaVia',
-    description: 'Seven-stage filtration, mineral balancing, bottling and Delhi NCR dispatch in 5–10 business days.',
+    description: 'Seven-stage filtration, mineral balancing, bottling and Delhi NCR dispatch in 2–3 business days.',
     keywords: '7 stage filtration water, RO membrane ozonation, packaged drinking water process, cold chain water delivery Delhi',
     h1: 'How Your Branded Water Is Filtered, Bottled and Delivered',
     lede: 'Every litre passes through seven filtration stages at our bottling partner\u2019s plant — sand filtration, straining, carbon, sediment, reverse osmosis, activated carbon and ozonation — before it is bottled under your label and dispatched across Delhi NCR.',
@@ -296,6 +324,24 @@ export const ROUTES = {
     h1: 'About AquaVia — Private-Label Bottled Water in Delhi NCR',
     lede: 'AquaVia is a private-label bottled water supplier working with a licensed bottling partner to put client branding on packaged drinking water, delivered in bulk to hotels, offices, events and healthcare across Delhi NCR.',
     breadcrumb: 'About'
+  },
+  /**
+   * The content hub.
+   *
+   * Twenty-three pages existed before this route did, reachable only from four
+   * truncated footer columns — the Guides column showed six of ten, and nothing
+   * on the site named the collection or said what it was for. This is the page
+   * that makes them a library instead of a pile: every page, grouped, described,
+   * one click from the navbar on every route.
+   */
+  resources: {
+    path: '/resources',
+    title: 'Resources — Guides, Specs & Buyer Answers | AquaVia',
+    description: 'Every AquaVia guide, specification and buyer answer in one place: costs, minimum orders, label materials, water standards, industry pages and city delivery details across Delhi NCR.',
+    keywords: 'branded water bottle guides, packaged drinking water resources, custom water bottle buyer guide, water bottle specifications India',
+    h1: 'Resources: Guides, Specifications and Buyer Answers',
+    lede: 'Everything AquaVia has written down about ordering branded bottled water — what it costs, what the minimums are, which label stock survives an ice bucket, what the Indian standards require, and how delivery works in each Delhi NCR city. Twenty-three pages, grouped so you can find the one you need.',
+    breadcrumb: 'Resources',
   },
   contact: {
     path: '/contact',
@@ -332,6 +378,7 @@ export const SECTION_ROUTES = {
   journey: '/process',
   about: '/about',
   contact: '/contact',
+  resources: '/resources',
 }
 
 /**
@@ -361,6 +408,11 @@ export const NAV_LINKS = [
   { href: '/products', label: 'Products' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/process', label: 'Process' },
+  // Rendered as a menu rather than a plain link on desktop, and as an expandable
+  // group in the mobile drawer — see Navbar. It is still a real route with a real
+  // page behind it, so the label itself always navigates and nothing depends on
+  // JavaScript to reach the hub.
+  { href: '/resources', label: 'Resources', menu: true },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ]

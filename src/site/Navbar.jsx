@@ -3,9 +3,22 @@ import * as m from 'motion/react-m'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SiteSearch } from '../SiteSearch.jsx'
+import { CONTENT_SEARCH_ENTRIES, RESOURCES_PATH } from '../content/index.js'
+import { ResourceMenuColumns } from './Resources.jsx'
 import { BROCHURE_URL, NAV_LINKS, SEARCH_INDEX, SECTION_ROUTES } from './data'
 import { useCurrentPath, useIsomorphicLayoutEffect } from './hooks'
 import { DownloadIcon } from './ui.jsx'
+
+/**
+ * What site search looks through.
+ *
+ * SEARCH_INDEX covers the home page's sections. CONTENT_SEARCH_ENTRIES covers
+ * the twenty-three pages under src/content, which were unsearchable on their own
+ * site until now — the index could not be built in src/site/data.js because the
+ * content modules import that file, so the two halves are joined here, at the
+ * one component that consumes them.
+ */
+const FULL_SEARCH_INDEX = [...SEARCH_INDEX, ...CONTENT_SEARCH_ENTRIES]
 
 // The droplet silhouette, lifted verbatim from the master logo artwork so the
 // nav mark and the favicon are the same shape. Local coords, centred on (0,0):
@@ -127,21 +140,135 @@ function BrandLockup({ waterRef }) {
 
           <path d={DROPLET} fill="none" stroke="var(--aqua)" strokeWidth="4" strokeOpacity="0.85" />
         </svg>
-
-        {/* The emblem's reflection, sitting below the pill. Three arcs rather
-            than full ellipses, masked to fade at both ends, so it reads as a
-            disturbance on a surface and not as a stack of rings. */}
-        <svg className="brand-ripple" viewBox="0 0 120 30" aria-hidden="true" focusable="false">
-          <ellipse cx="60" cy="9" rx="26" ry="5" fill="none" stroke="var(--aqua)" strokeWidth="1.1" strokeOpacity="0.5" />
-          <ellipse cx="60" cy="14" rx="42" ry="8" fill="none" stroke="var(--aqua)" strokeWidth="1" strokeOpacity="0.3" />
-          <ellipse cx="60" cy="19" rx="57" ry="10" fill="none" stroke="var(--aqua)" strokeWidth="0.9" strokeOpacity="0.16" />
-        </svg>
       </span>
       <span className="brand-text">
         <span className="brand-word">AQUAVIA</span>
         <span className="brand-sub">Premium Packaged Drinking Water</span>
       </span>
     </>
+  )
+}
+
+/**
+ * The Resources menu, on desktop.
+ *
+ * Deliberately built around a real anchor rather than a <button>. The label
+ * itself navigates to /resources, so the hub is reachable with JavaScript off,
+ * by a crawler, and by anyone who clicks rather than hovers — the menu is an
+ * accelerator into the four categories, never the only way in. That is also why
+ * there is no `role="menu"`: this is a group of links, and ARIA menu semantics
+ * would tell a screen reader to expect arrow-key application behaviour that
+ * plain navigation links do not provide.
+ *
+ * It opens on hover and on focus, and closes on Escape, on blur out of the
+ * subtree, and on pointer-down elsewhere. The hover intent is deliberately
+ * asymmetric: opening is immediate, closing waits ~180ms, because the pointer
+ * has to cross a gap between the trigger and the panel and a menu that vanishes
+ * mid-travel is worse than no menu.
+ */
+function ResourcesMenu({ active, onNavigate }) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef(null)
+  const closeTimer = useRef(0)
+
+  const cancelClose = () => {
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = 0 }
+  }
+  const scheduleClose = () => {
+    cancelClose()
+    closeTimer.current = setTimeout(() => setOpen(false), 180)
+  }
+
+  useEffect(() => cancelClose, [])
+
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (e) => { if (e.key === 'Escape') setOpen(false) }
+    const onPointerDown = (e) => { if (!wrapRef.current?.contains(e.target)) setOpen(false) }
+    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('mousedown', onPointerDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('mousedown', onPointerDown)
+    }
+  }, [open])
+
+  return (
+    <div
+      ref={wrapRef}
+      className={`nav-menu${open ? ' nav-menu-open' : ''}`}
+      onMouseEnter={() => { cancelClose(); setOpen(true) }}
+      onMouseLeave={scheduleClose}
+      // Focus moving anywhere outside this subtree closes the panel, which is
+      // what makes tabbing straight past it behave the way tabbing should.
+      onFocus={() => { cancelClose(); setOpen(true) }}
+      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false) }}
+    >
+      <a
+        className="nav-link nav-menu-trigger"
+        href={RESOURCES_PATH}
+        aria-current={active ? 'page' : undefined}
+        aria-expanded={open}
+        aria-controls="nav-resources-panel"
+      >
+        Resources
+        <span className={`nav-caret${open ? ' nav-caret-up' : ''}`} aria-hidden="true" />
+        {active && <span className="nav-link-dot" aria-hidden="true" />}
+      </a>
+
+      {/* Rendered only while open. A permanently-mounted panel hidden with
+          display:none would put twenty-odd links in the tab order of every page
+          on the site — the same reason the mobile drawer is conditional. */}
+      {open && (
+        <div id="nav-resources-panel" className="nav-menu-panel">
+          <div className="nav-menu-grid">
+            <ResourceMenuColumns limit={5} placement="nav_menu" onNavigate={onNavigate} />
+          </div>
+          <a className="nav-menu-all" href={RESOURCES_PATH} onClick={onNavigate}>
+            Browse all resources<span className="res-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * The Resources group inside the mobile drawer.
+ *
+ * A button plus conditional content rather than a native <details>, for one
+ * unobvious reason: the delegated tracker in analytics/delegate.ts listens for
+ * `toggle` on any <details> and would attribute the expand to `faq_opened`,
+ * while the click on the summary would ALSO resolve through the click listener —
+ * one interaction, two events, one of them under the wrong name. React state
+ * costs four lines and reports nothing it should not.
+ *
+ * The panel is unmounted when collapsed, so its links are never in the tab order
+ * of a drawer that is not showing them.
+ */
+function DrawerResources({ onNavigate }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="nav-drawer-group">
+      <button
+        type="button"
+        className="nav-drawer-toggle"
+        aria-expanded={open}
+        aria-controls="drawer-resources"
+        onClick={() => setOpen((v) => !v)}
+      >
+        Browse resources
+        <span className={`nav-caret${open ? ' nav-caret-up' : ''}`} aria-hidden="true" />
+      </button>
+      {open && (
+        <div id="drawer-resources" className="nav-drawer-sub">
+          <ResourceMenuColumns limit={4} placement="nav_drawer" onNavigate={onNavigate} />
+          <a className="nav-menu-all" href={RESOURCES_PATH} onClick={onNavigate}>
+            Browse all resources<span className="res-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -263,6 +390,8 @@ export function Navbar() {
 
     const focusables = () => {
       const inDrawer = drawerRef.current
+        // `button` covers the Resources group's toggle, which has to be in the
+        // trap or Tab would run past it and out of the panel it controls.
         ? Array.from(drawerRef.current.querySelectorAll('a[href], button:not([disabled]), input:not([disabled])'))
         : []
       return burgerRef.current ? [burgerRef.current, ...inDrawer] : inDrawer
@@ -329,8 +458,20 @@ export function Navbar() {
      none of the site's structure and the page could not earn sitelinks. Now
      every one of them is a crawlable edge in the site graph, and middle-click /
      "open in new tab" work the way they should. */
-  const links = NAV_LINKS.map(({ href, label }) => {
-    const active = href === here
+  const links = NAV_LINKS.map(({ href, label, menu }) => {
+    // The path is "active" for the hub if we are ON the hub, and also if we are
+    // on any page the hub collects — a reader inside a guide should be able to
+    // see which part of the site they are in, and the guides have no other
+    // representation in the bar.
+    const active = href === here || (menu && here.startsWith(RESOURCES_PATH))
+
+    // The dropdown is a desktop affordance. In the drawer the same destination
+    // is rendered as an expandable group instead — see the drawer below — so
+    // this branch only fires for the inline bar.
+    if (menu && !compact) {
+      return <ResourcesMenu key={href} active={active} onNavigate={() => close(false)} />
+    }
+
     return (
       <a key={href} className="nav-link" href={href}
         aria-current={active ? 'page' : undefined}
@@ -362,7 +503,7 @@ export function Navbar() {
         <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* Search lives in the bar on desktop and inside the drawer on
               mobile — one instance either way, never both. */}
-          {!compact && <SiteSearch index={SEARCH_INDEX} onNavigate={navigate} />}
+          {!compact && <SiteSearch index={FULL_SEARCH_INDEX} onNavigate={navigate} />}
 
           {/* One CTA. The brochure is the single primary action in the bar, so
               it takes the solid gradient pill and survives on mobile (the label
@@ -421,8 +562,14 @@ export function Navbar() {
           >
             <div className="nav-drawer-inner">
               {links}
+              {/* The library, on a phone. The Resources row above it is a plain
+                  link to the hub — this is the shortcut past it, collapsed by
+                  default so the six routes stay the first thing in the drawer
+                  rather than being pushed off the bottom by twenty-three
+                  guides. */}
+              <DrawerResources onNavigate={() => close(false)} />
               <div style={{ padding: '10px 14px 4px' }}>
-                <SiteSearch index={SEARCH_INDEX} onNavigate={navigate} />
+                <SiteSearch index={FULL_SEARCH_INDEX} onNavigate={navigate} />
               </div>
             </div>
           </m.div>

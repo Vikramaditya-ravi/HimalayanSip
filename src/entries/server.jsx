@@ -6,7 +6,10 @@ import { HomePage } from '../pages/Home.jsx'
 import { PricingPage } from '../pages/Pricing.jsx'
 import { ProcessPage } from '../pages/Process.jsx'
 import { ProductsPage } from '../pages/Products.jsx'
+import { ResourcesPage } from '../pages/Resources.jsx'
+import { graphForResources } from '../site/collection'
 import { ROUTES, SITE_URL } from '../site/data'
+import { graphFor } from '../site/schema'
 import { GLOBAL_CSS } from '../site/styles'
 
 /**
@@ -28,6 +31,7 @@ export const ROUTE_PAGES = {
   products: ProductsPage,
   pricing: PricingPage,
   process: ProcessPage,
+  resources: ResourcesPage,
   about: AboutPage,
   contact: ContactPage,
 }
@@ -38,6 +42,7 @@ export const ROUTE_FILES = {
   products: 'products.html',
   pricing: 'pricing.html',
   process: 'process.html',
+  resources: 'resources.html',
   about: 'about.html',
   contact: 'contact.html',
 }
@@ -56,3 +61,16 @@ export function renderRoute(route) {
 export { CONTENT_PAGES, contentPageBySlug } from '../content/index.js'
 export { contentMeta, renderContentPage } from '../content/render.jsx'
 export { graphFor, graphForContent } from '../site/schema'
+
+/**
+ * The graph for a hand-built route, including the ones that need more than
+ * graphFor() alone can build.
+ *
+ * /resources carries a CollectionPage over the whole content index, and the
+ * builder for it cannot live in schema.js without closing an import cycle — see
+ * src/site/collection.js. The prerenderer asks for a route's graph and should
+ * not have to know which routes are special, so the dispatch is here.
+ */
+export function graphForRoute(route, meta) {
+  return route === 'resources' ? graphForResources(meta) : graphFor(route, meta)
+}

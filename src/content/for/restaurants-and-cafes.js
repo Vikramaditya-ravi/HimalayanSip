@@ -1,5 +1,5 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS } from '../shared'
+import { COMMON_FAQS, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'for/restaurants-and-cafes',
@@ -14,7 +14,7 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia supplies restaurants and cafes across Delhi NCR with bottled water under their own label — 1 litre for table service, 500ml for single covers and delivery orders. Own-brand water replaces a national brand’s margin with yours, and starts at 150 units per size.',
+    'AquaVia supplies restaurants and cafes across Delhi NCR with bottled water under their own label — 1 litre for table service, 500ml for single covers and delivery orders. Own-brand water replaces a national brand’s margin with yours, and starts at 100 units — one unit is a case, so 1,200 bottles at 1 litre.',
 
   keyFacts: [
     { term: 'Table service', detail: '1 litre — shared across a table, best cost per litre' },
@@ -22,7 +22,8 @@ export default {
     { term: 'Delivery and takeaway orders', detail: '500ml, branding travels to the customer’s home' },
     { term: 'Label stock', detail: 'BOPP film — everything here comes out of ice' },
     { term: 'Why operators switch', detail: 'The margin on branded water stays in the restaurant' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
   ],
 
   sections: [
@@ -85,7 +86,7 @@ export default {
     { q: 'Can a restaurant sell water under its own brand in India?', a: 'Restaurants commonly serve own-labelled packaged drinking water. Where a brand owner is selling packaged water commercially rather than serving it, an FSSAI licence in the brand owner’s name is generally expected — confirm your position with a compliance advisor, as it depends on how you are selling it.' },
     { q: 'What size bottle should a restaurant use for table service?', a: '1 litre for shared table service, since one bottle serves a table of four at the best cost per litre. 500ml for single covers, the bar, and anything going out on a delivery order.' },
     { q: 'Is own-brand water cheaper than stocking a national brand?', a: 'The purchase cost is generally lower, because you are not paying for a national brand’s marketing. The larger effect is that the retail price is no longer anchored to a figure every guest already knows.' },
-    { q: 'What is the minimum order for a single restaurant?', a: '150 units of 1 litre or 250 of 500ml. A restaurant of any real volume clears both inside a month.' },
+    { q: 'What is the minimum order for a single restaurant?', a: 'One batch: 100 units of 1 litre or 145 of 500ml. A unit is a case, so those are 1,200 and 3,480 bottles — a busy restaurant is committing to a quarter or so of supply, delivered on a schedule rather than in one drop.' },
     { q: 'Which label material should restaurant bottles use?', a: 'BOPP film. Bottles come out of ice onto tables and are handled with wet hands; paper labels will not survive it.' },
     ...COMMON_FAQS,
   ],

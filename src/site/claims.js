@@ -73,8 +73,8 @@ export const CLAIMS = {
   // ── Verified against the corporate pricing brochure. ───────────────────────
   leadTime: {
     status: 'VERIFIED',
-    value: '5–10 business days',
-    source: 'corporate pricing brochure',
+    value: '2–3 business days',
+    source: 'operations, superseding the 5–10 day figure in the corporate pricing brochure',
     label: 'Production and delivery time',
   },
   proofTime: {

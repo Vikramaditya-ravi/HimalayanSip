@@ -1,5 +1,5 @@
 import { serviceNode } from '../../site/schema'
-import { COMMON_FAQS } from '../shared'
+import { COMMON_FAQS, MOQ_LINE, UNIT_NOTE } from '../shared'
 
 export default {
   slug: 'for/corporate-offices',
@@ -14,7 +14,7 @@ export default {
   publishedAt: '2026-07-29',
   updatedAt: '2026-07-29',
   answerBlock:
-    'AquaVia supplies offices across Delhi NCR with bottled water carrying the company’s own branding — 500ml for meeting rooms and reception, 1 litre for pantries and desks. Minimum orders start at 150 units, and multi-site deliveries across Gurugram, Noida and Delhi are handled on a single schedule.',
+    'AquaVia supplies offices across Delhi NCR with bottled water carrying the company’s own branding — 500ml for meeting rooms and reception, 1 litre for pantries and desks. Minimum orders start at 100 units, a unit being a case of 12 litre bottles, and multi-site deliveries across Gurugram, Noida and Delhi are handled on a single schedule.',
 
   keyFacts: [
     { term: 'Meeting rooms and reception', detail: '500ml — one serving, presentable on a table' },
@@ -22,7 +22,8 @@ export default {
     { term: 'Town halls and offsites', detail: '500ml, ordered against the headcount plus 20%' },
     { term: 'Multi-site', detail: 'Split deliveries across NCR offices on one order' },
     { term: 'Label stock', detail: 'Matte paper for boardrooms, BOPP if bottles are chilled' },
-    { term: 'Minimum order', detail: '150 units (1 litre) / 250 (500ml) / 500 (250ml)' },
+    { term: 'Minimum order', detail: MOQ_LINE },
+    { term: 'What a unit is', detail: UNIT_NOTE },
   ],
 
   sections: [
@@ -58,7 +59,7 @@ export default {
       body: [
         'The number most offices get wrong is meeting-room consumption, because it is driven by meetings rather than by headcount.',
         'A reasonable starting model: for pantry supply, budget one 1 litre bottle per person per two working days. For meeting rooms, count the seats in each room, multiply by the number of meetings a day you actually hold in it, and take 60% — not every bottle put out is taken.',
-        'A 60-person office with four meeting rooms typically lands around 600–800 bottles a month across both sizes. That is comfortably above every minimum order quantity, and comfortably into a weekly dispatch schedule, which is where the rate improves.',
+        'A 60-person office with four meeting rooms typically lands around 600–800 bottles a month across both sizes. The 1 litre minimum is 100 units, and a unit is a case of 12 — 1,200 bottles — so that office is buying roughly a quarter’s supply at a time. Ordering quarterly against a weekly dispatch schedule is the normal shape here: one artwork approval, one commitment, stock arriving in the volumes the pantry can actually store.',
       ],
     },
     {
@@ -84,7 +85,7 @@ export default {
     { q: 'How many water bottles does an office need per month?', a: 'A useful starting model is one 1 litre bottle per person per two working days for pantry supply, plus meeting-room consumption based on seats × meetings × 60%. A 60-person office with four meeting rooms typically uses 600–800 bottles a month.' },
     { q: 'Can you deliver to several of our offices on one order?', a: 'Yes. Give us the split by address at order time along with any access constraints, and the order dispatches to each site. Consolidating sites also improves your rate tier.' },
     { q: 'Is branded water cheaper than a water cooler contract?', a: 'Not always on cost per litre alone, and we would rather say so. It is competitive on 1 litre bottles, and it buys presentation and portability that a cooler does not — which is why most offices use both rather than replacing one with the other.' },
-    { q: 'What is the minimum order for an office?', a: '150 units of 1 litre, 250 of 500ml, or 500 of 250ml. Any office of more than about twenty people clears these in a single month.' },
+    { q: 'What is the minimum order for an office?', a: 'One batch: 100 units of 1 litre, 145 of 500ml or 180 of 250ml. A unit is a case, so the litre minimum is 1,200 bottles — about a quarter’s supply for a 60-person office, which is why most offices order quarterly and take delivery on a schedule rather than all at once.' },
     { q: 'Which label finish suits a corporate office?', a: 'Matte paper, if bottles are handled at room temperature — it looks the most considered on a boardroom table. Use BOPP film if you store and serve them chilled.' },
     ...COMMON_FAQS,
   ],
